@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentLoginBinding
+import com.elliottsoftware.calftracker.presentation.components.login.LoginView
 
 
 /**
@@ -52,16 +53,7 @@ class LoginFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
 
-                Column(modifier = Modifier.fillMaxSize(),horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("Calf Tracker", fontSize = 40.sp
-                        ,fontWeight = FontWeight.Bold,textAlign = TextAlign.Center,
-                        fontFamily = FontFamily.SansSerif,modifier = Modifier.padding(top = 16.dp))
-                    Text("Powered by Elliott Software", fontSize = 18.sp
-                        ,fontWeight = FontWeight.Light,textAlign = TextAlign.Center,
-                        fontFamily = FontFamily.SansSerif)
-                    SimpleFilledTextFieldSample()
-
-                }
+                LoginView()
 
             }
 
