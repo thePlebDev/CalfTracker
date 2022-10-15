@@ -19,14 +19,16 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.elliottsoftware.calftracker.presentation.viewModels.LoginViewModel
 
 @Composable
-fun LoginView() {
+fun LoginView(viewModel: LoginViewModel = viewModel()) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         BannerCard("Calf Tracker", "powered by Elliott Software")
-        EmailInput()
+        EmailInput(viewModel)
 //        PasswordInput(viewModel,state)
-        SubmitButton()
+        SubmitButton(viewModel)
 
 
     }
@@ -48,14 +50,13 @@ fun BannerCard(banner: String,bannerDescription:String) {
 }
 
 @Composable
-fun EmailInput(){
-    var text by remember { mutableStateOf("") }
-
+fun EmailInput(loginViewModel: LoginViewModel){
+    val state = loginViewModel.state.value
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-        OutlinedTextField(value = text,
-            onValueChange = {text=it},
+        OutlinedTextField(value = state.email,
+            onValueChange = {loginViewModel.updateEmail(it)},
             singleLine = true,
             placeholder = {
                 Text(text = "Email",fontSize = 26.sp)
@@ -69,18 +70,18 @@ fun EmailInput(){
 
 
             )
-//        if(state.emailError != null){
-//            Text(text = state.emailError,color = MaterialTheme.colors.error, modifier = Modifier.align(
-//                Alignment.End))
-//        }
+        if(state.emailError != null){
+            Text(text = state.emailError,color = MaterialTheme.colors.error, modifier = Modifier.align(
+                Alignment.End))
+        }
 
     }
 
 }
 
 @Composable
-fun SubmitButton(){
-    Button(onClick = { },
+fun SubmitButton(loginViewModel: LoginViewModel){
+    Button(onClick = {loginViewModel.submitButton() },
         modifier = Modifier
             .height(80.dp)
             .width(280.dp)
