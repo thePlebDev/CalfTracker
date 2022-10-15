@@ -124,7 +124,7 @@ fun PasswordInput(viewModel: LoginViewModel){
 
 @Composable
 fun SubmitButton(loginViewModel: LoginViewModel,onNavigate: (Int) -> Unit){
-    Button(onClick = {onNavigate(R.id.action_loginFragment_to_mainFragment2) },
+    Button(onClick = {loginViewModel.submitButton()},
         modifier = Modifier
             .height(80.dp)
             .width(280.dp)
