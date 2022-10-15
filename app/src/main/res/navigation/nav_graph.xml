@@ -18,6 +18,9 @@
             app:destination="@id/mainFragment2"
             app:popUpTo="@+id/loginFragment"
             app:popUpToInclusive="true"/>
+        <action
+            android:id="@+id/action_loginFragment_to_forgotPasswordFragment"
+            app:destination="@id/forgotPasswordFragment" />
     </fragment>
     <fragment
         android:id="@+id/mainFragment2"
@@ -29,4 +32,9 @@
         android:name="com.elliottsoftware.calftracker.presentation.fragments.RegisterFragment"
         android:label="fragment_register"
         tools:layout="@layout/fragment_register" />
+    <fragment
+        android:id="@+id/forgotPasswordFragment"
+        android:name="com.elliottsoftware.calftracker.presentation.fragments.ForgotPasswordFragment"
+        android:label="fragment_forgot_password"
+        tools:layout="@layout/fragment_forgot_password" />
 </navigation>

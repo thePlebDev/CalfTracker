@@ -69,17 +69,6 @@ class LoginFragment : Fragment() {
         _binding = null
     }
 
-    @Composable
-    fun SimpleFilledTextFieldSample() {
-        var text by remember { mutableStateOf("Hello") }
-
-        TextField(
-            value = text,
-            onValueChange = { text = it },
-            label = { Text("Label",fontSize = 24.sp) },
-            modifier = Modifier.padding(top = 32.dp)
-        )
-    }
 
 
 }

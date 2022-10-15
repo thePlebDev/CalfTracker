@@ -1,10 +1,8 @@
 package com.elliottsoftware.calftracker.presentation.components.login
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import com.elliottsoftware.calftracker.R.drawable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import com.elliottsoftware.calftracker.R
@@ -28,10 +26,12 @@ import com.elliottsoftware.calftracker.presentation.viewModels.LoginViewModel
 @Composable
 fun LoginView(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        BannerCard("Calf Tracker", "powered by Elliott Software")
+        BannerCard("Calf Tracker", "Powered by Elliott Software")
         EmailInput(viewModel)
         PasswordInput(viewModel)
         SubmitButton(viewModel,onNavigate)
+        SignUpForgotPassword(onNavigate)
+       // LinearLoadingBar()
 
 
 
@@ -132,4 +132,31 @@ fun SubmitButton(loginViewModel: LoginViewModel,onNavigate: (Int) -> Unit){
 
         Text(text = "Login",fontSize = 26.sp)
     }
+}
+@Composable
+fun SignUpForgotPassword(onNavigate: (Int) -> Unit){
+    Row(verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        modifier = Modifier.padding(start = 0.dp,25.dp,0.dp,0.dp).fillMaxWidth()) {
+        Text("Forgot Password?",
+            fontSize = 16.sp,
+            modifier = Modifier.clickable(enabled = true) {
+                onNavigate(R.id.action_loginFragment_to_forgotPasswordFragment)
+            }
+        )
+        Text("Register",
+            fontSize = 16.sp,
+            modifier = Modifier
+                .clickable(enabled = true) {
+                    onNavigate(R.id.action_loginFragment_to_registerFragment2)
+                })
+
+    }
+}
+@Composable
+fun LinearLoadingBar(){
+    LinearProgressIndicator(modifier = Modifier
+        .width(276.dp)
+        .padding(start = 0.dp, 16.dp, 0.dp, 0.dp))
+
 }
