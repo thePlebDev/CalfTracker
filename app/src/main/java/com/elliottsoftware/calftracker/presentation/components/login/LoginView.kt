@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
-import androidx.compose.material.R
+import com.elliottsoftware.calftracker.R
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,12 +26,13 @@ import com.elliottsoftware.calftracker.presentation.viewModels.LoginViewModel
 
 
 @Composable
-fun LoginView(viewModel: LoginViewModel = viewModel()) {
+fun LoginView(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         BannerCard("Calf Tracker", "powered by Elliott Software")
         EmailInput(viewModel)
         PasswordInput(viewModel)
-        SubmitButton(viewModel)
+        SubmitButton(viewModel,onNavigate)
+
 
 
     }
@@ -122,8 +123,8 @@ fun PasswordInput(viewModel: LoginViewModel){
 }
 
 @Composable
-fun SubmitButton(loginViewModel: LoginViewModel){
-    Button(onClick = {loginViewModel.submitButton() },
+fun SubmitButton(loginViewModel: LoginViewModel,onNavigate: (Int) -> Unit){
+    Button(onClick = {onNavigate(R.id.action_loginFragment_to_mainFragment2) },
         modifier = Modifier
             .height(80.dp)
             .width(280.dp)
