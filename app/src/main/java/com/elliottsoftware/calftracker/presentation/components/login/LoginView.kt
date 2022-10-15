@@ -1,34 +1,38 @@
 package com.elliottsoftware.calftracker.presentation.components.login
 
+import com.elliottsoftware.calftracker.R.drawable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import com.elliottsoftware.calftracker.R
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.LoginViewModel
 
+
 @Composable
-fun LoginView(viewModel: LoginViewModel = viewModel()) {
+fun LoginView(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         BannerCard("Calf Tracker", "powered by Elliott Software")
         EmailInput(viewModel)
-//        PasswordInput(viewModel,state)
-        SubmitButton(viewModel)
+        PasswordInput(viewModel)
+        SubmitButton(viewModel,onNavigate)
+
 
 
     }
@@ -78,10 +82,49 @@ fun EmailInput(loginViewModel: LoginViewModel){
     }
 
 }
+@Composable
+fun PasswordInput(viewModel: LoginViewModel){
+    val state = viewModel.state.value
+
+    val icon = if(state.passwordIconChecked)
+        painterResource(id = drawable.design_ic_visibility)
+    else
+        painterResource(id = drawable.design_ic_visibility_off)
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        OutlinedTextField(value = state.password,
+            onValueChange = {viewModel.updatePassword(it)},
+            placeholder = { Text(text = "Password", fontSize = 26.sp) },
+            modifier = Modifier.padding(start = 0.dp, 10.dp, 0.dp, 0.dp),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password
+            ),
+            isError = state.passwordError != null,
+            trailingIcon = {
+                IconButton(onClick = {
+                    viewModel.passwordIconChecked(!state.passwordIconChecked)
+                }) {
+                    Icon(painter = icon, contentDescription = "Visibility Icon")
+                }
+            },
+            visualTransformation = if (state.passwordIconChecked) VisualTransformation.None
+            else PasswordVisualTransformation(),
+            textStyle = TextStyle(fontSize = 26.sp)
+        )
+        if (state.passwordError != null) {
+            Text(
+                text = state.passwordError,
+                color = MaterialTheme.colors.error,
+                modifier = Modifier.align(Alignment.End)
+            )
+        }
+    }
+
+}
 
 @Composable
-fun SubmitButton(loginViewModel: LoginViewModel){
-    Button(onClick = {loginViewModel.submitButton() },
+fun SubmitButton(loginViewModel: LoginViewModel,onNavigate: (Int) -> Unit){
+    Button(onClick = {onNavigate(R.id.action_loginFragment_to_mainFragment2) },
         modifier = Modifier
             .height(80.dp)
             .width(280.dp)

@@ -14,34 +14,7 @@
 
 
 
-    <EditText
-        android:id="@+id/email"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:ems="10"
-        android:hint="Email Address"
-        android:inputType="textEmailAddress"
-        android:textSize="24sp"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/compose_view" />
 
-
-    <Button
-        android:id="@+id/loginButton"
-        android:layout_width="380dp"
-        android:layout_height="70dp"
-        android:layout_marginTop="24dp"
-        android:backgroundTint="#0ED689"
-        android:text="Login"
-        android:textColor="#ffffff"
-        android:textSize="26sp"
-        android:textStyle="bold"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/compose_view"/>
     <TextView
         android:id="@+id/forgotPassword"
         android:layout_width="wrap_content"
@@ -50,7 +23,7 @@
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/loginButton"
+        app:layout_constraintTop_toBottomOf="@+id/compose_view"
         android:layout_marginTop="25dp"
         android:layout_marginLeft="50dp"/>
 
