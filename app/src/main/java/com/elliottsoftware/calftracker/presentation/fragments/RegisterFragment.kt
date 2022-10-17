@@ -5,8 +5,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.elliottsoftware.calftracker.R
-
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import com.elliottsoftware.calftracker.databinding.FragmentRegisterBinding
+import com.elliottsoftware.calftracker.presentation.components.register.RegisterView
 
 
 /**
@@ -15,6 +16,8 @@ import com.elliottsoftware.calftracker.R
  * create an instance of this fragment.
  */
 class RegisterFragment : Fragment() {
+    private var _binding: FragmentRegisterBinding?=null
+    private val binding get() = _binding!!
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,8 +30,20 @@ class RegisterFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_register, container, false)
+        _binding = FragmentRegisterBinding.inflate(inflater,container,false)
+        val view = binding.root
+        binding.composeView.apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                RegisterView()
+            }
+        }
+        return view
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 
 }
