@@ -1,5 +1,6 @@
 package com.elliottsoftware.calftracker.presentation.components.register
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,6 +22,8 @@ import androidx.compose.ui.unit.sp
 import com.elliottsoftware.calftracker.presentation.components.login.BannerCard
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
+import com.elliottsoftware.calftracker.domain.models.Response
+import com.elliottsoftware.calftracker.presentation.components.login.LinearLoadingBar
 import com.elliottsoftware.calftracker.presentation.viewModels.LoginViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.RegisterViewModel
 
@@ -144,4 +147,26 @@ fun SubmitButton(viewModel: RegisterViewModel){
 
         Text(text = "Register",fontSize = 26.sp)
     }
+    when(val response = viewModel.signInWithFirebaseResponse){
+        is Response.Loading -> LinearLoadingBar()
+        is Response.Success -> {
+            if(response.data){
+                //THIS IS WHERE WE WOULD DO THE NAVIGATION
+                Success()
+            }
+        }
+        is Response.Failure -> {
+            //should probably show a snackbar
+            Fail()
+            Log.d("Login Error",response.e.message.toString())
+        }
+    }
+}
+@Composable
+fun Fail() {
+    Text("FAIL")
+}
+@Composable
+fun Success() {
+    Text("SUCCESS")
 }
