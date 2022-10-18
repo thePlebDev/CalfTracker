@@ -1,35 +1,41 @@
 package com.elliottsoftware.calftracker.presentation.components.register
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elliottsoftware.calftracker.presentation.components.login.BannerCard
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.elliottsoftware.calftracker.R
+import com.elliottsoftware.calftracker.domain.models.Response
+import com.elliottsoftware.calftracker.presentation.components.login.LinearLoadingBar
 import com.elliottsoftware.calftracker.presentation.viewModels.LoginViewModel
+import com.elliottsoftware.calftracker.presentation.viewModels.RegisterViewModel
 
 
 @Composable
-fun RegisterView(){
+fun RegisterView(viewModel: RegisterViewModel = viewModel()){
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         BannerCard("Calf Tracker", "Powered by Elliott Software")
-        UsernameInput()
-        EmailInput()
-        PasswordInput()
-        SubmitButton()
+        UsernameInput(viewModel)
+        EmailInput(viewModel)
+        PasswordInput(viewModel)
+        SubmitButton(viewModel)
         //LinearLoadingBar()
 
 
@@ -38,15 +44,15 @@ fun RegisterView(){
 }
 
 @Composable
-fun UsernameInput(){
+fun UsernameInput(viewModel: RegisterViewModel){
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        val state = viewModel.state.value
 
-
-        OutlinedTextField(value = "Username",
-            onValueChange = { },
+        OutlinedTextField(value = state.username,
+            onValueChange = { viewModel.updateUsername(it)},
             singleLine = true,
             placeholder = {
-                Text(text = "Email",fontSize = 26.sp)
+                Text(text = "Username",fontSize = 26.sp)
             },
             modifier = Modifier.padding(start = 0.dp,40.dp,0.dp,0.dp)
             ,
@@ -57,20 +63,20 @@ fun UsernameInput(){
 
 
         )
-//        if(state.emailError != null){
-//            Text(text = state.emailError,color = MaterialTheme.colors.error, modifier = Modifier.align(
-//                Alignment.End))
-//        }
+        if(state.usernameError != null){
+            Text(text = state.usernameError,color = MaterialTheme.colors.error, modifier = Modifier.align(
+                Alignment.End))
+        }
 
     }
 }
 @Composable
-fun EmailInput(){
+fun EmailInput(viewModel: RegisterViewModel){
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        val state = viewModel.state.value
 
-
-        OutlinedTextField(value = "Email",
-            onValueChange = { },
+        OutlinedTextField(value = state.email,
+            onValueChange = { viewModel.updateEmail(it)},
             singleLine = true,
             placeholder = {
                 Text(text = "Email",fontSize = 26.sp)
@@ -82,48 +88,58 @@ fun EmailInput(){
                 keyboardType = KeyboardType.Email
             )
 
-
         )
-//        if(state.emailError != null){
-//            Text(text = state.emailError,color = MaterialTheme.colors.error, modifier = Modifier.align(
-//                Alignment.End))
-//        }
+        if(state.emailError != null){
+            Text(text = state.emailError,color = MaterialTheme.colors.error, modifier = Modifier.align(
+                Alignment.End))
+        }
 
     }
 }
 
 @Composable
-fun PasswordInput(){
+fun PasswordInput(viewModel: RegisterViewModel){
+    val state = viewModel.state.value
+
+    val icon = if(state.passwordIconChecked)
+        painterResource(id = R.drawable.design_ic_visibility)
+    else
+        painterResource(id = R.drawable.design_ic_visibility_off)
+
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
-
-        OutlinedTextField(value = "Password",
-            onValueChange = { },
-            singleLine = true,
-            placeholder = {
-                Text(text = "Email",fontSize = 26.sp)
-            },
-            modifier = Modifier.padding(start = 0.dp,10.dp,0.dp,0.dp)
-            ,
-            textStyle = TextStyle(fontSize = 26.sp),
-
+        OutlinedTextField(value = state.password,
+            onValueChange = {viewModel.updatePassword(it)},
+            placeholder = { Text(text = "Password", fontSize = 26.sp) },
+            modifier = Modifier.padding(start = 0.dp, 10.dp, 0.dp, 0.dp),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password
-            )
-
-
+            ),
+            isError = state.passwordError != null,
+            trailingIcon = {
+                IconButton(onClick = {
+                    viewModel.passwordIconChecked(!state.passwordIconChecked)
+                }) {
+                    Icon(painter = icon, contentDescription = "Visibility Icon")
+                }
+            },
+            visualTransformation = if (state.passwordIconChecked) VisualTransformation.None
+            else PasswordVisualTransformation(),
+            textStyle = TextStyle(fontSize = 26.sp)
         )
-//        if(state.emailError != null){
-//            Text(text = state.emailError,color = MaterialTheme.colors.error, modifier = Modifier.align(
-//                Alignment.End))
-//        }
-
+        if (state.passwordError != null) {
+            Text(
+                text = state.passwordError,
+                color = MaterialTheme.colors.error,
+                modifier = Modifier.align(Alignment.End)
+            )
+        }
     }
+
 }
 
 @Composable
-fun SubmitButton(){
-    Button(onClick = {},
+fun SubmitButton(viewModel: RegisterViewModel){
+    Button(onClick = {viewModel.submitButton()},
         modifier = Modifier
             .height(80.dp)
             .width(280.dp)
@@ -131,4 +147,26 @@ fun SubmitButton(){
 
         Text(text = "Register",fontSize = 26.sp)
     }
+    when(val response = viewModel.signInWithFirebaseResponse){
+        is Response.Loading -> LinearLoadingBar()
+        is Response.Success -> {
+            if(response.data){
+                //THIS IS WHERE WE WOULD DO THE NAVIGATION
+                Success()
+            }
+        }
+        is Response.Failure -> {
+            //should probably show a snackbar
+            Fail()
+            Log.d("Login Error",response.e.message.toString())
+        }
+    }
+}
+@Composable
+fun Fail() {
+    Text("FAIL")
+}
+@Composable
+fun Success() {
+    Text("SUCCESS")
 }
