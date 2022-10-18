@@ -160,6 +160,7 @@ fun SubmitButton(viewModel: RegisterViewModel){
             Fail()
             Log.d("Login Error",response.e.message.toString())
         }
+       // else -> {}
     }
 }
 @Composable
