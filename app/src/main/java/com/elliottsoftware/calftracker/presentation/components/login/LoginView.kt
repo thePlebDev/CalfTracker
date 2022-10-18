@@ -33,8 +33,6 @@ fun LoginView(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit)
         SignUpForgotPassword(onNavigate)
        // LinearLoadingBar()
 
-
-
     }
 }
 
