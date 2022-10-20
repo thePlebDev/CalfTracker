@@ -26,10 +26,11 @@ class LoginViewModel(
     private val validatePassword: ValidatePasswordUseCase = ValidatePasswordUseCase(),
     private val checkUserLoggedIn: CheckUserLoggedInUseCase = CheckUserLoggedInUseCase()
 ):ViewModel() {
-     var state:MutableState<LoginUIState>
+     var state:MutableState<LoginUIState> = mutableStateOf(LoginUIState())
         private set
+
     init {
-        this.state = mutableStateOf(LoginUIState())
+        
         checkLogInStatus()
     }
 
