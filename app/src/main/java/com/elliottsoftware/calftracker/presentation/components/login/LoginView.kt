@@ -25,15 +25,20 @@ import com.elliottsoftware.calftracker.presentation.viewModels.LoginViewModel
 
 @Composable
 fun LoginView(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        BannerCard("Calf Tracker", "Powered by Elliott Software")
-        EmailInput(viewModel)
-        PasswordInput(viewModel)
-        SubmitButton(viewModel,onNavigate)
-        SignUpForgotPassword(onNavigate)
-       // LinearLoadingBar()
+    if(viewModel.state.value.isUserLoggedIn){
+        onNavigate(R.id.action_loginFragment_to_mainFragment2)
+    }else{
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            BannerCard("Calf Tracker", "Powered by Elliott Software")
+            EmailInput(viewModel)
+            PasswordInput(viewModel)
+            SubmitButton(viewModel,onNavigate)
+            SignUpForgotPassword(onNavigate)
+            // LinearLoadingBar()
 
+        }
     }
+
 }
 
 @Composable

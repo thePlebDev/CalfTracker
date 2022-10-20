@@ -25,4 +25,10 @@ class AuthRepositoryImpl(
             emit(Response.Failure(e))
         }
     }
+
+    override  fun isUserSignedIn(): Boolean {
+        val auth = auth.currentUser
+        return auth != null
+    }
+
 }
