@@ -30,7 +30,7 @@ class LoginViewModel(
         private set
 
     init {
-        
+
         checkLogInStatus()
     }
 
