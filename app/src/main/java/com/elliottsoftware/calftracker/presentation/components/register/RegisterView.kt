@@ -147,7 +147,7 @@ fun SubmitButton(viewModel: RegisterViewModel){
 
         Text(text = "Register",fontSize = 26.sp)
     }
-    when(val response = viewModel.signInWithFirebaseResponse){
+    when(val response = viewModel.state.value.signInWithFirebaseResponse){
         is Response.Loading -> LinearLoadingBar()
         is Response.Success -> {
             if(response.data){

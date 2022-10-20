@@ -20,7 +20,8 @@ data class RegisterUIState(
     val password:String = "",
     val passwordError: String? = null,
     val passwordIconChecked:Boolean = false,
-    val showProgressBar:Boolean = false
+    val showProgressBar:Boolean = false,
+    val signInWithFirebaseResponse:Response<Boolean> =Response.Success(false)
 )
 
 class RegisterViewModel(
@@ -31,7 +32,7 @@ class RegisterViewModel(
 ):ViewModel() {
 
     var state = mutableStateOf(RegisterUIState())
-    var signInWithFirebaseResponse by mutableStateOf<Response<Boolean>>(Response.Success(false))
+    //var signInWithFirebaseResponse by mutableStateOf<Response<Boolean>>(Response.Success(false))
 
 
 
@@ -51,10 +52,11 @@ class RegisterViewModel(
 
     }
 
-    fun signUpUser(email:String,password:String) =viewModelScope.launch{
+    private fun signUpUser(email:String, password:String) =viewModelScope.launch{
          registerUserUseCase(email, password).collect{response ->
-             signInWithFirebaseResponse = response
+            // signInWithFirebaseResponse = response
 
+             state.value = state.value.copy(signInWithFirebaseResponse = response)
          }
 
     }
