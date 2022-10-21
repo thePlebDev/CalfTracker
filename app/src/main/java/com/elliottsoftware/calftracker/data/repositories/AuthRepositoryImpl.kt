@@ -31,4 +31,16 @@ class AuthRepositoryImpl(
         return auth != null
     }
 
+    override fun signUserOut(): Boolean {
+        try{
+            auth.signOut()
+            return true
+
+        }catch (e:Exception){
+            Log.d("AuthRepositoryImpl:isUserSignedIn()",e.message.toString())
+            return false
+        }
+
+    }
+
 }

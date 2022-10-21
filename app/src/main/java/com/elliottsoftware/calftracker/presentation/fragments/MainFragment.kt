@@ -2,25 +2,26 @@ package com.elliottsoftware.calftracker.presentation.fragments
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.*
 //import androidx.compose.material.AppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Terrain
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.Navigation
+import androidx.navigation.findNavController
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentMainBinding
-import com.elliottsoftware.calftracker.presentation.components.main.AppBar
-import com.elliottsoftware.calftracker.presentation.components.main.DrawerBody
-import com.elliottsoftware.calftracker.presentation.components.main.DrawerHeader
+import com.elliottsoftware.calftracker.presentation.components.main.*
 import kotlinx.coroutines.launch
 
 
@@ -34,9 +35,9 @@ class MainFragment : Fragment() {
     private var _binding:FragmentMainBinding? = null
     private val binding get() = _binding!!
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
 
     }
 
@@ -45,30 +46,14 @@ class MainFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         _binding = FragmentMainBinding.inflate(inflater,container,false)
         val view = binding.root
+        (activity as AppCompatActivity?)!!.supportActionBar!!.hide()
         binding.composeView.apply{
             setContent {
-                val scaffoldState = rememberScaffoldState()
-                val scope = rememberCoroutineScope()
-                Scaffold(
+                ScaffoldView(onNavigate = { dest -> findNavController().navigate(dest) })
 
-                    scaffoldState = scaffoldState,
-                    topBar = {
-                        TopAppBar(
-                            title = {
-                                Text(text = "Calf Tracker")
-                            },
-                            backgroundColor = MaterialTheme.colors.primary,
-                            contentColor = MaterialTheme.colors.onPrimary,
-                            navigationIcon = {
-                                IconButton(onClick = {}) {
-                                    Icon(imageVector = Icons.Default.Menu, contentDescription = "Toggle navigation drawer" )
-                                }
-                            }
-                        )
-                    }
-                ) {}
             }
 
         }

@@ -12,4 +12,6 @@ interface AuthRepository {
 
      fun isUserSignedIn():Boolean
 
+     fun signUserOut():Boolean
+
 }

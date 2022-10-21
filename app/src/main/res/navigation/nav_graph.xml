@@ -26,7 +26,13 @@
         android:id="@+id/mainFragment2"
         android:name="com.elliottsoftware.calftracker.presentation.fragments.MainFragment"
         android:label="fragment_main"
-        tools:layout="@layout/fragment_main" />
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/action_mainFragment2_to_loginFragment"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@+id/mainFragment2"
+            app:popUpToInclusive="true"/>
+    </fragment>
     <fragment
         android:id="@+id/registerFragment2"
         android:name="com.elliottsoftware.calftracker.presentation.fragments.RegisterFragment"
