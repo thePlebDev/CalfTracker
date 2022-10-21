@@ -2,15 +2,16 @@ package com.elliottsoftware.calftracker.presentation.fragments
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.material.*
 //import androidx.compose.material.AppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Terrain
 import androidx.compose.runtime.rememberCoroutineScope
@@ -18,9 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.Navigation
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentMainBinding
-import com.elliottsoftware.calftracker.presentation.components.main.AppBar
-import com.elliottsoftware.calftracker.presentation.components.main.DrawerBody
-import com.elliottsoftware.calftracker.presentation.components.main.DrawerHeader
+import com.elliottsoftware.calftracker.presentation.components.main.*
 import kotlinx.coroutines.launch
 
 
@@ -54,20 +53,45 @@ class MainFragment : Fragment() {
                 Scaffold(
 
                     scaffoldState = scaffoldState,
+                    drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
                     topBar = {
                         TopAppBar(
-                            title = {
-                                Text(text = "Calf Tracker")
-                            },
-                            backgroundColor = MaterialTheme.colors.primary,
-                            contentColor = MaterialTheme.colors.onPrimary,
+                            title = { Text("Calf Tracker") },
                             navigationIcon = {
-                                IconButton(onClick = {}) {
-                                    Icon(imageVector = Icons.Default.Menu, contentDescription = "Toggle navigation drawer" )
+                                IconButton(
+                                    onClick = {
+                                        scope.launch { scaffoldState.drawerState.open() }
+                                    }
+                                ) {
+                                    Icon(Icons.Filled.Menu, contentDescription = "Toggle navigation drawer")
                                 }
                             }
                         )
-                    }
+                    },
+                    drawerContent = {
+                        DrawerHeader()
+                        DrawerBody(
+                            items = listOf(
+                                MenuItem(
+                                    id= "logout",
+                                    title="Logout",
+                                    contentDescription = "logout of account",
+                                    icon = Icons.Default.Logout
+                                )
+                            ),
+                            onItemClick = {
+                                when(it.id){
+                                    "logout"->{
+                                        scope.launch {
+                                            scaffoldState.drawerState.close()
+                                            Navigation.findNavController(binding.root).navigate(R.id.action_loginFragment_to_mainFragment2)
+                                        }
+                                    }
+                                }
+                            }
+                        )
+                    },
+
                 ) {}
             }
 
