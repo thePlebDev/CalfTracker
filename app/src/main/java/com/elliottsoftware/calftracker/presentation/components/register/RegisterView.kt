@@ -23,20 +23,40 @@ import com.elliottsoftware.calftracker.presentation.components.login.BannerCard
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
+import com.elliottsoftware.calftracker.domain.models.SecondaryResponse
 import com.elliottsoftware.calftracker.presentation.components.login.LinearLoadingBar
 import com.elliottsoftware.calftracker.presentation.viewModels.LoginViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.RegisterViewModel
 
 
 @Composable
-fun RegisterView(viewModel: RegisterViewModel = viewModel()){
+fun RegisterView(viewModel: RegisterViewModel = viewModel(),onNavigate:(Int) -> Unit){
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         BannerCard("Calf Tracker", "Powered by Elliott Software")
         UsernameInput(viewModel)
         EmailInput(viewModel)
         PasswordInput(viewModel)
         SubmitButton(viewModel)
-        //LinearLoadingBar()
+
+        when(val response = viewModel.state.value.signInWithFirebaseResponse){
+            is SecondaryResponse.Loading -> LinearLoadingBar()
+            is SecondaryResponse.SecondActionSuccess ->{
+                onNavigate(R.id.action_registerFragment2_to_mainFragment2)
+            }
+            is SecondaryResponse.Success -> {
+                if(response.data){
+                    //THIS IS WHERE WE WOULD DO THE NAVIGATION
+                    LinearLoadingBar()
+                    viewModel.createUserDatabase(viewModel.state.value.email,viewModel.state.value.password)
+                }
+            }
+            is SecondaryResponse.Failure -> {
+                //should probably show a snackbar
+                Fail()
+                Log.d("Login Error",response.e.message.toString())
+            }
+            // else -> {}
+        }
 
 
 
@@ -147,21 +167,7 @@ fun SubmitButton(viewModel: RegisterViewModel){
 
         Text(text = "Register",fontSize = 26.sp)
     }
-    when(val response = viewModel.state.value.signInWithFirebaseResponse){
-        is Response.Loading -> LinearLoadingBar()
-        is Response.Success -> {
-            if(response.data){
-                //THIS IS WHERE WE WOULD DO THE NAVIGATION
-                Success()
-            }
-        }
-        is Response.Failure -> {
-            //should probably show a snackbar
-            Fail()
-            Log.d("Login Error",response.e.message.toString())
-        }
-       // else -> {}
-    }
+
 }
 @Composable
 fun Fail() {

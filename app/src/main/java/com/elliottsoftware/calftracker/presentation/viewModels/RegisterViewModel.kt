@@ -6,10 +6,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.elliottsoftware.calftracker.domain.models.Response
-import com.elliottsoftware.calftracker.domain.useCases.RegisterUserUseCase
-import com.elliottsoftware.calftracker.domain.useCases.ValidateEmailUseCase
-import com.elliottsoftware.calftracker.domain.useCases.ValidatePasswordUseCase
-import com.elliottsoftware.calftracker.domain.useCases.ValidateUsernameUseCase
+import com.elliottsoftware.calftracker.domain.models.SecondaryResponse
+import com.elliottsoftware.calftracker.domain.useCases.*
 import kotlinx.coroutines.launch
 
 data class RegisterUIState(
@@ -21,14 +19,16 @@ data class RegisterUIState(
     val passwordError: String? = null,
     val passwordIconChecked:Boolean = false,
     val showProgressBar:Boolean = false,
-    val signInWithFirebaseResponse:Response<Boolean> =Response.Success(false)
+    val signInWithFirebaseResponse:SecondaryResponse<Boolean> =SecondaryResponse.Success(false),
+    val createUserDatabase:Response<Boolean> = Response.Success(false)
 )
 
 class RegisterViewModel(
     val validateEmail: ValidateEmailUseCase = ValidateEmailUseCase(),
     val validateUsername: ValidateUsernameUseCase = ValidateUsernameUseCase(),
     val validatePassword: ValidatePasswordUseCase = ValidatePasswordUseCase(),
-    val registerUserUseCase: RegisterUserUseCase = RegisterUserUseCase()
+    val registerUserUseCase: RegisterUserUseCase = RegisterUserUseCase(),
+    val createUserUseCase: CreateUserUseCase = CreateUserUseCase()
 ):ViewModel() {
 
     var state = mutableStateOf(RegisterUIState())
@@ -52,12 +52,18 @@ class RegisterViewModel(
 
     }
 
-    private fun signUpUser(email:String, password:String) =viewModelScope.launch{
+    private fun signUpUserAuthRepository(email:String, password:String) =viewModelScope.launch{
          registerUserUseCase(email, password).collect{response ->
             // signInWithFirebaseResponse = response
 
              state.value = state.value.copy(signInWithFirebaseResponse = response)
          }
+
+    }
+    fun createUserDatabase(email:String, password:String) = viewModelScope.launch{
+        createUserUseCase(email,password).collect{response ->
+            state.value = state.value.copy(signInWithFirebaseResponse = response)
+        }
 
     }
 
@@ -69,7 +75,7 @@ class RegisterViewModel(
         state.value = state.value.copy(emailError = verifyEmail, usernameError = verifyUsername,
             passwordError = verifyPassword)
         if(verifyUsername == null && verifyEmail == null && verifyPassword == null){
-            signUpUser(state.value.email,state.value.password)
+            signUpUserAuthRepository(state.value.email,state.value.password)
         }
     }
 

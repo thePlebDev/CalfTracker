@@ -37,7 +37,11 @@
         android:id="@+id/registerFragment2"
         android:name="com.elliottsoftware.calftracker.presentation.fragments.RegisterFragment"
         android:label="fragment_register"
-        tools:layout="@layout/fragment_register" />
+        tools:layout="@layout/fragment_register" >
+        <action
+            android:id="@+id/action_registerFragment2_to_mainFragment2"
+            app:destination="@id/mainFragment2" />
+    </fragment>
     <fragment
         android:id="@+id/forgotPasswordFragment"
         android:name="com.elliottsoftware.calftracker.presentation.fragments.ForgotPasswordFragment"
