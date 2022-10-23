@@ -98,7 +98,7 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
 
         scaffoldState = scaffoldState,
         drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
-        floatingActionButton = { FloatingButton() },
+        floatingActionButton = { FloatingButton(onNavigate) },
         topBar = {
             TopAppBar(
                 title = { Text("Calf Tracker") },
@@ -180,9 +180,9 @@ fun MessageList() {
 }
 
 @Composable
-fun FloatingButton(){
+fun FloatingButton(navigate:(Int)-> Unit){
     FloatingActionButton(
-        onClick = { /*TODO*/ },
+        onClick = { navigate(R.id.action_mainFragment2_to_newCalfFragment) },
         backgroundColor = Color.Red,
         content = {
             Icon(
