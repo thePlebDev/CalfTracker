@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.navigation.findNavController
 import com.elliottsoftware.calftracker.databinding.FragmentRegisterBinding
 import com.elliottsoftware.calftracker.presentation.components.register.RegisterView
 
@@ -35,7 +36,7 @@ class RegisterFragment : Fragment() {
         binding.composeView.apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                RegisterView()
+                RegisterView(onNavigate = { dest -> findNavController().navigate(dest) })
             }
         }
         return view
