@@ -5,8 +5,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.findNavController
 import com.elliottsoftware.calftracker.R
-
+import com.elliottsoftware.calftracker.databinding.FragmentNewCalfBinding
+import com.elliottsoftware.calftracker.presentation.components.main.ScaffoldView
+import com.elliottsoftware.calftracker.presentation.components.newCalf.NewCalfView
 
 
 /**
@@ -15,6 +18,8 @@ import com.elliottsoftware.calftracker.R
  * create an instance of this fragment.
  */
 class NewCalfFragment : Fragment() {
+    private var _binding:FragmentNewCalfBinding? = null
+    private val binding get() = _binding!!
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,7 +32,21 @@ class NewCalfFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_new_calf, container, false)
+        _binding = FragmentNewCalfBinding.inflate(inflater,container,false)
+        val view = binding.root
+        binding.composeView.apply{
+            setContent {
+                NewCalfView()
+
+            }
+
+        }
+        return view
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }
