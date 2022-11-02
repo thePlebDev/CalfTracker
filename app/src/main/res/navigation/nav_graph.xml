@@ -61,7 +61,7 @@
         <action
             android:id="@+id/action_newCalfFragment_to_loginFragment"
             app:destination="@id/loginFragment"
-            app:popUpTo="@+id/newCalfFragment"
+            app:popUpTo="@+id/mainFragment2"
             app:popUpToInclusive="true"/>
     </fragment>
 </navigation>
