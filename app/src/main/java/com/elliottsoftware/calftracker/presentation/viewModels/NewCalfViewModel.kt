@@ -39,4 +39,17 @@ class NewCalfViewModel:ViewModel() {
     fun updateBirthWeight(birthWeight: String){
         _state.value = _state.value.copy(birthWeight = birthWeight)
     }
+    fun updateSex(sex:String){
+        _state.value = _state.value.copy(sex = sex)
+    }
+
+    fun submitCalf(){
+        if(_state.value.calfTag.isBlank()){
+            _state.value = _state.value.copy(calfTagError = "Calf tag can not be blank")
+        }else{
+
+        }
+    }
+
+
 }
