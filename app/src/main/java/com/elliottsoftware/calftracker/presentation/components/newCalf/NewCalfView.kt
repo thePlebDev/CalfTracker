@@ -13,16 +13,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.findNavController
+import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.presentation.components.main.*
 import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
 import kotlinx.coroutines.launch
+
 
 @Composable
 fun NewCalfView() {
@@ -40,7 +44,9 @@ fun ScaffoldView(viewModel: NewCalfViewModel = viewModel()){
     Scaffold(
         scaffoldState = scaffoldState,
         drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
-        floatingActionButton = { FloatingButton(navigate = {}) },
+        floatingActionButton = { FloatingButton(navigate = {
+            viewModel.submitCalf()
+        }) },
         topBar = {
             TopAppBar(
                 title = { Text("Calf Tracker") },
@@ -90,7 +96,8 @@ fun ScaffoldView(viewModel: NewCalfViewModel = viewModel()){
             TextInput(
                 viewModel.state.value.calfTag,
                 "Calf tag number",
-                updateValue = { value -> viewModel.updateCalfTag(value) }
+                updateValue = { value -> viewModel.updateCalfTag(value) },
+                errorMessage = viewModel.state.value.calfTagError
             )
             TextInput(
                 viewModel.state.value.cowTagNumber,
@@ -114,13 +121,8 @@ fun ScaffoldView(viewModel: NewCalfViewModel = viewModel()){
                 viewModel.state.value.birthWeight,
                 updateValue = {value -> viewModel.updateBirthWeight(value)}
             )
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start) {
+            Checkboxes(viewModel.state.value.sex, updateSex = {value -> viewModel.updateSex(value)})
 
-                Checkboxes("Bull")
-                Checkboxes("Heifer")
-            }
 
 
         }
@@ -133,30 +135,41 @@ fun TextInput(
     state: String,
     placeHolderText: String,
     updateValue: (String) -> Unit,
+    errorMessage:String? = null
 
     ){
+ val icon = painterResource(id = R.drawable.ic_error_24)
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)) {
+        OutlinedTextField(
+            value = state,
+            isError = errorMessage != null,
+            trailingIcon = {
+                if (errorMessage != null)
+                    Icon(painter = icon, contentDescription = "Error")
+            },
+            onValueChange = { updateValue(it) },
+            singleLine = true,
+            placeholder = {
+                Text(text = placeHolderText, fontSize = 20.sp)
+            },
+
+            modifier = Modifier
+                .fillMaxWidth(),
+            textStyle = TextStyle(fontSize = 20.sp),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text
+            ),
 
 
-    OutlinedTextField(value = state,
-
-        onValueChange = { updateValue(it)},
-        singleLine = true,
-        placeholder = {
-            Text(text = placeHolderText,fontSize = 20.sp)
-        },
-
-        modifier = Modifier
-            .padding(start = 10.dp, 10.dp, 10.dp, 0.dp)
-            .fillMaxWidth()
-
-        ,
-        textStyle = TextStyle(fontSize = 20.sp),
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text
-        ),
-
-
-        )
+            )
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage,
+                color = MaterialTheme.colors.error,
+                modifier = Modifier.align(Alignment.End)
+            )
+        }
+    }
 }
 @Composable
 fun NumberInput(
@@ -190,14 +203,29 @@ fun NumberInput(
 }
 
 @Composable
-fun Checkboxes(sex:String){
-    Column() {
-        RadioButton(selected = true, onClick = { })
+fun Checkboxes(
+    state:String,
+    updateSex: (String) -> Unit
+){
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
+    ) {
+        RadioButton(selected = state=="Bull", onClick = {updateSex("Bull") })
         Text(
-            text = sex,
+            text = "Bull",
+            modifier = Modifier
+                .clickable(onClick = { })
+                .padding(start = 4.dp)
+        )
+
+        RadioButton(selected = state=="Heifer", onClick = { updateSex("Heifer")})
+        Text(
+            text = "Heifer",
             modifier = Modifier
                 .clickable(onClick = { })
                 .padding(start = 4.dp)
         )
     }
+
 }
