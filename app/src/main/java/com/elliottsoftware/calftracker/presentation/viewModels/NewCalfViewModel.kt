@@ -3,7 +3,13 @@ package com.elliottsoftware.calftracker.presentation.viewModels
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.elliottsoftware.calftracker.data.repositories.DatabaseRepositoryImpl
 import com.elliottsoftware.calftracker.domain.models.Response
+import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
+import com.elliottsoftware.calftracker.domain.repositories.DatabaseRepository
+import kotlinx.coroutines.launch
+import java.util.*
 
 data class NewCalfUIState(
     val calfTag:String = "",
@@ -12,11 +18,14 @@ data class NewCalfUIState(
     val cciaNumber:String ="",
     val description:String="",
     val birthWeight:String="",
-    val sex:String="Bull"
+    val sex:String="Bull",
+    val calfSaved:Response<Boolean> = Response.Success(false)
 )
 
 
-class NewCalfViewModel:ViewModel() {
+class NewCalfViewModel(
+    val databaseRepository: DatabaseRepositoryImpl = DatabaseRepositoryImpl()
+):ViewModel() {
 
     private val _state = mutableStateOf(NewCalfUIState())
     val state = _state
@@ -43,10 +52,19 @@ class NewCalfViewModel:ViewModel() {
         _state.value = _state.value.copy(sex = sex)
     }
 
-    fun submitCalf(){
-        if(_state.value.calfTag.isBlank()){
-            _state.value = _state.value.copy(calfTagError = "Calf tag can not be blank")
+    fun submitCalf() = viewModelScope.launch{
+        val state = _state.value
+        if(state.calfTag.isBlank()){
+            _state.value = state.copy(calfTagError = "Calf tag can not be blank")
         }else{
+
+            val calf = FireBaseCalf(state.calfTag,
+                state.cowTagNumber,
+                state.cciaNumber,state.sex,state.description, Date(),state.birthWeight
+            )
+            databaseRepository.createCalf(calf).collect{ response ->
+                _state.value = state.copy(calfSaved = response)
+            }
 
         }
     }
