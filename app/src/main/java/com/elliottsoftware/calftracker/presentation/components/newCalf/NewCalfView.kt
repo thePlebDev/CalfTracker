@@ -23,24 +23,26 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.findNavController
 import com.elliottsoftware.calftracker.R
+import com.elliottsoftware.calftracker.domain.models.Response
+import com.elliottsoftware.calftracker.presentation.components.login.LinearLoadingBar
 import com.elliottsoftware.calftracker.presentation.components.main.*
 import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
 import kotlinx.coroutines.launch
 
 
 @Composable
-fun NewCalfView() {
-    ScaffoldView()
+fun NewCalfView(onNavigate:(Int)->Unit) {
+    ScaffoldView(onNavigate = onNavigate)
 }
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun ScaffoldView(viewModel: NewCalfViewModel = viewModel()){
+fun ScaffoldView(viewModel: NewCalfViewModel = viewModel(),onNavigate:(Int)->Unit){
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
     val state = viewModel.state.value
-//    if(state.loggedUserOut){
-//       // onNavigate(R.id.action_mainFragment2_to_loginFragment)
-//    }
+    if(state.loggedUserOut){
+        onNavigate(R.id.action_newCalfFragment_to_loginFragment)
+    }
     Scaffold(
         scaffoldState = scaffoldState,
         drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
@@ -76,6 +78,8 @@ fun ScaffoldView(viewModel: NewCalfViewModel = viewModel()){
                     when(it.id){
                         "logout"->{
                             scope.launch {
+                                viewModel.signUserOut()
+                                scaffoldState.drawerState.close()
 
 
                             }
@@ -87,11 +91,14 @@ fun ScaffoldView(viewModel: NewCalfViewModel = viewModel()){
 
         ) {
         Column(
-
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp)
-                .verticalScroll(rememberScrollState())) {
+                .verticalScroll(rememberScrollState())
+
+
+        ) {
 
             TextInput(
                 viewModel.state.value.calfTag,
@@ -122,6 +129,18 @@ fun ScaffoldView(viewModel: NewCalfViewModel = viewModel()){
                 updateValue = {value -> viewModel.updateBirthWeight(value)}
             )
             Checkboxes(viewModel.state.value.sex, updateSex = {value -> viewModel.updateSex(value)})
+            when(val response = viewModel.state.value.calfSaved){
+                is Response.Loading -> CircularProgressIndicator()
+                is Response.Success ->{
+                    if(response.data){
+                        //THIS IS WHERE WE DO THE NAVIGATION
+                        onNavigate(R.id.action_newCalfFragment_to_mainFragment2)
+                    }
+                }
+                is Response.Failure ->{
+                    Text("ERROR PLEASE TRY AGAIN")
+                }
+            }
 
 
 
