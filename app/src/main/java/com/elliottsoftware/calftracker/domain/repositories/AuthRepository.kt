@@ -17,4 +17,6 @@ interface AuthRepository {
 
      fun signUserOut():Boolean
 
+//     suspend fun saveCalf()
+
 }
