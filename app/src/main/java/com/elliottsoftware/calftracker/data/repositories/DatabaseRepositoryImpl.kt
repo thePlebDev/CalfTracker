@@ -52,7 +52,7 @@ class DatabaseRepositoryImpl(
         try {
             emit(Response.Loading)
             val docRef = db.collection("users")
-                .document("bob@bobmail.com").collection("calves")
+                .document(auth.currentUser?.email!!).collection("calves")
                 .get().await().map { document ->
                     document.toObject(FireBaseCalf::class.java)
                 }

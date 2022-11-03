@@ -8,6 +8,7 @@ import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
 import com.elliottsoftware.calftracker.domain.useCases.GetCalvesUseCase
 import com.elliottsoftware.calftracker.domain.useCases.LogoutUseCase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 data class MainUIState(
@@ -31,7 +32,7 @@ class MainViewModel(
     }
 
 
-    fun getCalves() = viewModelScope.launch{
+    fun getCalves() = viewModelScope.launch(){
         getCalvesUseCase.invoke().collect{response ->
             state.value = state.value.copy(data = response)
 
