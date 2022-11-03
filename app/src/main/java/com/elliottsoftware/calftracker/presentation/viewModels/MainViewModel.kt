@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
+import com.elliottsoftware.calftracker.domain.useCases.DeleteCalfUseCase
 import com.elliottsoftware.calftracker.domain.useCases.GetCalvesUseCase
 import com.elliottsoftware.calftracker.domain.useCases.LogoutUseCase
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +19,8 @@ data class MainUIState(
 
 class MainViewModel(
    private val logoutUseCase: LogoutUseCase = LogoutUseCase(),
-    private val getCalvesUseCase: GetCalvesUseCase = GetCalvesUseCase()
+    private val getCalvesUseCase: GetCalvesUseCase = GetCalvesUseCase(),
+   private val deleteCalfUseCase: DeleteCalfUseCase = DeleteCalfUseCase()
 
 ):ViewModel() {
     var state: MutableState<MainUIState> = mutableStateOf(MainUIState())
@@ -36,6 +38,11 @@ class MainViewModel(
         getCalvesUseCase.invoke().collect{response ->
             state.value = state.value.copy(data = response)
 
+        }
+
+    }
+    fun deleteCalf(id:String) = viewModelScope.launch{
+        deleteCalfUseCase.invoke(id).collect{
         }
 
     }

@@ -166,14 +166,13 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
                     if(response.data.isEmpty()){
                         Text(text = "NO CALVES")
                     }else{
-                        TestList(response.data)
+                        MessageList(response.data,viewModel)
                     }
 
 
                 }
                 is Response.Failure -> Text("FAIL")
             }
-            //TestList()
 
         }
 
@@ -181,55 +180,25 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class) //means this is likely to change or be removed
+
+@OptIn(ExperimentalMaterialApi::class)
+@RequiresApi(Build.VERSION_CODES.N)
 @Composable
-fun TestList(calfList:List<FireBaseCalf>){
-    val messageList = remember{
-        mutableStateListOf(1,2,3,4,5,6,7,8)
+fun MessageList(calfList:List<FireBaseCalf>,viewModel: MainViewModel) {
+    val dateFormat = SimpleDateFormat("yyyy-mm-dd")
 
-    }
-
-    LazyColumn{
-        Log.d("ID",calfList[0].id!!)
-        items(calfList, key = { it.id!! }){ names ->
+    LazyColumn {
+        items(calfList,key = { it.id!! }) { calf ->
             val dismissState = rememberDismissState(
                 confirmStateChange = {
                     if(it == DismissValue.DismissedToEnd || it == DismissValue.DismissedToStart){
+                        viewModel.deleteCalf(calf.id!!)
 
                     }
                     true
                 }
             )
-            SwipeToDismiss(state = dismissState, background ={},
-            dismissContent = {
-                Card(
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp, vertical = 8.dp)
-                        .fillMaxWidth(),
-                    elevation = 2.dp,
-                    backgroundColor = Color.White,
-                    shape = RoundedCornerShape(corner = CornerSize(16.dp))
-                ){
-                    Text(text = names.toString(),style=typography.h6,
-                        textAlign = TextAlign.Start,maxLines = 1,
-                        overflow = TextOverflow.Ellipsis)
-                }
-            }
-            )
-
-        }
-    }
-}
-
-
-@RequiresApi(Build.VERSION_CODES.N)
-@Composable
-fun MessageList(calfList:List<FireBaseCalf>) {
-    val dateFormat = SimpleDateFormat("yyyy-mm-dd")
-
-    LazyColumn {
-        items(calfList) { calf ->
-
+            SwipeToDismiss(state = dismissState, background ={}){
             Card(
                 modifier = Modifier
                     .padding(horizontal = 8.dp, vertical = 8.dp)
@@ -257,6 +226,7 @@ fun MessageList(calfList:List<FireBaseCalf>) {
 
 
             }
+        }
         }
 
     }

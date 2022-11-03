@@ -9,8 +9,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 
@@ -50,20 +53,45 @@ class DatabaseRepositoryImpl(
 
     }
 
-    override suspend fun getCalves(): Flow<Response<List<FireBaseCalf>>> = flow{
-        try {
-            emit(Response.Loading)
+    override suspend fun getCalves(): Flow<Response<List<FireBaseCalf>>> = callbackFlow{
+
+            trySend(Response.Loading)
             val docRef = db.collection("users")
                 .document(auth.currentUser?.email!!).collection("calves")
-                .get().await().map { document ->
-                   document.toObject(FireBaseCalf::class.java)
+                .addSnapshotListener { snapshot, e ->
+                    if (e != null) {
+                        Log.w("getCalves()", "Listen failed.", e)
+                        trySend(Response.Failure(e))
+                        return@addSnapshotListener
+                    }
 
-
+                    if (snapshot != null) {
+                        Log.d("getCalves()", "Current data: ${snapshot.size()}")
+                       val data = snapshot.map {  document ->
+                            document.toObject(FireBaseCalf::class.java)
+                        }
+                        trySend(Response.Success(data))
+                    } else {
+                        Log.d("getCalves()", "Current data: null")
+                    }
                 }
-
-            emit(Response.Success(docRef))
-        }catch (e:Exception){
-            emit(Response.Failure(e))
+//                .get().await().map { document ->
+//                   document.toObject(FireBaseCalf::class.java)
+//                }
+        awaitClose{
+            docRef.remove()
         }
+
+
+    }
+
+    override suspend fun deleteCalf(id: String)= callbackFlow {
+       db.collection("users").document(auth.currentUser?.email!!)
+            .collection("calves").document(id).delete()
+            .addOnSuccessListener { trySend(Response.Success(true))}
+            .addOnFailureListener {  trySend(Response.Failure(Exception("Delete Calf Error")))}
+
+        awaitClose()
+
     }
 }
