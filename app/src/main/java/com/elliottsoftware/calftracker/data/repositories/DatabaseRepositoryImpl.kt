@@ -38,8 +38,10 @@ class DatabaseRepositoryImpl(
     override suspend fun createCalf(calf: FireBaseCalf)=flow {
         try{
             emit(Response.Loading)
-            db.collection("users").document(auth.currentUser?.email!!)
-                .collection("calves").document().set(calf).await()
+           val document = db.collection("users").document(auth.currentUser?.email!!)
+                .collection("calves").document()
+            calf.id = document.id
+            document.set(calf)
             emit(Response.Success(true))
         }catch (e:Exception){
             Log.d("DatabaseRepository",e.message.toString())
@@ -54,9 +56,11 @@ class DatabaseRepositoryImpl(
             val docRef = db.collection("users")
                 .document(auth.currentUser?.email!!).collection("calves")
                 .get().await().map { document ->
-                    document.toObject(FireBaseCalf::class.java)
+                   document.toObject(FireBaseCalf::class.java)
+
+
                 }
-            Log.d("DatabaseRepositoryImpl.getCalves",docRef.size.toString())
+
             emit(Response.Success(docRef))
         }catch (e:Exception){
             emit(Response.Failure(e))
