@@ -36,7 +36,7 @@ class NewCalfFragment : Fragment() {
         val view = binding.root
         binding.composeView.apply{
             setContent {
-                NewCalfView()
+                NewCalfView(onNavigate = { dest -> findNavController().navigate(dest) })
 
             }
 

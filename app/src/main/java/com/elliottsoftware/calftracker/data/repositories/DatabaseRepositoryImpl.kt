@@ -47,4 +47,19 @@ class DatabaseRepositoryImpl(
         }
 
     }
+
+    override suspend fun getCalves(): Flow<Response<List<FireBaseCalf>>> = flow{
+        try {
+            emit(Response.Loading)
+            val docRef = db.collection("users")
+                .document(auth.currentUser?.email!!).collection("calves")
+                .get().await().map { document ->
+                    document.toObject(FireBaseCalf::class.java)
+                }
+            Log.d("DatabaseRepositoryImpl.getCalves",docRef.size.toString())
+            emit(Response.Success(docRef))
+        }catch (e:Exception){
+            emit(Response.Failure(e))
+        }
+    }
 }

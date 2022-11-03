@@ -8,6 +8,7 @@ import com.elliottsoftware.calftracker.data.repositories.DatabaseRepositoryImpl
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
 import com.elliottsoftware.calftracker.domain.repositories.DatabaseRepository
+import com.elliottsoftware.calftracker.domain.useCases.LogoutUseCase
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -19,12 +20,14 @@ data class NewCalfUIState(
     val description:String="",
     val birthWeight:String="",
     val sex:String="Bull",
-    val calfSaved:Response<Boolean> = Response.Success(false)
+    val calfSaved:Response<Boolean> = Response.Success(false),
+    val loggedUserOut:Boolean = false
 )
 
 
 class NewCalfViewModel(
-    val databaseRepository: DatabaseRepositoryImpl = DatabaseRepositoryImpl()
+    val databaseRepository: DatabaseRepositoryImpl = DatabaseRepositoryImpl(),
+    private val logoutUseCase: LogoutUseCase = LogoutUseCase()
 ):ViewModel() {
 
     private val _state = mutableStateOf(NewCalfUIState())
@@ -51,7 +54,12 @@ class NewCalfViewModel(
     fun updateSex(sex:String){
         _state.value = _state.value.copy(sex = sex)
     }
+    fun signUserOut(){
+        _state.value = _state.value.copy(loggedUserOut = logoutUseCase.invoke())
+    }
 
+
+    //todo: THIS MIGHT BE BETTER IN A USE_CASE
     fun submitCalf() = viewModelScope.launch{
         val state = _state.value
         if(state.calfTag.isBlank()){

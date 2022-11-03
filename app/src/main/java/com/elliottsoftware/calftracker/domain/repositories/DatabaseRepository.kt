@@ -10,4 +10,6 @@ interface DatabaseRepository {
     suspend fun createUser(email:String, username:String): Flow<SecondaryResponse<Boolean>>
 
     suspend fun createCalf(calf:FireBaseCalf):Flow<Response<Boolean>>
+
+    suspend fun getCalves():Flow<Response<List<FireBaseCalf>>>
 }

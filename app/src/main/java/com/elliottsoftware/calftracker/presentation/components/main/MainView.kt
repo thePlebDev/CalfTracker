@@ -1,12 +1,17 @@
 package com.elliottsoftware.calftracker.presentation.components.main
 
 import android.annotation.SuppressLint
+import android.icu.text.SimpleDateFormat
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.material.icons.Icons
@@ -30,6 +35,10 @@ import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
 import kotlinx.coroutines.launch
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
+import com.elliottsoftware.calftracker.domain.models.Response
+import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 
 @Composable
@@ -85,6 +94,7 @@ data class MenuItem(
     val icon: ImageVector
 )
 
+@RequiresApi(Build.VERSION_CODES.N)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Unit){
@@ -139,15 +149,37 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
         },
 
         ) {
-        MessageList()
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp)
+
+
+        ){
+            when(val response = state.data){
+                is Response.Loading -> CircularProgressIndicator()
+                is Response.Success -> {
+
+                    MessageList(response.data)
+                }
+                is Response.Failure -> Text("FAIL")
+            }
+
+        }
+
+
     }
 }
-val calfList = listOf<String>("fdaf","fdsaf","fdsafdtre","another","moreTest","Another one")
 
+
+@RequiresApi(Build.VERSION_CODES.N)
 @Composable
-fun MessageList() {
+fun MessageList(calfList:List<FireBaseCalf>) {
+    val dateFormat = SimpleDateFormat("yyyy-mm-dd")
+
     LazyColumn {
-        items(calfList) { tagNumber ->
+        items(calfList) { calf ->
             Card(
                 modifier = Modifier
                     .padding(horizontal = 8.dp, vertical = 8.dp)
@@ -162,13 +194,13 @@ fun MessageList() {
                 ){
                     Column(modifier = Modifier.weight(2f)){
 
-                        Text(tagNumber,style=typography.h6, textAlign = TextAlign.Start)
-                        Text("Legs are a little weak",style=typography.subtitle1)
+                        Text(calf.calfTag!!,style=typography.h6, textAlign = TextAlign.Start,maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(calf.details!!,style=typography.subtitle1,maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                     Column(modifier = Modifier.weight(1f)){
 
-                        Text("2022-10-23",style=typography.subtitle1)
-                        Text("Bull",style=typography.subtitle1)
+                        Text(dateFormat.format(calf.date),style=typography.subtitle1)
+                        Text(calf.sex!!,style=typography.subtitle1)
                     }
                     
                 }
