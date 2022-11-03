@@ -3,6 +3,7 @@ package com.elliottsoftware.calftracker.presentation.components.main
 import android.annotation.SuppressLint
 import android.icu.text.SimpleDateFormat
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,6 +19,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -160,15 +163,61 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
             when(val response = state.data){
                 is Response.Loading -> CircularProgressIndicator()
                 is Response.Success -> {
+                    if(response.data.isEmpty()){
+                        Text(text = "NO CALVES")
+                    }else{
+                        TestList(response.data)
+                    }
 
-                    MessageList(response.data)
+
                 }
                 is Response.Failure -> Text("FAIL")
             }
+            //TestList()
 
         }
 
 
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class) //means this is likely to change or be removed
+@Composable
+fun TestList(calfList:List<FireBaseCalf>){
+    val messageList = remember{
+        mutableStateListOf(1,2,3,4,5,6,7,8)
+
+    }
+
+    LazyColumn{
+        Log.d("ID",calfList[0].id!!)
+        items(calfList, key = { it.id!! }){ names ->
+            val dismissState = rememberDismissState(
+                confirmStateChange = {
+                    if(it == DismissValue.DismissedToEnd || it == DismissValue.DismissedToStart){
+
+                    }
+                    true
+                }
+            )
+            SwipeToDismiss(state = dismissState, background ={},
+            dismissContent = {
+                Card(
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp, vertical = 8.dp)
+                        .fillMaxWidth(),
+                    elevation = 2.dp,
+                    backgroundColor = Color.White,
+                    shape = RoundedCornerShape(corner = CornerSize(16.dp))
+                ){
+                    Text(text = names.toString(),style=typography.h6,
+                        textAlign = TextAlign.Start,maxLines = 1,
+                        overflow = TextOverflow.Ellipsis)
+                }
+            }
+            )
+
+        }
     }
 }
 
@@ -180,6 +229,7 @@ fun MessageList(calfList:List<FireBaseCalf>) {
 
     LazyColumn {
         items(calfList) { calf ->
+
             Card(
                 modifier = Modifier
                     .padding(horizontal = 8.dp, vertical = 8.dp)
@@ -208,6 +258,7 @@ fun MessageList(calfList:List<FireBaseCalf>) {
 
             }
         }
+
     }
 }
 
