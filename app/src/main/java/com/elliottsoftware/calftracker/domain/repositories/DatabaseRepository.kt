@@ -12,4 +12,6 @@ interface DatabaseRepository {
     suspend fun createCalf(calf:FireBaseCalf):Flow<Response<Boolean>>
 
     suspend fun getCalves():Flow<Response<List<FireBaseCalf>>>
+
+    suspend fun deleteCalf(id:String):Flow<Response<Boolean>>
 }
