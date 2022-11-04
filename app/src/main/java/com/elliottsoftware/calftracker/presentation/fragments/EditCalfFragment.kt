@@ -5,21 +5,26 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.navigation.findNavController
 import com.elliottsoftware.calftracker.R
+import com.elliottsoftware.calftracker.databinding.FragmentEditCalfBinding
 import com.elliottsoftware.calftracker.databinding.FragmentNewCalfBinding
-import com.elliottsoftware.calftracker.presentation.components.main.ScaffoldView
+import com.elliottsoftware.calftracker.presentation.components.editCalf.EditCalfView
 import com.elliottsoftware.calftracker.presentation.components.newCalf.NewCalfView
+import androidx.fragment.app.activityViewModels
+import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 
 
 /**
  * A simple [Fragment] subclass.
- * Use the [NewCalfFragment.newInstance] factory method to
+ * Use the [EditCalfFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class NewCalfFragment : Fragment() {
-    private var _binding:FragmentNewCalfBinding? = null
+class EditCalfFragment : Fragment() {
+    private var _binding:FragmentEditCalfBinding? = null
     private val binding get() = _binding!!
 
 
@@ -33,18 +38,20 @@ class NewCalfFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        _binding = FragmentNewCalfBinding.inflate(inflater,container,false)
+        _binding = FragmentEditCalfBinding.inflate(inflater,container,false)
         val view = binding.root
+        val sharedViewModel: EditCalfViewModel by activityViewModels()
         binding.composeView.apply{
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                NewCalfView(onNavigate = { dest -> findNavController().navigate(dest) })
+                EditCalfView(sharedViewModel)
 
             }
 
         }
         return view
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

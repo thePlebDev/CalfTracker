@@ -40,6 +40,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
+import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -100,7 +101,7 @@ data class MenuItem(
 @RequiresApi(Build.VERSION_CODES.N)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Unit){
+fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Unit,sharedViewModel: EditCalfViewModel){
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
     val state = viewModel.state.value
@@ -166,7 +167,7 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
                     if(response.data.isEmpty()){
                         Text(text = "NO CALVES")
                     }else{
-                        MessageList(response.data,viewModel)
+                        MessageList(response.data,viewModel,onNavigate,sharedViewModel)
                     }
 
 
@@ -184,7 +185,12 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
 @OptIn(ExperimentalMaterialApi::class)
 @RequiresApi(Build.VERSION_CODES.N)
 @Composable
-fun MessageList(calfList:List<FireBaseCalf>,viewModel: MainViewModel) {
+fun MessageList(
+    calfList:List<FireBaseCalf>,
+    viewModel: MainViewModel,
+    onNavigate: (Int) -> Unit,
+    sharedViewModel: EditCalfViewModel
+) {
     val dateFormat = SimpleDateFormat("yyyy-mm-dd")
 
     LazyColumn {
@@ -202,7 +208,12 @@ fun MessageList(calfList:List<FireBaseCalf>,viewModel: MainViewModel) {
             Card(
                 modifier = Modifier
                     .padding(horizontal = 8.dp, vertical = 8.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .clickable {
+                        sharedViewModel.setCalf(calf)
+                        onNavigate(R.id.action_mainFragment2_to_editCalfFragment)
+                               }
+                ,
                 elevation = 2.dp,
                 backgroundColor = Color.White,
                 shape = RoundedCornerShape(corner = CornerSize(16.dp))
