@@ -1,12 +1,14 @@
 package com.elliottsoftware.calftracker.presentation.fragments
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.*
 //import androidx.compose.material.AppBar
@@ -16,12 +18,15 @@ import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Terrain
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.stringResource
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentMainBinding
 import com.elliottsoftware.calftracker.presentation.components.main.*
+import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 import kotlinx.coroutines.launch
 
 
@@ -41,6 +46,7 @@ class MainFragment : Fragment() {
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,10 +55,15 @@ class MainFragment : Fragment() {
 
         _binding = FragmentMainBinding.inflate(inflater,container,false)
         val view = binding.root
+        val sharedViewModel: EditCalfViewModel by activityViewModels()
         (activity as AppCompatActivity?)!!.supportActionBar!!.hide()
         binding.composeView.apply{
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                ScaffoldView(onNavigate = { dest -> findNavController().navigate(dest) })
+                ScaffoldView(
+                    onNavigate = { dest -> findNavController().navigate(dest) },
+                    sharedViewModel = sharedViewModel
+                )
 
             }
 
