@@ -15,6 +15,7 @@ import com.elliottsoftware.calftracker.databinding.FragmentNewCalfBinding
 import com.elliottsoftware.calftracker.presentation.components.editCalf.EditCalfView
 import com.elliottsoftware.calftracker.presentation.components.newCalf.NewCalfView
 import androidx.fragment.app.activityViewModels
+import com.elliottsoftware.calftracker.presentation.components.editCalf.ScaffoldView
 import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 
 
@@ -44,7 +45,7 @@ class EditCalfFragment : Fragment() {
         binding.composeView.apply{
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                EditCalfView(sharedViewModel)
+                ScaffoldView(sharedViewModel,onNavigate = { dest -> findNavController().navigate(dest) })
 
             }
 
