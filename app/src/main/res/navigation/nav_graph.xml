@@ -75,5 +75,10 @@
         <action
             android:id="@+id/action_editCalfFragment_to_mainFragment2"
             app:destination="@id/mainFragment2" />
+        <action
+            android:id="@+id/action_editCalfFragment_to_loginFragment"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@+id/loginFragment"
+            app:popUpToInclusive="true"/>
     </fragment>
 </navigation>

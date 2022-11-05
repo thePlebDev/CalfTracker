@@ -39,6 +39,7 @@ class DatabaseRepositoryImpl(
     }
 
     override suspend fun createCalf(calf: FireBaseCalf)=flow {
+        Log.d("CREATE",calf.cciaNumber?:"No ccia number")
         try{
             emit(Response.Loading)
            val document = db.collection("users").document(auth.currentUser?.email!!)

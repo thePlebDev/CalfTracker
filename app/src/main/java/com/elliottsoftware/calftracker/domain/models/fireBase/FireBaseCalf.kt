@@ -2,9 +2,10 @@ package com.elliottsoftware.calftracker.domain.models.fireBase
 
 import java.util.*
 
+//TODO THE BETTERS AND SETTERS USED BY FIREBASE ARE CASE SENSITIVE
 data class FireBaseCalf(val calfTag: String? = null,
                         val cowTag:String? = null,
-                        val CCIANumber: String? = null,
+                        val cciaNumber: String? = null,
                         val sex:String? = null,
                         val details:String?=null,
                         val date: Date? = null,
