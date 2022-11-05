@@ -97,6 +97,7 @@ class DatabaseRepositoryImpl(
     }
 
     override suspend fun updateCalf(fireBaseCalf: FireBaseCalf)= callbackFlow {
+        trySend(Response.Loading)
         db.collection("users").document(auth.currentUser?.email!!)
             .collection("calves").document(fireBaseCalf.id!!).set(fireBaseCalf)
             .addOnSuccessListener { trySend(Response.Success(true)) }

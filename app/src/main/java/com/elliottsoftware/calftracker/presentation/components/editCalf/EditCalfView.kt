@@ -18,12 +18,14 @@ import androidx.compose.ui.unit.sp
 import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
+import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
 import com.elliottsoftware.calftracker.presentation.components.main.DrawerBody
 import com.elliottsoftware.calftracker.presentation.components.main.DrawerHeader
 import com.elliottsoftware.calftracker.presentation.components.main.FloatingButton
 import com.elliottsoftware.calftracker.presentation.components.main.MenuItem
 import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import kotlinx.coroutines.launch
 
 
@@ -86,12 +88,12 @@ fun ScaffoldView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit) {
         },
 
         ) { padding ->
-        EditCalfView(viewModel,padding)
+        EditCalfView(viewModel,padding, onNavigate)
     }
 }
 
 @Composable
-fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues){
+fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNavigate: (Int) -> Unit){
 
 
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(paddingValues)) {
@@ -116,6 +118,17 @@ fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues){
             { value -> viewModel.updateBirthWeight(value) })
 
         Checkboxes(state = viewModel.uiState.value.sex, {value -> viewModel.updateSex(value) })
+        
+        when(val response = viewModel.uiState.value.calfUpdated){
+            is Response.Loading -> LinearProgressIndicator()
+            is Response.Success ->{
+                if(response.data){
+                    onNavigate(R.id.action_editCalfFragment_to_mainFragment2)
+
+                }
+            }
+            is Response.Failure -> {Text("FAILURE")}
+        }
 
     }
 
