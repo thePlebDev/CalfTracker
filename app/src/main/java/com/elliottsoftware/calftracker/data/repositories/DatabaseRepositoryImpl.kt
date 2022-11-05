@@ -95,4 +95,14 @@ class DatabaseRepositoryImpl(
         awaitClose()
 
     }
+
+    override suspend fun updateCalf(fireBaseCalf: FireBaseCalf)= callbackFlow {
+        db.collection("users").document(auth.currentUser?.email!!)
+            .collection("calves").document(fireBaseCalf.id!!).set(fireBaseCalf)
+            .addOnSuccessListener { trySend(Response.Success(true)) }
+            .addOnCanceledListener { trySend(Response.Failure(Exception("Update calf canceled"))) }
+            .addOnFailureListener{ trySend(Response.Failure(Exception("Update calf failed"))) }
+
+        awaitClose()
+    }
 }

@@ -5,11 +5,17 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
 import com.elliottsoftware.calftracker.domain.useCases.LogoutUseCase
+import com.elliottsoftware.calftracker.domain.useCases.UpdateCalfUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import java.util.*
 
 data class EditCalfUiState(
     val calfTagNumber:String ="",
@@ -19,12 +25,15 @@ data class EditCalfUiState(
     val cCIANUmber:String ="",
     val birthWeight:String="",
     val sex:String = "Bull",
+    val birthDate:Date? = null,
     val firebaseId:String ="",
-    val loggedUserOut:Boolean = false
+    val loggedUserOut:Boolean = false,
+    val calfUpdated:Response<Boolean> = Response.Success(false)
 )
 
 class EditCalfViewModel(
-    val logoutUseCase: LogoutUseCase = LogoutUseCase()
+    val logoutUseCase: LogoutUseCase = LogoutUseCase(),
+    val updateCalfUseCase: UpdateCalfUseCase = UpdateCalfUseCase()
 ):ViewModel() {
 
 
@@ -41,6 +50,7 @@ class EditCalfViewModel(
             cCIANUmber = calf.cciaNumber?:"",
             birthWeight = calf.birthWeight?:"",
             sex = calf.sex?:"Bull",
+            birthDate= calf.date,
             firebaseId = calf.id?:""
         )
 
@@ -71,11 +81,29 @@ class EditCalfViewModel(
             _uiState.value = _uiState.value.copy(testTextError = "Can not be blank")
         }else{
             _uiState.value = _uiState.value.copy(testTextError = null)
+            updateCalf()
         }
     }
 
     fun signUserOut(){
         _uiState.value = _uiState.value.copy(loggedUserOut = logoutUseCase.invoke())
+    }
+
+    fun updateCalf()= viewModelScope.launch {
+        val state = _uiState.value
+       val fireBaseCalf = FireBaseCalf(
+           calfTag = state.calfTagNumber,
+           cowTag = state.cowTagNumber,
+           cciaNumber = state.cCIANUmber,
+           sex = state.sex,
+           details = state.description,
+           birthWeight = state.birthWeight,
+           date = state.birthDate,
+           id = state.firebaseId
+       )
+        updateCalfUseCase(fireBaseCalf).collect{ response ->
+            _uiState.value = _uiState.value.copy(calfUpdated = response)
+        }
     }
 
 }
