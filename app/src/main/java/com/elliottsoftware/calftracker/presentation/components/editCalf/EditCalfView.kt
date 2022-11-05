@@ -6,10 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.filled.Logout
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Update
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,7 +42,7 @@ fun ScaffoldView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit) {
             FloatingActionButton(
                 onClick = { viewModel.validateText() }
             ){
-                Icon(Icons.Filled.Update,"Press to update calf values")
+                Icon(Icons.Filled.Add,"Press to update calf values")
             }
         },
         topBar = {
