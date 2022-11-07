@@ -17,6 +17,6 @@ interface AuthRepository {
 
      fun signUserOut():Boolean
 
-//     suspend fun saveCalf()
+     suspend fun resetPassword(email:String):Flow<Response<Boolean>>
 
 }

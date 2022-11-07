@@ -16,4 +16,5 @@ interface DatabaseRepository {
     suspend fun deleteCalf(id:String):Flow<Response<Boolean>>
 
     suspend fun updateCalf(fireBaseCalf: FireBaseCalf):Flow<Response<Boolean>>
+
 }
