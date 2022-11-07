@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.Flow
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 
@@ -53,6 +55,25 @@ class AuthRepositoryImpl(
             return false
         }
 
+    }
+
+    override suspend fun resetPassword(email:String)= callbackFlow {
+        trySend(Response.Loading)
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                trySend(Response.Success(true))
+            }
+        }
+            .addOnCanceledListener {
+                Log.d("CANCELED","CANCELED")
+            }
+            .addOnFailureListener{ exception ->
+                Log.d("FAIL",exception.message.toString())
+                trySend(Response.Failure(exception))
+
+            }
+        awaitClose()
     }
 
 }
