@@ -32,15 +32,21 @@ class ForgotPasswordViewModel(
     //todo:still need to do the email validation checks
     fun validateEmailText() = viewModelScope.launch{
         val email = _uiState.value.email
-//       val errorMessage = validateEmailUseCase(email)
-//        _uiState.value = _uiState.value.copy(emailError = errorMessage)
+        val verifyEmailErrors = validateEmailUseCase(state.value.email)
+        _uiState.value = _uiState.value.copy(emailError = verifyEmailErrors)
 
-            resetPasswordUseCase.invoke(email).collect{response ->
-
-                _uiState.value = _uiState.value.copy(resetPassword = response)
-            }
-
+        if (_uiState.value.emailError == null){
+           sendEmail(email)
+        }
 
 
+    }
+
+    private fun sendEmail(email:String) = viewModelScope.launch{
+
+        resetPasswordUseCase.invoke(email).collect{response ->
+
+            _uiState.value = _uiState.value.copy(resetPassword = response)
+        }
     }
 }

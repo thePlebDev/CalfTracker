@@ -1,7 +1,6 @@
 package com.elliottsoftware.calftracker.presentation.components.forgotPassword
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -18,11 +17,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elliottsoftware.calftracker.presentation.viewModels.ForgotPasswordViewModel
-import com.elliottsoftware.calftracker.presentation.viewModels.LoginViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.presentation.components.login.LinearLoadingBar
-import kotlinx.coroutines.launch
 
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -46,6 +43,7 @@ fun ForgotPasswordView(viewModel: ForgotPasswordViewModel = viewModel()){
                 }
 
             }
+
         }
     }
 
@@ -91,9 +89,10 @@ fun EmailInput(viewModel: ForgotPasswordViewModel = viewModel()){
                 keyboardType = KeyboardType.Email
             ),
             //error
+            isError = emailError != null,
             trailingIcon = {
                 if(emailError != null){
-                    Icon(Icons.Filled.Error, "error has occurred", tint = MaterialTheme.colors.error)
+                    Icon(Icons.Filled.Error, "error has occurred")
                 }
 
             }
@@ -119,3 +118,19 @@ fun SubmitButton(buttonFunc:()->Unit){
         Text(text = "Reset Password",fontSize = 26.sp)
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
