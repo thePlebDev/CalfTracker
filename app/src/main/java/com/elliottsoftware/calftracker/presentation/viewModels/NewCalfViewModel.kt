@@ -26,7 +26,7 @@ data class NewCalfUIState(
 
 
 class NewCalfViewModel(
-    val databaseRepository: DatabaseRepositoryImpl = DatabaseRepositoryImpl(),
+    private val databaseRepository: DatabaseRepositoryImpl = DatabaseRepositoryImpl(),
     private val logoutUseCase: LogoutUseCase = LogoutUseCase()
 ):ViewModel() {
 

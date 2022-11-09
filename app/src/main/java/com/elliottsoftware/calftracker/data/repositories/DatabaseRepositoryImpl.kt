@@ -8,6 +8,7 @@ import com.elliottsoftware.calftracker.domain.repositories.DatabaseRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.MetadataChanges
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
@@ -38,19 +39,29 @@ class DatabaseRepositoryImpl(
 
     }
 
-    override suspend fun createCalf(calf: FireBaseCalf)=flow {
-        Log.d("CREATE",calf.cciaNumber?:"No ccia number")
-        try{
-            emit(Response.Loading)
+    override suspend fun createCalf(calf: FireBaseCalf)= callbackFlow {
+
+            trySend(Response.Loading)
            val document = db.collection("users").document(auth.currentUser?.email!!)
                 .collection("calves").document()
             calf.id = document.id
+
             document.set(calf)
-            emit(Response.Success(true))
-        }catch (e:Exception){
-            Log.d("DatabaseRepository",e.message.toString())
-            emit(Response.Failure(e))
-        }
+                .addOnSuccessListener {
+                    trySend(Response.Success(true))
+                }
+                .addOnCanceledListener {
+                    trySend(Response.Failure(Exception("CREATE Calf Error")))
+                }
+                .addOnFailureListener {
+                    trySend(Response.Failure(Exception("Delete Calf Error")))
+                }
+
+            trySend(Response.Success(true)) //right now this handles the case for no internet connection
+        //but it really messes up everything else
+
+
+
 
     }
 

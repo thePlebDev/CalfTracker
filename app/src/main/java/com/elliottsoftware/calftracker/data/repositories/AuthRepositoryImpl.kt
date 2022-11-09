@@ -67,6 +67,7 @@ class AuthRepositoryImpl(
         }
             .addOnCanceledListener {
                 Log.d("CANCELED","CANCELED")
+                trySend(Response.Failure(Exception("CANCELED")))
             }
             .addOnFailureListener{ exception ->
                 Log.d("FAIL",exception.message.toString())
