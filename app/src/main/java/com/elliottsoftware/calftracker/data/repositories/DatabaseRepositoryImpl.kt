@@ -38,7 +38,7 @@ class DatabaseRepositoryImpl(
 
 
     }
-
+    //todo:IMPLEMENT THE SNAPSHOT LISTENER
     override suspend fun createCalf(calf: FireBaseCalf)= callbackFlow {
 
             trySend(Response.Loading)
@@ -46,22 +46,27 @@ class DatabaseRepositoryImpl(
                 .collection("calves").document()
             calf.id = document.id
 
-            document.set(calf)
-                .addOnSuccessListener {
+            val response = document.addSnapshotListener { value, error ->
+                if (error != null) {
+                    Log.w("TAGSS", "Listen error", error)
+                    trySend(Response.Failure(error))
+                }
+                if (value?.metadata?.isFromCache!!){
+                    Log.w("TAGSS", "offline data", error)
+                    document.set(calf)
                     trySend(Response.Success(true))
                 }
-                .addOnCanceledListener {
-                    trySend(Response.Failure(Exception("CREATE Calf Error")))
-                }
-                .addOnFailureListener {
-                    trySend(Response.Failure(Exception("Delete Calf Error")))
+                else{
+                    document.set(calf)
+                    trySend(Response.Success(true))
                 }
 
-            trySend(Response.Success(true)) //right now this handles the case for no internet connection
-        //but it really messes up everything else
+            }
 
 
-
+        awaitClose{
+            response.remove()
+        }
 
     }
 
@@ -87,9 +92,7 @@ class DatabaseRepositoryImpl(
                         Log.d("getCalves()", "Current data: null")
                     }
                 }
-//                .get().await().map { document ->
-//                   document.toObject(FireBaseCalf::class.java)
-//                }
+
         awaitClose{
             docRef.remove()
         }

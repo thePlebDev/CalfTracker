@@ -37,7 +37,10 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            // Enables resource shrinking, which is performed by the
+            // Android Gradle plugin.
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -173,6 +176,13 @@ dependencies {
 
     // Splash Screen API
     implementation 'androidx.core:core-splashscreen:1.0.0-beta01'
+
+    // Add the dependency for the App Check library
+    implementation 'com.google.firebase:firebase-appcheck-playintegrity'
+
+    // Add the dependency for the Analytics library
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation 'com.google.firebase:firebase-analytics-ktx'
 
 
 

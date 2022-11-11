@@ -3,8 +3,14 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/14035/Desktop/Java Stuff/android/CalfTracker/app/src/main/res/drawable/checkmark.xml" value="0.1715" />
+        <entry key="..\:/Users/14035/Desktop/Java Stuff/android/CalfTracker/app/src/main/res/drawable/checkmarkanimated.xml" value="0.1715" />
+        <entry key="..\:/Users/14035/Desktop/Java Stuff/android/CalfTracker/app/src/main/res/drawable/design_ic_visibility.xml" value="0.1715" />
         <entry key="..\:/Users/14035/Desktop/Java Stuff/android/CalfTracker/app/src/main/res/drawable/design_ic_visibility_off.xml" value="0.1725" />
+        <entry key="..\:/Users/14035/Desktop/Java Stuff/android/CalfTracker/app/src/main/res/drawable/ic_add.xml" value="0.1575" />
         <entry key="..\:/Users/14035/Desktop/Java Stuff/android/CalfTracker/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1725" />
+        <entry key="..\:/Users/14035/Desktop/Java Stuff/android/CalfTracker/app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.1715" />
+        <entry key="..\:/Users/14035/Desktop/Java Stuff/android/CalfTracker/app/src/main/res/drawable/ic_location.xml" value="0.1575" />
         <entry key="..\:/Users/14035/Desktop/Java Stuff/android/CalfTracker/app/src/main/res/layout/activity_main.xml" value="0.3223958333333333" />
         <entry key="..\:/Users/14035/Desktop/Java Stuff/android/CalfTracker/app/src/main/res/layout/fragment_edit_calf.xml" value="0.3223958333333333" />
         <entry key="..\:/Users/14035/Desktop/Java Stuff/android/CalfTracker/app/src/main/res/layout/fragment_forgot_password.xml" value="0.3223958333333333" />
