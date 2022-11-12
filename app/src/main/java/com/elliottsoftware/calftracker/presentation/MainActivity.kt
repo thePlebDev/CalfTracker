@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
         )
         installSplashScreen()
         super.onCreate(savedInstanceState)
-       // supportActionBar!!.hide()
+        supportActionBar!!.hide()
         setContentView(R.layout.activity_main)
 
     }
