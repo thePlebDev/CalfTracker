@@ -1,6 +1,7 @@
 package com.elliottsoftware.calftracker.presentation.components.main
 
 import android.annotation.SuppressLint
+import android.icu.text.DateFormat
 import android.icu.text.SimpleDateFormat
 import android.os.Build
 import android.util.Log
@@ -265,7 +266,8 @@ fun MessageList(
                     }
                     Column(modifier = Modifier.weight(1f)){
 
-                        Text(dateFormat.format(calf.date),style=typography.subtitle1)
+
+                        Text(DateFormat.getDateInstance().format(calf.date),style=typography.subtitle1)
                         Text(calf.sex!!,style=typography.subtitle1)
                     }
                     
