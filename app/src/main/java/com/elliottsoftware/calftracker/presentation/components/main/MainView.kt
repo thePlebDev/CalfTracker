@@ -162,6 +162,7 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
                             scope.launch {
                                 scaffoldState.drawerState.close()
                                 onNavigate(R.id.action_mainFragment2_to_weatherFragment)
+
                             }
                         }
                     }
