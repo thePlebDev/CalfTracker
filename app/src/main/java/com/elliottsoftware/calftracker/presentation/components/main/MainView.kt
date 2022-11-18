@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Satellite
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -140,6 +141,12 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
                         title="Logout",
                         contentDescription = "logout of account",
                         icon = Icons.Default.Logout
+                    ),
+                    MenuItem(
+                        id= "weather",
+                        title="Weather",
+                        contentDescription = "Weather",
+                        icon = Icons.Default.Satellite
                     )
                 ),
                 onItemClick = {
@@ -148,6 +155,13 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
                             scope.launch {
                                 scaffoldState.drawerState.close()
                                 viewModel.signUserOut()
+
+                            }
+                        }
+                        "weather"->{
+                            scope.launch {
+                                scaffoldState.drawerState.close()
+                                onNavigate(R.id.action_mainFragment2_to_weatherFragment)
 
                             }
                         }
