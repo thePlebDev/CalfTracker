@@ -17,7 +17,7 @@ class WeatherRepositoryImpl(
             val data = api.getWeatherData(52.2,13.48).body()!!
             emit(Response.Success(data))
         }catch (e:Exception){
-            Log.e("PostRepositoryImpException",e.message.toString())
+            Log.e("WeatherRepositoryImplException",e.message.toString())
             emit(Response.Failure(Exception("FAILURE ON THE WEATHER CALL")))
         }
     }
