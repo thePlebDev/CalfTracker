@@ -78,12 +78,8 @@ fun WeatherStuff(viewModel: WeatherViewModel){
     when(val response = viewModel.uiState.value.weatherData){
         is Response.Loading -> Text("LOADING")
         is Response.Success -> {
-            val elevation = response.data.elevation
-            val lat = response.data.latitude
-            val long = response.data.longitude
-            Text(elevation.toString())
-            Text(lat.toString())
-            Text(long.toString())
+
+            Text(response.data.size.toString())
         }
         is Response.Failure -> Text("FAIL")
     }
