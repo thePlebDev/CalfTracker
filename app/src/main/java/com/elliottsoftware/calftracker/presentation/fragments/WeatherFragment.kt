@@ -20,6 +20,7 @@ import com.elliottsoftware.calftracker.presentation.components.weather.WeatherVi
  * Use the [WeatherFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
+@RequiresApi(Build.VERSION_CODES.O)
 class WeatherFragment : Fragment() {
     private var _binding:FragmentWeatherBinding? = null;
     val binding get() = _binding!!
@@ -31,7 +32,6 @@ class WeatherFragment : Fragment() {
 
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

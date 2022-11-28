@@ -2,7 +2,6 @@ package com.elliottsoftware.calftracker.presentation.components.weather
 
 import android.annotation.SuppressLint
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
@@ -10,7 +9,6 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -24,21 +22,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
+import com.elliottsoftware.calftracker.domain.models.Response
+import com.elliottsoftware.calftracker.domain.weather.WeatherViewData
 import com.elliottsoftware.calftracker.presentation.viewModels.WeatherViewModel
 import kotlinx.coroutines.launch
+import java.time.format.DateTimeFormatter
 
 
-@RequiresApi(Build.VERSION_CODES.N)
+
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun WeatherView(){
     ScaffoldView()
@@ -48,6 +47,7 @@ fun WeatherView(){
 
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun ScaffoldView(viewModel: WeatherViewModel = viewModel()) {
@@ -87,25 +87,27 @@ fun ScaffoldView(viewModel: WeatherViewModel = viewModel()) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun WeatherStuff(viewModel: WeatherViewModel){
-//    when(val response = viewModel.uiState.value.weatherData){
-//        is Response.Loading -> Text("LOADING")
-//        is Response.Success -> {
-//
-//            HorizontalScrollScreen()
-//        }
-//        is Response.Failure -> Text("FAIL")
-//    }
+    when(val response = viewModel.uiState.value.weatherData){
+        is Response.Loading -> Text("LOADING")
+        is Response.Success -> {
 
-        HorizontalScrollScreen()
+            HorizontalScrollScreen(response.data)
+        }
+        is Response.Failure -> Text("FAIL")
+    }
+
+      //  HorizontalScrollScreen()
 
 
 
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HorizontalScrollScreen() {
+fun HorizontalScrollScreen(data: MutableList<WeatherViewData>) {
     // replace with your items...
 
     Column(modifier = Modifier.background(Color(0xFF102840))) {
@@ -155,16 +157,18 @@ fun HorizontalScrollScreen() {
         ) {
             // LazyRow to display your items horizontally
 
+
             LazyRow(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 state = rememberLazyListState()
             ) {
 
-                itemsIndexed(items) { index, item ->
-                    CardShown(item)
+                itemsIndexed(data) { index, item ->
+                    CardShown(item.time.substring(11))
                 }
 
             }
+            //end of row
         }
     }
 
