@@ -14,6 +14,8 @@ import kotlinx.coroutines.launch
 
 data class WeatherUiState(
     val weatherData: Response<MutableList<WeatherViewData>> = Response.Loading,
+    val focusedWeatherData:WeatherViewData? = null
+
 
     )
 
@@ -35,6 +37,7 @@ class WeatherViewModel(
         }
 
     }
+
 
 
 
