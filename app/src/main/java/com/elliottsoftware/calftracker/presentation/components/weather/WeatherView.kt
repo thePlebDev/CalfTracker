@@ -1,7 +1,9 @@
 package com.elliottsoftware.calftracker.presentation.components.weather
 
 import android.annotation.SuppressLint
+import android.icu.text.SimpleDateFormat
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
@@ -33,8 +35,7 @@ import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.weather.WeatherViewData
 import com.elliottsoftware.calftracker.presentation.viewModels.WeatherViewModel
 import kotlinx.coroutines.launch
-import java.time.format.DateTimeFormatter
-
+import java.util.*
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -95,6 +96,7 @@ fun WeatherStuff(viewModel: WeatherViewModel){
         is Response.Success -> {
 
             HorizontalScrollScreen(response.data)
+
         }
         is Response.Failure -> Text("FAIL")
     }
@@ -107,13 +109,13 @@ fun WeatherStuff(viewModel: WeatherViewModel){
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HorizontalScrollScreen(data: MutableList<WeatherViewData>) {
+fun HorizontalScrollScreen(data: MutableList<WeatherViewData>,viewModel: WeatherViewModel = viewModel()) {
     // replace with your items...
 
     Column(modifier = Modifier.background(Color(0xFF102840))) {
-        val items = (1..168).map { "Item $it" }
         // a wrapper to fill the entire screen
         // BowWithConstraints will provide the maxWidth used below
+        Log.d("RECOMPD",viewModel.uiState.value.focusedWeatherData?.temperature.toString())
 
             Card(modifier = Modifier
                 .weight(2f)
@@ -121,11 +123,12 @@ fun HorizontalScrollScreen(data: MutableList<WeatherViewData>) {
                 .padding(10.dp)
                 .background(Color(0xFF1B3B5A))) {
                 Column(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .background(Color(0xFF1B3B5A)),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(text = "Today 18:00",
+                    Text(text = viewModel.uiState.value.focusedWeatherData?.time ?: "Not selected",
                         modifier= Modifier
                             .padding(10.dp)
                             .align(Alignment.End),
@@ -138,7 +141,7 @@ fun HorizontalScrollScreen(data: MutableList<WeatherViewData>) {
                     )
                     Spacer(modifier=Modifier.height(16.dp))
                     Text(
-                        text="12.4 °C",
+                        text= viewModel.uiState.value.focusedWeatherData?.temperature.toString() +"°C",
                         fontSize=50.sp,
                         color = Color.White
                     )
@@ -164,7 +167,7 @@ fun HorizontalScrollScreen(data: MutableList<WeatherViewData>) {
             ) {
 
                 itemsIndexed(data) { index, item ->
-                    CardShown(item.time.substring(11))
+                    CardShown(item.time.substring(11),item.temperature)
                 }
 
             }
@@ -175,7 +178,7 @@ fun HorizontalScrollScreen(data: MutableList<WeatherViewData>) {
 }
 
 @Composable
-fun CardShown(item: String){
+fun CardShown(time: String, temperature: Double,viewModel: WeatherViewModel = viewModel()){
 
 
     // initialize focus reference to be able to request focus programmatically
@@ -202,16 +205,24 @@ fun CardShown(item: String){
             .width(180.dp)
             .background(Color(0xFF102840), shape = RoundedCornerShape(4.dp))
             .padding(extraPadding.coerceAtLeast(0.dp))
-            .clickable { focusRequester.requestFocus() } // makes it all work
-
+            .clickable {
+                focusRequester.requestFocus()
+                viewModel.setFocusedData(WeatherViewData(time,temperature))
+            } // makes it all work
+//            .clickable {
+//                viewModel.setFocusedData(WeatherViewData(time,temperature))
+//
+//            }
 
 
 
 
     ) {
         Box(contentAlignment = Alignment.Center) {
-            Text(item, color = Color.White,textAlign = TextAlign.Center,style = MaterialTheme.typography.h6) // card's content
+            Text(time, color = Color.White,textAlign = TextAlign.Center,style = MaterialTheme.typography.h6) // card's content
         }
     }
 
 }
+
+/****************************SHIMMER ANIMATION*************************************/
