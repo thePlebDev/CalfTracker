@@ -1,6 +1,7 @@
 package com.elliottsoftware.calftracker.presentation.viewModels
 
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -14,7 +15,7 @@ import kotlinx.coroutines.launch
 
 data class WeatherUiState(
     val weatherData: Response<MutableList<WeatherViewData>> = Response.Loading,
-    val focusedWeatherData:WeatherViewData? = null
+    val focusedWeatherData:WeatherViewData = WeatherViewData("Not selected",0.00)
 
 
     )
@@ -36,6 +37,10 @@ class WeatherViewModel(
             _uiState.value = _uiState.value.copy(weatherData = response)
         }
 
+    }
+    public fun setFocusedData(focusedWeatherData: WeatherViewData){
+
+        _uiState.value = _uiState.value.copy(focusedWeatherData = focusedWeatherData)
     }
 
 
