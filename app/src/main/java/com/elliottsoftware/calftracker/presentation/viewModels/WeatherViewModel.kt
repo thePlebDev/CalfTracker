@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 
 data class WeatherUiState(
     val weatherData: Response<MutableList<WeatherViewData>> = Response.Loading,
-    val focusedWeatherData:WeatherViewData? = null
+    val focusedWeatherData:WeatherViewData = WeatherViewData("Not selected",0.00)
 
 
     )
