@@ -5,9 +5,9 @@ import android.icu.text.SimpleDateFormat
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Brush.Companion.linearGradient
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -95,6 +96,7 @@ fun ScaffoldView(viewModel: WeatherViewModel = viewModel()) {
 fun WeatherStuff(viewModel: WeatherViewModel){
     when(val response = viewModel.uiState.value.weatherData){
         is Response.Loading -> {
+            viewModel.setFocusedData(WeatherViewData("Loading...",0.00))
             HorizontalScrollScreen(null)
         }
         is Response.Success -> {
@@ -102,7 +104,10 @@ fun WeatherStuff(viewModel: WeatherViewModel){
             HorizontalScrollScreen(response.data)
 
         }
-        is Response.Failure -> Text("FAIL")
+        is Response.Failure -> {
+            viewModel.setFocusedData(WeatherViewData("Error, please try again",0.00))
+            HorizontalScrollScreen(null)
+        }
     }
 
       //  HorizontalScrollScreen()
@@ -131,7 +136,7 @@ fun HorizontalScrollScreen(data: MutableList<WeatherViewData>?,viewModel: Weathe
                         .background(Color(0xFF1B3B5A)),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(text = viewModel.uiState.value.focusedWeatherData?.time ?: "Not selected",
+                    Text(text = viewModel.uiState.value.focusedWeatherData.time ,
                         modifier= Modifier
                             .padding(10.dp)
                             .align(Alignment.End),
@@ -144,7 +149,7 @@ fun HorizontalScrollScreen(data: MutableList<WeatherViewData>?,viewModel: Weathe
                     )
                     Spacer(modifier=Modifier.height(16.dp))
                     Text(
-                        text= viewModel.uiState.value.focusedWeatherData?.temperature.toString() +"°C",
+                        text= viewModel.uiState.value.focusedWeatherData.temperature.toString() +"°C",
                         fontSize=50.sp,
                         color = Color.White
                     )
@@ -273,21 +278,39 @@ fun CardShownShimmer(){
     ) {
         Box(contentAlignment = Alignment.Center) {
              // card's content
-            GradientDemo()
+            GradientShimmer()
         }
     }
 
 }
 
 @Composable
-fun GradientDemo(){
-    val colors = listOf(Color.Blue,Color.Red,Color.Blue)
+fun GradientShimmer(){
+    val colors = listOf(
+        Color.LightGray.copy(alpha = 0.9f),
+        Color.LightGray.copy(alpha = 0.2f),
+        Color.LightGray.copy(alpha = 0.9f)
+    )
+
+    val infiniteTransition = rememberInfiniteTransition()
+    val translateAnim by infiniteTransition.animateFloat( //register the transition
+        initialValue = 0f,
+        targetValue = 500f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
     val brush = linearGradient(
         colors,
-        start = Offset(50f,50f),
-        end = Offset(100f,100f)
+        start = Offset.Zero,
+        end = Offset(x=translateAnim,y=translateAnim)
     )
     Surface(shape = MaterialTheme.shapes.small) {
-        Spacer(modifier = Modifier.fillMaxSize().background(brush = brush))
+        Spacer(modifier = Modifier
+            .fillMaxSize()
+            .background(brush = brush))
     }
 }
+
+
