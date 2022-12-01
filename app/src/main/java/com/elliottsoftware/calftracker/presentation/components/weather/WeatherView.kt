@@ -1,9 +1,13 @@
 package com.elliottsoftware.calftracker.presentation.components.weather
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.icu.text.SimpleDateFormat
 import android.os.Build
 import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColor
@@ -27,11 +31,13 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush.Companion.linearGradient
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
@@ -45,6 +51,7 @@ import java.util.*
 @Composable
 fun WeatherView(){
     ScaffoldView()
+
 }
 
 
@@ -94,23 +101,49 @@ fun ScaffoldView(viewModel: WeatherViewModel = viewModel()) {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun WeatherStuff(viewModel: WeatherViewModel){
-    when(val response = viewModel.uiState.value.weatherData){
-        is Response.Loading -> {
-            viewModel.setFocusedData(WeatherViewData("Loading...",0.00))
-            HorizontalScrollScreen(null)
-        }
-        is Response.Success -> {
-
-            HorizontalScrollScreen(response.data)
-
-        }
-        is Response.Failure -> {
-            viewModel.setFocusedData(WeatherViewData("Error, please try again",0.00))
-            HorizontalScrollScreen(null)
-        }
-    }
+//    when(val response = viewModel.uiState.value.weatherData){
+//        is Response.Loading -> {
+//            viewModel.setFocusedData(WeatherViewData("Loading...",0.00))
+//            HorizontalScrollScreen(null)
+//        }
+//        is Response.Success -> {
+//
+//            HorizontalScrollScreen(response.data)
+//
+//        }
+//        is Response.Failure -> {
+//            viewModel.setFocusedData(WeatherViewData("Error, please try again",0.00))
+//            HorizontalScrollScreen(null)
+//        }
+//    }
 
       //  HorizontalScrollScreen()
+    val launcher = rememberLauncherForActivityResult( ActivityResultContracts.RequestPermission()) {
+        Log.d("PERMISSIONSS",it.toString())
+
+
+    }
+    val context = LocalContext.current
+    Button(onClick = {
+        when (PackageManager.PERMISSION_GRANTED) {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) -> {
+                // Some works that require permission
+                Log.d("ExampleScreen","Code requires permission")
+            }
+            else -> {
+                // Asking for permission
+                Log.d("ExampleScreen","permision launching")
+                launcher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+            }
+        }
+    }
+    ) {
+        Text("Click me")
+
+    }
 
 
 
