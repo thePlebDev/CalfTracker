@@ -43,6 +43,7 @@ import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.weather.WeatherViewData
 import com.elliottsoftware.calftracker.presentation.viewModels.WeatherViewModel
+import com.elliottsoftware.calftracker.util.*
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -117,37 +118,40 @@ fun WeatherStuff(viewModel: WeatherViewModel){
 //        }
 //    }
 
+
       //  HorizontalScrollScreen()
-    val launcher = rememberLauncherForActivityResult( ActivityResultContracts.RequestPermission()) {
-        Log.d("PERMISSIONSS",it.toString())
+//    val launcher = rememberLauncherForActivityResult( contract = ActivityResultContracts.RequestPermission()) {
+//            isGranted: Boolean ->
+//        if (isGranted) {
+//            // Permission Accepted: Do something
+//            Log.d("ExampleScreen","PERMISSION GRANTED")
+//
+//        } else {
+//            // Permission Denied: Do something
+//            Log.d("ExampleScreen","PERMISSION DENIED")
+//        }
+//
+//
+//    }
+//    val context = LocalContext.current
+//    Button(onClick = {
+//       val hasPermission = context.checkPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+//        if (hasPermission) {
+//            PermissionStatus.Granted
+//        } else {
+//            launcher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+//        }
+//    }
+//    ) {
+//        Text("Click me")
+//
+//    }
 
-
-    }
-    val context = LocalContext.current
-    Button(onClick = {
-        when (PackageManager.PERMISSION_GRANTED) {
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) -> {
-                // Some works that require permission
-                Log.d("ExampleScreen","Code requires permission")
-            }
-            else -> {
-                // Asking for permission
-                Log.d("ExampleScreen","permision launching")
-                launcher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-            }
-        }
-    }
-    ) {
-        Text("Click me")
-
-    }
-
+    FeatureThatRequiresCameraPermission()
 
 
 }
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -343,6 +347,37 @@ fun GradientShimmer(){
         Spacer(modifier = Modifier
             .fillMaxSize()
             .background(brush = brush))
+    }
+}
+
+@Composable
+private fun FeatureThatRequiresCameraPermission() {
+
+    // Camera permission state
+    val cameraPermissionState = rememberPermissionState(
+        android.Manifest.permission.ACCESS_COARSE_LOCATION
+    )
+
+    if (cameraPermissionState.status.isGranted) {
+        Text("Camera permission Granted")
+    } else {
+        Column {
+            val textToShow = if (cameraPermissionState.status.shouldShowRationale) {
+                // If the user has denied the permission but the rationale can be shown,
+                // then gently explain why the app requires this permission
+                "The camera is important for this app. Please grant the permission."
+            } else {
+                // If it's the first time the user lands on this feature, or the user
+                // doesn't want to be asked again for this permission, explain that the
+                // permission is required
+                "Camera permission required for this feature to be available. " +
+                        "Please grant the permission"
+            }
+            Text(textToShow)
+            Button(onClick = { cameraPermissionState.launchPermissionRequest() }) {
+                Text("Request permission")
+            }
+        }
     }
 }
 
