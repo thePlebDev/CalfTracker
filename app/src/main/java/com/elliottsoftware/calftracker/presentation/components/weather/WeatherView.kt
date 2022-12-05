@@ -2,6 +2,7 @@ package com.elliottsoftware.calftracker.presentation.components.weather
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
 import android.icu.text.SimpleDateFormat
 import android.os.Build
@@ -44,6 +45,7 @@ import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.weather.WeatherViewData
 import com.elliottsoftware.calftracker.presentation.viewModels.WeatherViewModel
 import com.elliottsoftware.calftracker.util.*
+import com.google.accompanist.permissions.*
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -147,16 +149,21 @@ fun WeatherStuff(viewModel: WeatherViewModel){
 //
 //    }
 
-    FeatureThatRequiresCameraPermission()
+    //FeatureThatRequiresCameraPermission()
+    HorizontalScrollScreen()
 
 
 }
 
 
+@OptIn(ExperimentalPermissionsApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HorizontalScrollScreen(data: MutableList<WeatherViewData>?,viewModel: WeatherViewModel = viewModel()) {
+fun HorizontalScrollScreen(viewModel: WeatherViewModel = viewModel()) {
     // replace with your items...
+    val locationPermissionState = rememberPermissionState(
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    )
 
     Column(modifier = Modifier.background(Color(0xFF102840))) {
         // a wrapper to fill the entire screen
@@ -184,12 +191,30 @@ fun HorizontalScrollScreen(data: MutableList<WeatherViewData>?,viewModel: Weathe
                         contentDescription = "cloudy icon",
                         modifier = Modifier.width(200.dp)
                     )
-                    Spacer(modifier=Modifier.height(16.dp))
-                    Text(
-                        text= viewModel.uiState.value.focusedWeatherData.temperature.toString() +"°C",
-                        fontSize=50.sp,
-                        color = Color.White
-                    )
+                    //goes here
+
+                    if (locationPermissionState.status.isGranted) {
+
+
+                        PermissionText("",locationPermissionState,modifier = Modifier.align(Alignment.CenterHorizontally)) //show if the permission is granted
+                    } else {
+                        Column {
+                            val textToShow = if (locationPermissionState.status.shouldShowRationale) {
+                                // If the user has denied the permission but the rationale can be shown,
+                                // then gently explain why the app requires this permission
+                                "Location is required in this app. Please request permission."
+                            } else {
+                                // If it's the first time the user lands on this feature, or the user
+                                // doesn't want to be asked again for this permission, explain that the
+                                // permission is required
+                                "This weather application requires your location to function properly. " +
+                                        "Please grant the permission in settings"
+                            }
+
+                            PermissionText(textToShow,locationPermissionState, modifier = Modifier.align(Alignment.CenterHorizontally))
+
+                        }
+                    }
                 }
 
 
@@ -211,12 +236,14 @@ fun HorizontalScrollScreen(data: MutableList<WeatherViewData>?,viewModel: Weathe
                 state = rememberLazyListState()
             ) {
 
-                if(data == null){
+                if(locationPermissionState.status.isGranted){
                     val list = listOf<String>("","")
                     itemsIndexed(list) { index, item ->
                         CardShownShimmer()
                     }
                 }else{
+
+                    /********* GET THE ACTUAL DATA************/
                     itemsIndexed(data) { index, item ->
                         CardShown(item.time.substring(11),item.temperature)
                     }
@@ -228,6 +255,40 @@ fun HorizontalScrollScreen(data: MutableList<WeatherViewData>?,viewModel: Weathe
             //end of row
         }
     }
+
+}
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun PermissionText(text:String,permission: PermissionState,modifier: Modifier,viewModel: WeatherViewModel = viewModel()){
+    Spacer(modifier=Modifier.height(16.dp))
+    if (permission.status.isGranted){
+        Text(
+            text= viewModel.uiState.value.focusedWeatherData.temperature.toString() +"°C",
+            fontSize=50.sp,
+            color = Color.White,
+            modifier = modifier
+        )
+        Spacer(modifier=Modifier.height(5.dp))
+    }else{
+        Text(
+            text=text,
+            color = Color.White,
+            modifier = modifier
+        )
+        Spacer(modifier=Modifier.height(5.dp))
+        Button(
+            onClick = { permission.launchPermissionRequest()},
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF102840),
+                contentColor = Color.White),
+            modifier = modifier
+        ) {
+            Text("Request permission")
+        }
+    }
+
+
+
 
 }
 
@@ -350,16 +411,21 @@ fun GradientShimmer(){
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
 private fun FeatureThatRequiresCameraPermission() {
 
+
     // Camera permission state
     val cameraPermissionState = rememberPermissionState(
-        android.Manifest.permission.ACCESS_COARSE_LOCATION
+        Manifest.permission.ACCESS_COARSE_LOCATION
     )
 
     if (cameraPermissionState.status.isGranted) {
-        Text("Camera permission Granted")
+
+
+        HorizontalScrollScreen(null) //show if the permission is granted
     } else {
         Column {
             val textToShow = if (cameraPermissionState.status.shouldShowRationale) {
@@ -370,9 +436,10 @@ private fun FeatureThatRequiresCameraPermission() {
                 // If it's the first time the user lands on this feature, or the user
                 // doesn't want to be asked again for this permission, explain that the
                 // permission is required
-                "Camera permission required for this feature to be available. " +
-                        "Please grant the permission"
+                "This weather application requires your location to function properly. " +
+                        "Please grant the permission in settings"
             }
+
             Text(textToShow)
             Button(onClick = { cameraPermissionState.launchPermissionRequest() }) {
                 Text("Request permission")
