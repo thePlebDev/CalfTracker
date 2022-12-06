@@ -104,52 +104,12 @@ fun ScaffoldView(viewModel: WeatherViewModel = viewModel()) {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun WeatherStuff(viewModel: WeatherViewModel){
-//    when(val response = viewModel.uiState.value.weatherData){
-//        is Response.Loading -> {
-//            viewModel.setFocusedData(WeatherViewData("Loading...",0.00))
-//            HorizontalScrollScreen(null)
-//        }
-//        is Response.Success -> {
-//
-//            HorizontalScrollScreen(response.data)
-//
-//        }
-//        is Response.Failure -> {
-//            viewModel.setFocusedData(WeatherViewData("Error, please try again",0.00))
-//            HorizontalScrollScreen(null)
-//        }
-//    }
+
 
 
       //  HorizontalScrollScreen()
-//    val launcher = rememberLauncherForActivityResult( contract = ActivityResultContracts.RequestPermission()) {
-//            isGranted: Boolean ->
-//        if (isGranted) {
-//            // Permission Accepted: Do something
-//            Log.d("ExampleScreen","PERMISSION GRANTED")
-//
-//        } else {
-//            // Permission Denied: Do something
-//            Log.d("ExampleScreen","PERMISSION DENIED")
-//        }
-//
-//
-//    }
-//    val context = LocalContext.current
-//    Button(onClick = {
-//       val hasPermission = context.checkPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
-//        if (hasPermission) {
-//            PermissionStatus.Granted
-//        } else {
-//            launcher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-//        }
-//    }
-//    ) {
-//        Text("Click me")
-//
-//    }
 
-    //FeatureThatRequiresCameraPermission()
+
     HorizontalScrollScreen()
 
 
@@ -221,7 +181,6 @@ fun HorizontalScrollScreen(viewModel: WeatherViewModel = viewModel()) {
             }
             
 
-
         Box(modifier = Modifier
             .weight(1f)
             .background(Color(0xFF102840)),
@@ -230,33 +189,68 @@ fun HorizontalScrollScreen(viewModel: WeatherViewModel = viewModel()) {
         ) {
             // LazyRow to display your items horizontally
 
-            /***********PART WE WANT TO SWITCH OUT ***********/
-            LazyRow(
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                state = rememberLazyListState()
-            ) {
+            LazyRowComposable(locationPermissionState)
 
-                if(locationPermissionState.status.isGranted){
-                    val list = listOf<String>("","")
-                    itemsIndexed(list) { index, item ->
-                        CardShownShimmer()
-                    }
-                }else{
-
-                    /********* GET THE ACTUAL DATA************/
-                    itemsIndexed(data) { index, item ->
-                        CardShown(item.time.substring(11),item.temperature)
-                    }
-
-                }
-
-
-            }
             //end of row
         }
     }
 
 }
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun LazyRowComposable(locationPermissionState:PermissionState,viewModel: WeatherViewModel = viewModel()){
+    LazyRow(
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        state = rememberLazyListState()
+    ) {
+
+        if(locationPermissionState.status.isGranted){
+            /********* GET THE ACTUAL DATA************/
+
+            when(val response = viewModel.uiState.value.weatherData){
+                is Response.Loading -> {
+                    viewModel.setFocusedData(WeatherViewData("Loading...",0.00))
+
+                    val list = listOf<String>("","")
+                    itemsIndexed(list) { index, item ->
+                        CardShownShimmer()
+                    }
+                }
+                is Response.Success -> {
+                    Log.d("SUCCESSS",response.data.size.toString())
+
+                    itemsIndexed(response.data) { index, item ->
+                        CardShown(item.time.substring(11),item.temperature)
+                    }
+
+                }
+                is Response.Failure -> {
+                    viewModel.setFocusedData(WeatherViewData("Error, please try again",0.00))
+
+                    val list = listOf<String>("","")
+                    itemsIndexed(list) { index, item ->
+                        CardShownShimmer()
+                    }
+                }
+            }
+
+        }else{
+
+
+            val list = listOf<String>("","")
+            itemsIndexed(list) { index, item ->
+                CardShownShimmer()
+            }
+
+        }
+
+
+    }
+
+}
+
+
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -411,41 +405,6 @@ fun GradientShimmer(){
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalPermissionsApi::class)
-@Composable
-private fun FeatureThatRequiresCameraPermission() {
 
-
-    // Camera permission state
-    val cameraPermissionState = rememberPermissionState(
-        Manifest.permission.ACCESS_COARSE_LOCATION
-    )
-
-    if (cameraPermissionState.status.isGranted) {
-
-
-        HorizontalScrollScreen(null) //show if the permission is granted
-    } else {
-        Column {
-            val textToShow = if (cameraPermissionState.status.shouldShowRationale) {
-                // If the user has denied the permission but the rationale can be shown,
-                // then gently explain why the app requires this permission
-                "The camera is important for this app. Please grant the permission."
-            } else {
-                // If it's the first time the user lands on this feature, or the user
-                // doesn't want to be asked again for this permission, explain that the
-                // permission is required
-                "This weather application requires your location to function properly. " +
-                        "Please grant the permission in settings"
-            }
-
-            Text(textToShow)
-            Button(onClick = { cameraPermissionState.launchPermissionRequest() }) {
-                Text("Request permission")
-            }
-        }
-    }
-}
 
 
