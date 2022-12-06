@@ -14,6 +14,7 @@ class WeatherRepositoryImpl(
 ): WeatherRepository {
     override suspend fun getWeather(lat: Double, long: Double) = flow {
        emit(Response.Loading)
+        Log.d("WEATHERS","LOADING")
 
         try {
             val data = api.getWeatherData(52.2,13.48).body()!!
@@ -32,7 +33,7 @@ class WeatherRepositoryImpl(
 
             emit(Response.Success(weatherList))
         }catch (e:Exception){
-            Log.e("WeatherRepositoryImplException",e.message.toString())
+            Log.d("WEATHERS",e.message.toString())
             emit(Response.Failure(Exception("FAILURE ON THE WEATHER CALL")))
         }
     }

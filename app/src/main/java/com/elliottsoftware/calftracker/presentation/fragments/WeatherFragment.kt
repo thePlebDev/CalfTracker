@@ -3,6 +3,7 @@ package com.elliottsoftware.calftracker.presentation.fragments
 import android.Manifest
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -33,6 +34,8 @@ import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentWeatherBinding
 import com.elliottsoftware.calftracker.presentation.components.login.LoginView
 import com.elliottsoftware.calftracker.presentation.components.weather.WeatherView
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 
 
 /**
@@ -44,6 +47,7 @@ import com.elliottsoftware.calftracker.presentation.components.weather.WeatherVi
 class WeatherFragment : Fragment() {
     private var _binding:FragmentWeatherBinding? = null;
     val binding get() = _binding!!
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,6 +57,8 @@ class WeatherFragment : Fragment() {
 // system permissions dialog. Save the return value, an instance of
 // ActivityResultLauncher. You can use either a val, as shown in this snippet,
 // or a lateinit var in your onAttach() or onCreate() method.
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
 
 
 

@@ -26,11 +26,15 @@ class WeatherViewModel(
 
     private val _uiState = mutableStateOf(WeatherUiState())
     val uiState: State<WeatherUiState> = _uiState
+    init {
+        getWeatherData()
+    }
 
 
 
 
-    public fun getWeatherData() =viewModelScope.launch{
+
+    private fun getWeatherData() =viewModelScope.launch{
         getWeatherUseCase(33.4,55.4).collect{ response ->
            // Log.d("WEATHER",response.toString())
 
