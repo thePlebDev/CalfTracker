@@ -5,6 +5,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.icu.text.SimpleDateFormat
+import android.location.Location
+import android.location.LocationRequest
 import android.os.Build
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -46,14 +48,21 @@ import com.elliottsoftware.calftracker.domain.weather.WeatherViewData
 import com.elliottsoftware.calftracker.presentation.viewModels.WeatherViewModel
 import com.elliottsoftware.calftracker.util.*
 import com.google.accompanist.permissions.*
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.launch
 import java.util.*
 
 
+@SuppressLint("MissingPermission")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun WeatherView(){
     ScaffoldView()
+    val context = LocalContext.current
+    val activity = context.findActivity()
+
 
 }
 
