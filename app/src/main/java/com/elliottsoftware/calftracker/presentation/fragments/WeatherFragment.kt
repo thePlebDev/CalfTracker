@@ -1,6 +1,7 @@
 package com.elliottsoftware.calftracker.presentation.fragments
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.location.Location
@@ -25,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerIconDefaults.Text
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
@@ -34,6 +36,7 @@ import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentWeatherBinding
 import com.elliottsoftware.calftracker.presentation.components.login.LoginView
 import com.elliottsoftware.calftracker.presentation.components.weather.WeatherView
+import com.elliottsoftware.calftracker.util.findActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 
@@ -47,7 +50,8 @@ import com.google.android.gms.location.LocationServices
 class WeatherFragment : Fragment() {
     private var _binding:FragmentWeatherBinding? = null;
     val binding get() = _binding!!
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,13 +61,14 @@ class WeatherFragment : Fragment() {
 // system permissions dialog. Save the return value, an instance of
 // ActivityResultLauncher. You can use either a val, as shown in this snippet,
 // or a lateinit var in your onAttach() or onCreate() method.
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
 
 
 
 
     }
 
+    @SuppressLint("MissingPermission")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -71,6 +76,12 @@ class WeatherFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentWeatherBinding.inflate(inflater,container,false)
         val view = binding.root
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext())
+        fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
+            Log.d("LOCATIONS",location.latitude.toString())
+            Log.d("LOCATIONS",location.longitude.toString())
+
+        }
         binding.composeView.apply {
             // Dispose of the Composition when the view's LifecycleOwner
             // is destroyed
@@ -91,6 +102,7 @@ class WeatherFragment : Fragment() {
 //                            // decision.
 //                        }
 //                    }
+
 
                 WeatherView()
 
