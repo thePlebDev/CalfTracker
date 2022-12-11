@@ -36,6 +36,7 @@ import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentWeatherBinding
 import com.elliottsoftware.calftracker.presentation.components.login.LoginView
 import com.elliottsoftware.calftracker.presentation.components.weather.WeatherView
+import com.elliottsoftware.calftracker.util.LocationManagerUtil
 import com.elliottsoftware.calftracker.util.findActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -50,7 +51,6 @@ import com.google.android.gms.location.LocationServices
 class WeatherFragment : Fragment() {
     private var _binding:FragmentWeatherBinding? = null;
     val binding get() = _binding!!
-    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
 
 
@@ -76,32 +76,14 @@ class WeatherFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentWeatherBinding.inflate(inflater,container,false)
         val view = binding.root
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext())
-        fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
-            Log.d("LOCATIONS",location.latitude.toString())
-            Log.d("LOCATIONS",location.longitude.toString())
 
-        }
+
         binding.composeView.apply {
             // Dispose of the Composition when the view's LifecycleOwner
             // is destroyed
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-//                val requestPermissionLauncher =
-//                    registerForActivityResult(
-//                        ActivityResultContracts.RequestPermission()
-//                    ) { isGranted: Boolean ->
-//                        if (isGranted) {
-//                            // Permission is granted. Continue the action or workflow in your
-//                            // app.
-//                        } else {
-//                            // Explain to the user that the feature is unavailable because the
-//                            // feature requires a permission that the user has denied. At the
-//                            // same time, respect the user's decision. Don't link to system
-//                            // settings in an effort to convince the user to change their
-//                            // decision.
-//                        }
-//                    }
+
 
 
                 WeatherView()

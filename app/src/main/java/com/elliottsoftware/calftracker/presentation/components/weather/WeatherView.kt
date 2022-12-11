@@ -2,18 +2,9 @@ package com.elliottsoftware.calftracker.presentation.components.weather
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
-import android.content.pm.PackageManager
-import android.icu.text.SimpleDateFormat
 import android.location.Location
-import android.location.LocationRequest
 import android.os.Build
-import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -37,10 +28,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
@@ -48,9 +37,6 @@ import com.elliottsoftware.calftracker.domain.weather.WeatherViewData
 import com.elliottsoftware.calftracker.presentation.viewModels.WeatherViewModel
 import com.elliottsoftware.calftracker.util.*
 import com.google.accompanist.permissions.*
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -61,7 +47,9 @@ import java.util.*
 fun WeatherView(){
     ScaffoldView()
     val context = LocalContext.current
-    val activity = context.findActivity()
+
+    //SETTING THE LOCATION STUFF UP
+    LocationManagerUtil.setLocationClient(context)
 
 
 }
@@ -76,6 +64,8 @@ fun WeatherView(){
 fun ScaffoldView(viewModel: WeatherViewModel = viewModel()) {
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    //viewModel.getTesting(context)
 
     Scaffold(
 
@@ -209,29 +199,52 @@ fun HorizontalScrollScreen(viewModel: WeatherViewModel = viewModel()) {
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun LazyRowComposable(locationPermissionState:PermissionState,viewModel: WeatherViewModel = viewModel()){
+    val context = LocalContext.current
     LazyRow(
         horizontalArrangement = Arrangement.SpaceEvenly,
         state = rememberLazyListState()
     ) {
 
         if(locationPermissionState.status.isGranted){
-            /********* GET THE ACTUAL DATA************/
+            /********* GET THE ACTUAL DATA WHEN PERMISSION IS GRANTED************/
 
-            when(val response = viewModel.uiState.value.weatherData){
+
+
+            when(val coarseLocation = viewModel.uiState.value.currentCourseLocation){
                 is Response.Loading -> {
                     viewModel.setFocusedData(WeatherViewData("Loading...",0.00))
-
+                    viewModel.getLocation(context)
                     val list = listOf<String>("","")
                     itemsIndexed(list) { index, item ->
                         CardShownShimmer()
                     }
                 }
                 is Response.Success -> {
-                    Log.d("SUCCESSS",response.data.size.toString())
-
-                    itemsIndexed(response.data) { index, item ->
-                        CardShown(item.time.substring(11),item.temperature)
+                    //Log.d("SUCCESSS",response.data.size.toString())
+                    /*******NESTED PERMISSION CHECKS********/
+                    when(val response = viewModel.uiState.value.weatherData){
+                        is Response.Loading ->{
+                            viewModel.getWeatherData(coarseLocation.data)
+                            val list = listOf<String>("","")
+                            itemsIndexed(list) { index, item ->
+                                CardShownShimmer()
+                            }
+                        }
+                        is Response.Success ->{
+                           // viewModel.setFocusedData(WeatherViewData("Please select time",0.00))
+                            itemsIndexed(response.data) { index, item ->
+                                CardShown(item.time.substring(11),item.temperature)
+                            }
+                        }
+                        is Response.Failure ->{
+                            viewModel.setFocusedData(WeatherViewData("Error, please try again",0.00))
+                            val list = listOf<String>("","")
+                            itemsIndexed(list) { index, item ->
+                                CardShownShimmer()
+                            }
+                        }
                     }
+                    /*******END NESTED PERMISSION CHECKS********/
 
                 }
                 is Response.Failure -> {
@@ -259,6 +272,11 @@ fun LazyRowComposable(locationPermissionState:PermissionState,viewModel: Weather
 
 }
 
+@Composable
+fun GetCurrentCoarseLocation(viewModel: WeatherViewModel,location: Location){
+
+
+}
 
 
 @OptIn(ExperimentalPermissionsApi::class)
