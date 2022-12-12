@@ -124,7 +124,7 @@ fun HorizontalScrollScreen(viewModel: WeatherViewModel = viewModel()) {
         Manifest.permission.ACCESS_COARSE_LOCATION
     )
 
-    Column(modifier = Modifier.background(Color(0xFF102840))) {
+    Column(modifier = Modifier.background(MaterialTheme.colors.primary)) {
         // a wrapper to fill the entire screen
         // BowWithConstraints will provide the maxWidth used below
 
@@ -132,18 +132,18 @@ fun HorizontalScrollScreen(viewModel: WeatherViewModel = viewModel()) {
                 .weight(2f)
                 .fillMaxSize()
                 .padding(10.dp)
-                .background(Color(0xFF1B3B5A))) {
+                .background(MaterialTheme.colors.secondary)) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFF1B3B5A)),
+                        .background(MaterialTheme.colors.secondary),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(text = viewModel.uiState.value.focusedWeatherData.time ,
                         modifier= Modifier
                             .padding(10.dp)
                             .align(Alignment.End),
-                        color = Color.White)
+                        color = MaterialTheme.colors.onSecondary)
                     Spacer(modifier=Modifier.height(16.dp))
                     Image(
                         painter = painterResource(id = R.drawable.ic_cloudy ),
@@ -182,7 +182,7 @@ fun HorizontalScrollScreen(viewModel: WeatherViewModel = viewModel()) {
 
         Box(modifier = Modifier
             .weight(1f)
-            .background(Color(0xFF102840)),
+            .background(MaterialTheme.colors.primary),
             contentAlignment = Alignment.TopEnd
 
         ) {
@@ -287,21 +287,21 @@ fun PermissionText(text:String,permission: PermissionState,modifier: Modifier,vi
         Text(
             text= viewModel.uiState.value.focusedWeatherData.temperature.toString() +"°C",
             fontSize=50.sp,
-            color = Color.White,
+            color = MaterialTheme.colors.onSecondary,
             modifier = modifier
         )
         Spacer(modifier=Modifier.height(5.dp))
     }else{
         Text(
             text=text,
-            color = Color.White,
+            color = MaterialTheme.colors.onSecondary,
             modifier = modifier
         )
         Spacer(modifier=Modifier.height(5.dp))
         Button(
             onClick = { permission.launchPermissionRequest()},
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFF102840),
-                contentColor = Color.White),
+            colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary,
+                contentColor = MaterialTheme.colors.onPrimary),
             modifier = modifier
         ) {
             Text("Request permission")
@@ -333,13 +333,13 @@ fun CardShown(time: String, temperature: Double,viewModel: WeatherViewModel = vi
         )
     )
     Card(
-        backgroundColor = Color(0xFF1B3B5A),
+        backgroundColor = MaterialTheme.colors.secondary,
         modifier = Modifier
             .focusRequester(focusRequester) //register focus changes
             .focusable(interactionSource = interactionSource) //emit focus events
             .height(200.dp)
             .width(180.dp)
-            .background(Color(0xFF102840), shape = RoundedCornerShape(4.dp))
+            .background(MaterialTheme.colors.primary, shape = RoundedCornerShape(4.dp))
             .padding(extraPadding.coerceAtLeast(0.dp))
             .clickable {
                 focusRequester.requestFocus()
@@ -351,7 +351,7 @@ fun CardShown(time: String, temperature: Double,viewModel: WeatherViewModel = vi
 
     ) {
         Box(contentAlignment = Alignment.Center) {
-            Text(time, color = Color.White,textAlign = TextAlign.Center,style = MaterialTheme.typography.h6) // card's content
+            Text(time, color = MaterialTheme.colors.onSecondary,textAlign = TextAlign.Center,style = MaterialTheme.typography.h6) // card's content
         }
     }
 
@@ -378,13 +378,13 @@ fun CardShownShimmer(){
         )
     )
     Card(
-        backgroundColor = Color(0xFF1B3B5A),
+        backgroundColor = MaterialTheme.colors.secondary,
         modifier = Modifier
             .focusRequester(focusRequester) //register focus changes
             .focusable(interactionSource = interactionSource) //emit focus events
             .height(200.dp)
             .width(180.dp)
-            .background(Color(0xFF102840), shape = RoundedCornerShape(4.dp))
+            .background(MaterialTheme.colors.primary, shape = RoundedCornerShape(4.dp))
             .padding(extraPadding.coerceAtLeast(0.dp))
             .clickable {
                 focusRequester.requestFocus()
