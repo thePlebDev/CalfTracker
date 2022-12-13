@@ -36,6 +36,7 @@ import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentWeatherBinding
 import com.elliottsoftware.calftracker.presentation.components.login.LoginView
 import com.elliottsoftware.calftracker.presentation.components.weather.WeatherView
+import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.util.LocationManagerUtil
 import com.elliottsoftware.calftracker.util.findActivity
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -84,9 +85,13 @@ class WeatherFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
 
+                AppTheme(true){
+                    WeatherView()
+                }
 
 
-                WeatherView()
+
+
 
             }
 
