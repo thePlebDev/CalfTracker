@@ -13,10 +13,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Satellite
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,6 +30,8 @@ import androidx.compose.ui.graphics.Brush.Companion.linearGradient
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,6 +39,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.weather.WeatherViewData
+import com.elliottsoftware.calftracker.presentation.components.main.DrawerBody
+import com.elliottsoftware.calftracker.presentation.components.main.MenuItem
+import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.WeatherViewModel
 import com.elliottsoftware.calftracker.util.*
 import com.google.accompanist.permissions.*
@@ -44,8 +52,12 @@ import java.util.*
 @SuppressLint("MissingPermission")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun WeatherView(){
-    ScaffoldView()
+fun WeatherView(viewModel: WeatherViewModel = viewModel()){
+
+    AppTheme(viewModel.uiState.value.darkMode){
+        ScaffoldView()
+    }
+
     val context = LocalContext.current
 
     //SETTING THE LOCATION STUFF UP
@@ -78,6 +90,7 @@ fun ScaffoldView(viewModel: WeatherViewModel = viewModel()) {
                     IconButton(
                         onClick = {
                             scope.launch { scaffoldState.drawerState.open() }
+
                         }
                     ) {
                         Icon(Icons.Filled.Menu, contentDescription = "Toggle navigation drawer")
@@ -86,6 +99,8 @@ fun ScaffoldView(viewModel: WeatherViewModel = viewModel()) {
             )
         },
         drawerContent = {
+            SwitchDrawer()
+
 
         }
 
@@ -429,6 +444,41 @@ fun GradientShimmer(){
         Spacer(modifier = Modifier
             .fillMaxSize()
             .background(brush = brush))
+    }
+}
+
+@Composable
+fun SwitchDrawer(viewModel: WeatherViewModel = viewModel()){
+
+    var switchState by remember { mutableStateOf(true) }
+
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceEvenly
+
+
+    ) {
+        Text("Dark mode", style = TextStyle(fontSize = 18.sp),modifier = Modifier.weight(1f))
+
+        Spacer(Modifier.width(8.dp))
+        Switch(
+            checked = switchState,
+            onCheckedChange ={
+                switchState=it
+                viewModel.setDarkMode()
+                             },//called when it is clicked
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = MaterialTheme.colors.primary,
+                uncheckedThumbColor = MaterialTheme.colors.primary,
+                checkedTrackColor = MaterialTheme.colors.secondary,
+                uncheckedTrackColor = MaterialTheme.colors.secondary,
+            )
+        )
+
+
     }
 }
 

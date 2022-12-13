@@ -23,7 +23,8 @@ import kotlin.math.log
 data class WeatherUiState(
     val weatherData: Response<MutableList<WeatherViewData>> = Response.Loading,
     val focusedWeatherData:WeatherViewData = WeatherViewData("Not selected",0.00),
-    val currentCourseLocation: Response<Location> = Response.Loading
+    val currentCourseLocation: Response<Location> = Response.Loading,
+    val darkMode:Boolean = false
 
 
     )
@@ -63,6 +64,9 @@ class WeatherViewModel(
             _uiState.value = _uiState.value.copy(currentCourseLocation = location)
         }
 
+    }
+    fun setDarkMode(){
+        _uiState.value = _uiState.value.copy(darkMode = !_uiState.value.darkMode)
     }
 
 

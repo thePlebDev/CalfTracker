@@ -85,13 +85,7 @@ class WeatherFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
 
-                AppTheme(true){
                     WeatherView()
-                }
-
-
-
-
 
             }
 
