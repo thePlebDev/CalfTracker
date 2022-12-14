@@ -7,11 +7,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val LightThemeColors = lightColors(
-    primary = Color(0xFFbfd5ef),
-    primaryVariant = Color(0xFFf2ffff),
+    primary = primaryLight,
+    primaryVariant = primaryLightVariant,
     onPrimary = Black2,
-    secondary = Color(0xFFefd8bf),
-    secondaryVariant = Color(0xFFfffff2),
+    secondary = lightSecondary,
+    secondaryVariant = lightSecondaryVariant,
     onSecondary = Black2,
     error = RedErrorDark,
     onError = RedErrorLight,
@@ -19,12 +19,12 @@ private val LightThemeColors = lightColors(
 )
 
 private val DarkThemeColors = darkColors(
-    primary = Color(0xFF102840),
-    primaryVariant = Color(0xFF00001a),
-    onPrimary = Color.White,
-    secondary = Color(0xFF402810),
-    secondaryVariant = Color(0xFF200000),
-    onSecondary = Color.White,
+    primary = primaryDark,
+    primaryVariant = primaryDarkVariant,
+    onPrimary = White2,
+    secondary = darkSecondary,
+    secondaryVariant = darkSecondaryVariant,
+    onSecondary = White2,
     error = RedErrorLight,
     onError = RedErrorLight,
     //surface = Color(0xFF3c506b),

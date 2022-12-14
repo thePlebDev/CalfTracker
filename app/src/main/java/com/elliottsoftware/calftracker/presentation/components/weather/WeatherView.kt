@@ -270,6 +270,7 @@ fun LazyRowComposable(locationPermissionState:PermissionState,viewModel: Weather
                         CardShownShimmer()
                     }
                 }
+
             }
 
         }else{
