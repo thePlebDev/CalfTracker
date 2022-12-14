@@ -196,5 +196,9 @@ dependencies {
     implementation "com.google.accompanist:accompanist-permissions:0.24.9-beta"
 
 
+    //DATA STORE
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
+
+
 
 }
