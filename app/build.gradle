@@ -5,6 +5,7 @@ plugins {
     id 'kotlin-kapt'
     // Add the Google services Gradle plugin
     id 'com.google.gms.google-services'
+    id 'com.google.dagger.hilt.android'
 
 
 }
@@ -198,6 +199,9 @@ dependencies {
 
     //DATA STORE
     implementation "androidx.datastore:datastore-preferences:1.0.0"
+
+    implementation "com.google.dagger:hilt-android:2.44"
+    kapt "com.google.dagger:hilt-compiler:2.44"
 
 
 
