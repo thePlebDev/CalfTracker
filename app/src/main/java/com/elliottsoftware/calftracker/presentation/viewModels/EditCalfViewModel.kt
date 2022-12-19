@@ -10,12 +10,14 @@ import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
 import com.elliottsoftware.calftracker.domain.useCases.LogoutUseCase
 import com.elliottsoftware.calftracker.domain.useCases.UpdateCalfUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.*
+import javax.inject.Inject
 
 data class EditCalfUiState(
     val calfTagNumber:String ="",
@@ -31,9 +33,10 @@ data class EditCalfUiState(
     val calfUpdated:Response<Boolean> = Response.Success(false)
 )
 
-class EditCalfViewModel(
-    val logoutUseCase: LogoutUseCase = LogoutUseCase(),
-    val updateCalfUseCase: UpdateCalfUseCase = UpdateCalfUseCase()
+@HiltViewModel
+class EditCalfViewModel @Inject constructor(
+    val logoutUseCase: LogoutUseCase,
+    val updateCalfUseCase: UpdateCalfUseCase
 ):ViewModel() {
 
 

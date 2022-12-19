@@ -9,18 +9,22 @@ import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
 import com.elliottsoftware.calftracker.domain.useCases.DeleteCalfUseCase
 import com.elliottsoftware.calftracker.domain.useCases.GetCalvesUseCase
 import com.elliottsoftware.calftracker.domain.useCases.LogoutUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+
 
 data class MainUIState(
     val loggedUserOut:Boolean = false,
     val data:Response<List<FireBaseCalf>> = Response.Loading
         )
 
-class MainViewModel(
-   private val logoutUseCase: LogoutUseCase = LogoutUseCase(),
-    private val getCalvesUseCase: GetCalvesUseCase = GetCalvesUseCase(),
-   private val deleteCalfUseCase: DeleteCalfUseCase = DeleteCalfUseCase()
+@HiltViewModel
+class MainViewModel @Inject constructor(
+   private val logoutUseCase: LogoutUseCase,
+   private val getCalvesUseCase: GetCalvesUseCase,
+   private val deleteCalfUseCase: DeleteCalfUseCase
 
 ):ViewModel() {
     var state: MutableState<MainUIState> = mutableStateOf(MainUIState())

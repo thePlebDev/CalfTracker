@@ -9,8 +9,10 @@ import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
 import com.elliottsoftware.calftracker.domain.repositories.DatabaseRepository
 import com.elliottsoftware.calftracker.domain.useCases.LogoutUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.util.*
+import javax.inject.Inject
 
 data class NewCalfUIState(
     val calfTag:String = "",
@@ -24,10 +26,10 @@ data class NewCalfUIState(
     val loggedUserOut:Boolean = false
 )
 
-
-class NewCalfViewModel(
-    private val databaseRepository: DatabaseRepositoryImpl = DatabaseRepositoryImpl(),
-    private val logoutUseCase: LogoutUseCase = LogoutUseCase()
+@HiltViewModel
+class NewCalfViewModel @Inject constructor(
+    private val databaseRepository: DatabaseRepository ,
+    private val logoutUseCase: LogoutUseCase
 ):ViewModel() {
 
     private val _state = mutableStateOf(NewCalfUIState())

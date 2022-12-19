@@ -27,6 +27,7 @@ import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentMainBinding
 import com.elliottsoftware.calftracker.presentation.components.main.*
 import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 
@@ -36,6 +37,7 @@ import kotlinx.coroutines.launch
  * Use the [MainFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
+@AndroidEntryPoint
 class MainFragment : Fragment() {
     private var _binding:FragmentMainBinding? = null
     private val binding get() = _binding!!
