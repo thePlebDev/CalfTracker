@@ -41,6 +41,7 @@ import com.elliottsoftware.calftracker.util.LocationManagerUtil
 import com.elliottsoftware.calftracker.util.findActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import dagger.hilt.android.AndroidEntryPoint
 
 
 /**
@@ -49,6 +50,7 @@ import com.google.android.gms.location.LocationServices
  * create an instance of this fragment.
  */
 @RequiresApi(Build.VERSION_CODES.O)
+@AndroidEntryPoint
 class WeatherFragment : Fragment() {
     private var _binding:FragmentWeatherBinding? = null;
     val binding get() = _binding!!
@@ -85,7 +87,7 @@ class WeatherFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
 
-                    WeatherView()
+                    WeatherView(onNavigate = { dest -> findNavController().navigate(dest) })
 
             }
 

@@ -13,12 +13,15 @@ import androidx.lifecycle.viewModelScope
 import com.elliottsoftware.calftracker.data.remote.WeatherDto
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.useCases.GetWeatherUseCase
+import com.elliottsoftware.calftracker.domain.useCases.LogoutUseCase
 import com.elliottsoftware.calftracker.domain.weather.WeatherViewData
 import com.elliottsoftware.calftracker.util.LocationManagerUtil
 import com.elliottsoftware.calftracker.util.locationFlow
 import com.google.android.gms.location.LocationServices
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 import kotlin.math.log
 
 
@@ -27,13 +30,16 @@ data class WeatherUiState(
     val weatherData: Response<MutableList<WeatherViewData>> = Response.Loading,
     val focusedWeatherData:WeatherViewData = WeatherViewData("Not selected",0.00),
     val currentCourseLocation: Response<Location> = Response.Loading,
+    val loggedUserOut:Boolean = false,
     val darkMode:Boolean = false
 
 
     )
 
-class WeatherViewModel(
-    val getWeatherUseCase: GetWeatherUseCase = GetWeatherUseCase()
+@HiltViewModel
+class WeatherViewModel @Inject constructor(
+    val getWeatherUseCase: GetWeatherUseCase,
+    private val logoutUseCase: LogoutUseCase
 ):ViewModel() {
 
     private val _uiState = mutableStateOf(WeatherUiState())
@@ -70,6 +76,10 @@ class WeatherViewModel(
     }
     fun setDarkMode(){
         _uiState.value = _uiState.value.copy(darkMode = !_uiState.value.darkMode)
+    }
+    fun signUserOut(){
+        _uiState.value = _uiState.value.copy(loggedUserOut = logoutUseCase.invoke())
+
     }
 
 

@@ -20,10 +20,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
-import com.elliottsoftware.calftracker.presentation.components.main.DrawerBody
-import com.elliottsoftware.calftracker.presentation.components.main.DrawerHeader
+
 import com.elliottsoftware.calftracker.presentation.components.main.FloatingButton
-import com.elliottsoftware.calftracker.presentation.components.main.MenuItem
+import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
+import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
+import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
+
 import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import kotlinx.coroutines.launch
@@ -69,21 +71,17 @@ fun ScaffoldView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit) {
                         id = "logout",
                         title = "Logout",
                         contentDescription = "logout of account",
-                        icon = Icons.Default.Logout
-                    )
-                ),
-                onItemClick = {
-                    when (it.id) {
-                        "logout" -> {
+                        icon = Icons.Default.Logout,
+                        onClick = {
                             scope.launch {
-                                 viewModel.signUserOut()
+                                viewModel.signUserOut()
                                 scaffoldState.drawerState.close()
 
 
                             }
                         }
-                    }
-                }
+                    )
+                )
             )
         },
 
