@@ -17,6 +17,7 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Satellite
@@ -30,7 +31,6 @@ import androidx.compose.ui.graphics.Brush.Companion.linearGradient
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -39,23 +39,24 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.weather.WeatherViewData
-import com.elliottsoftware.calftracker.presentation.components.main.DrawerBody
-import com.elliottsoftware.calftracker.presentation.components.main.MenuItem
+import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
+import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
+import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
+
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.WeatherViewModel
 import com.elliottsoftware.calftracker.util.*
 import com.google.accompanist.permissions.*
 import kotlinx.coroutines.launch
-import java.util.*
 
 
 @SuppressLint("MissingPermission")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun WeatherView(viewModel: WeatherViewModel = viewModel()){
+fun WeatherView(viewModel: WeatherViewModel = viewModel(),onNavigate: (Int) -> Unit){
 
     AppTheme(viewModel.uiState.value.darkMode){
-        ScaffoldView()
+        ScaffoldView( onNavigate= onNavigate)
     }
 
     val context = LocalContext.current
@@ -73,11 +74,15 @@ fun WeatherView(viewModel: WeatherViewModel = viewModel()){
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun ScaffoldView(viewModel: WeatherViewModel = viewModel()) {
+fun ScaffoldView(viewModel: WeatherViewModel = viewModel(),onNavigate: (Int) -> Unit) {
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     //viewModel.getTesting(context)
+    val state = viewModel.uiState.value
+    if(state.loggedUserOut){
+        onNavigate(R.id.action_weatherFragment_to_loginFragment)
+    }
 
     Scaffold(
 
@@ -99,10 +104,40 @@ fun ScaffoldView(viewModel: WeatherViewModel = viewModel()) {
             )
         },
         drawerContent = {
-            SwitchDrawer()
+            DrawerHeader()
+            DrawerBody(
+                items = listOf(
+                    MenuItem(
+                        id= "logout",
+                        title="Logout",
+                        contentDescription = "logout of account",
+                        icon = Icons.Default.Logout,
+                        onClick = {
+                            scope.launch {
+                                scaffoldState.drawerState.close()
+                                viewModel.signUserOut()
+
+                            }
+                        }
+                    ),
+                    MenuItem(
+                        id= "home",
+                        title="Home",
+                        contentDescription = "Home Icon",
+                        icon = Icons.Default.Home,
+                        onClick = {
+                            scope.launch {
+                                scaffoldState.drawerState.close()
+                                onNavigate(R.id.action_weatherFragment_to_mainFragment2)
+
+                            }
+                        }
+                    )
+                )
+            )
 
 
-        }
+        } /*******END OF DRAWER CONTENT********/
 
     ) {
         Column() {

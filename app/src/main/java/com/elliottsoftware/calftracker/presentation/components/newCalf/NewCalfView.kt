@@ -26,6 +26,9 @@ import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.presentation.components.login.LinearLoadingBar
 import com.elliottsoftware.calftracker.presentation.components.main.*
+import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
+import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
+import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
 import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
 import kotlinx.coroutines.launch
 
@@ -71,12 +74,8 @@ fun ScaffoldView(viewModel: NewCalfViewModel = viewModel(),onNavigate:(Int)->Uni
                         id= "logout",
                         title="Logout",
                         contentDescription = "logout of account",
-                        icon = Icons.Default.Logout
-                    )
-                ),
-                onItemClick = {
-                    when(it.id){
-                        "logout"->{
+                        icon = Icons.Default.Logout,
+                        onClick = {
                             scope.launch {
                                 viewModel.signUserOut()
                                 scaffoldState.drawerState.close()
@@ -84,8 +83,8 @@ fun ScaffoldView(viewModel: NewCalfViewModel = viewModel(),onNavigate:(Int)->Uni
 
                             }
                         }
-                    }
-                }
+                    )
+                )
             )
         },
 

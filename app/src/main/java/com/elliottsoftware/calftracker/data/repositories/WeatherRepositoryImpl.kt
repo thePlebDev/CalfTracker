@@ -8,9 +8,10 @@ import com.elliottsoftware.calftracker.domain.repositories.WeatherRepository
 import com.elliottsoftware.calftracker.domain.weather.WeatherViewData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 
-class WeatherRepositoryImpl(
-    val api: WeatherApi = WeatherRetrofitInstance.api
+class WeatherRepositoryImpl @Inject constructor(
+    val api: WeatherApi
 ): WeatherRepository {
     override suspend fun getWeather(lat: Double, long: Double) = flow {
        emit(Response.Loading)

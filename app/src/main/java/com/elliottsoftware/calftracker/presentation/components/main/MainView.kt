@@ -45,6 +45,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
+import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
+import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
+import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.WeatherViewModel
@@ -55,59 +58,13 @@ import java.time.format.DateTimeFormatter
 @RequiresApi(Build.VERSION_CODES.N)
 @Composable
 fun MainView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Unit,sharedViewModel: EditCalfViewModel){
-    AppTheme(viewModel.state.value.darkTheme){
+    AppTheme(false){
         ScaffoldView(viewModel,onNavigate,sharedViewModel)
     }
 
 
 }
 
-@Composable
-fun DrawerHeader(){
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 24.dp),
-        contentAlignment = Alignment.Center
-    ){
-        Text(text = "Calf Tracker",fontSize=40.sp, textAlign = TextAlign.Center)
-    }
-}
-@Composable
-fun DrawerBody(
-    items:List<MenuItem>,
-    itemTextStyle: TextStyle = TextStyle(fontSize = 18.sp),
-    onItemClick:(MenuItem) -> Unit,
-
-    ){
-    LazyColumn(
-
-    ){
-        items(items){item ->
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onItemClick(item) }
-                    .padding(16.dp)
-            ){
-                Icon(imageVector = item.icon, contentDescription = item.contentDescription )
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(text = item.title,style=itemTextStyle,modifier = Modifier.weight(1f))
-            }
-        }
-    }
-
-}
-
-
-
-
-data class MenuItem(
-    val id:String,
-    val title:String,
-    val contentDescription:String,
-    val icon: ImageVector
-)
 
 @RequiresApi(Build.VERSION_CODES.N)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -147,36 +104,32 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
                         id= "logout",
                         title="Logout",
                         contentDescription = "logout of account",
-                        icon = Icons.Default.Logout
-                    ),
-                    MenuItem(
-                        id= "weather",
-                        title="Weather",
-                        contentDescription = "Weather",
-                        icon = Icons.Default.Satellite
-                    )
-                ),
-                onItemClick = {
-                    when(it.id){
-                        "logout"->{
+                        icon = Icons.Default.Logout,
+                        onClick = {
                             scope.launch {
                                 scaffoldState.drawerState.close()
                                 viewModel.signUserOut()
 
                             }
                         }
-                        "weather"->{
+                    ),
+                    MenuItem(
+                        id= "weather",
+                        title="Weather",
+                        contentDescription = "Weather",
+                        icon = Icons.Default.Satellite,
+                        onClick = {
                             scope.launch {
                                 scaffoldState.drawerState.close()
                                 onNavigate(R.id.action_mainFragment2_to_weatherFragment)
 
                             }
                         }
-                    }
-                }
+                    )
+                )
             )
             //END OF THE DRAWER BODY
-            ThemeToggle()
+           // ThemeToggle()
         },
 
         ) {
