@@ -14,7 +14,7 @@ class DarkThemeRepositoryImpl  private constructor(
     context: Context
 ) {
 
-    //GETTING THE INSTANCE OF THE sharedPreferences
+    /*********GETTING THE INSTANCE OF THE SHARED PREFERENCE********/
     private val sharedPreferences =
         context.applicationContext.getSharedPreferences(USER_PREFERENCES_NAME, Context.MODE_PRIVATE)
 

@@ -45,15 +45,19 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
+import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
+import com.elliottsoftware.calftracker.presentation.viewModels.WeatherViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 
+@RequiresApi(Build.VERSION_CODES.N)
 @Composable
-fun MainView(){
-
-
+fun MainView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Unit,sharedViewModel: EditCalfViewModel){
+    AppTheme(viewModel.state.value.darkTheme){
+        ScaffoldView(viewModel,onNavigate,sharedViewModel)
+    }
 
 
 }
@@ -76,7 +80,9 @@ fun DrawerBody(
     onItemClick:(MenuItem) -> Unit,
 
     ){
-    LazyColumn(){
+    LazyColumn(
+
+    ){
         items(items){item ->
             Row (
                 modifier = Modifier
@@ -115,6 +121,7 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
     }
     Scaffold(
 
+        backgroundColor = MaterialTheme.colors.primary,
         scaffoldState = scaffoldState,
         drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
         floatingActionButton = { FloatingButton(onNavigate) },
@@ -168,6 +175,8 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
                     }
                 }
             )
+            //END OF THE DRAWER BODY
+            ThemeToggle()
         },
 
         ) {
@@ -211,7 +220,7 @@ fun MessageList(
 ) {
     val dateFormat = SimpleDateFormat("yyyy-mm-dd")
 
-    LazyColumn {
+    LazyColumn(modifier=Modifier.background(MaterialTheme.colors.primary)) {
         items(calfList,key = { it.id!! }) { calf ->
             val dismissState = rememberDismissState(
                 confirmStateChange = {
@@ -228,7 +237,7 @@ fun MessageList(
                 background = {
                     val color by animateColorAsState(
                         when (dismissState.targetValue) {
-                            DismissValue.Default -> Color.White
+                            DismissValue.Default -> MaterialTheme.colors.primary
                             else -> Color.Red
                         }
                     )
@@ -260,13 +269,14 @@ fun MessageList(
                 modifier = Modifier
                     .padding(horizontal = 8.dp, vertical = 8.dp)
                     .fillMaxWidth()
+                //    .background(MaterialTheme.colors.primary) /*******THIS IS WHAT IS COLORING THE CORNERS********/
                     .clickable {
                         sharedViewModel.setCalf(calf)
                         onNavigate(R.id.action_mainFragment2_to_editCalfFragment)
                                }
                 ,
                 elevation = 2.dp,
-                backgroundColor = Color.White,
+                backgroundColor = MaterialTheme.colors.secondary, /******THIS IS WHAT I CHANGED*******/
                 shape = RoundedCornerShape(corner = CornerSize(16.dp))
             ){
                 Row(
@@ -275,14 +285,14 @@ fun MessageList(
                 ){
                     Column(modifier = Modifier.weight(2f)){
 
-                        Text(calf.calfTag!!,style=typography.h6, textAlign = TextAlign.Start,maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text(calf.details!!,style=typography.subtitle1,maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(calf.calfTag!!,style=typography.h6,color=MaterialTheme.colors.onSecondary, textAlign = TextAlign.Start,maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(calf.details!!,style=typography.subtitle1,color=MaterialTheme.colors.onSecondary,maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                     Column(modifier = Modifier.weight(1f)){
 
 
-                        Text(DateFormat.getDateInstance().format(calf.date),style=typography.subtitle1)
-                        Text(calf.sex!!,style=typography.subtitle1)
+                        Text(DateFormat.getDateInstance().format(calf.date),style=typography.subtitle1,color=MaterialTheme.colors.onSecondary,)
+                        Text(calf.sex!!,style=typography.subtitle1,color=MaterialTheme.colors.onSecondary,)
                     }
                     
                 }
@@ -299,13 +309,47 @@ fun MessageList(
 fun FloatingButton(navigate:(Int)-> Unit){
     FloatingActionButton(
         onClick = { navigate(R.id.action_mainFragment2_to_newCalfFragment) },
-        backgroundColor = Color.Red,
+        backgroundColor = MaterialTheme.colors.secondary,
         content = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_add),
                 contentDescription = null,
-                tint = Color.White
+                tint = MaterialTheme.colors.onSecondary
             )
         }
     )
+}
+@Composable
+fun ThemeToggle(viewModel: MainViewModel = viewModel()){
+
+    var switchState by remember { mutableStateOf(true) }
+
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(20.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceEvenly
+
+
+    ) {
+        Text("Dark mode", style = TextStyle(fontSize = 18.sp),modifier = Modifier.weight(1f))
+
+
+        Switch(
+            checked = switchState,
+            onCheckedChange ={
+                switchState=it
+                viewModel.setDarkMode()
+            },//called when it is clicked
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = MaterialTheme.colors.primary,
+                uncheckedThumbColor = MaterialTheme.colors.primary,
+                checkedTrackColor = MaterialTheme.colors.secondary,
+                uncheckedTrackColor = MaterialTheme.colors.secondary,
+            )
+        )
+
+
+    }
 }

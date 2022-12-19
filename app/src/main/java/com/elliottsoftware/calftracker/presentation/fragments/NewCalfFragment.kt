@@ -11,6 +11,7 @@ import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentNewCalfBinding
 import com.elliottsoftware.calftracker.presentation.components.main.ScaffoldView
 import com.elliottsoftware.calftracker.presentation.components.newCalf.NewCalfView
+import dagger.hilt.android.AndroidEntryPoint
 
 
 /**
@@ -18,6 +19,7 @@ import com.elliottsoftware.calftracker.presentation.components.newCalf.NewCalfVi
  * Use the [NewCalfFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
+@AndroidEntryPoint
 class NewCalfFragment : Fragment() {
     private var _binding:FragmentNewCalfBinding? = null
     private val binding get() = _binding!!
