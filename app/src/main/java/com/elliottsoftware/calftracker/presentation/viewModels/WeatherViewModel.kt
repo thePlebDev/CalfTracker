@@ -6,6 +6,8 @@ import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.elliottsoftware.calftracker.data.remote.WeatherDto
@@ -18,6 +20,7 @@ import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlin.math.log
+
 
 
 data class WeatherUiState(

@@ -1,7 +1,9 @@
 package com.elliottsoftware.calftracker.presentation.viewModels
 
+import android.content.Context
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.elliottsoftware.calftracker.domain.models.Response
@@ -9,15 +11,20 @@ import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
 import com.elliottsoftware.calftracker.domain.useCases.DeleteCalfUseCase
 import com.elliottsoftware.calftracker.domain.useCases.GetCalvesUseCase
 import com.elliottsoftware.calftracker.domain.useCases.LogoutUseCase
+
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
+
 data class MainUIState(
     val loggedUserOut:Boolean = false,
-    val data:Response<List<FireBaseCalf>> = Response.Loading
+    val data:Response<List<FireBaseCalf>> = Response.Loading,
+    val darkTheme:Boolean = false
         )
 
 @HiltViewModel
@@ -35,6 +42,7 @@ class MainViewModel @Inject constructor(
 
     fun signUserOut(){
         state.value = state.value.copy(loggedUserOut = logoutUseCase.invoke())
+
     }
 
 
@@ -49,7 +57,14 @@ class MainViewModel @Inject constructor(
         deleteCalfUseCase.invoke(id).collect{
         }
 
+
     }
+    fun setDarkMode(){
+        state.value = state.value.copy(darkTheme = !state.value.darkTheme)
+    }
+
+
+
 
 
 }

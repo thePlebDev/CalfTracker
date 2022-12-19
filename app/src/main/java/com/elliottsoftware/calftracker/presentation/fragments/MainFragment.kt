@@ -27,6 +27,7 @@ import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentMainBinding
 import com.elliottsoftware.calftracker.presentation.components.main.*
 import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
+
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -62,7 +63,7 @@ class MainFragment : Fragment() {
         binding.composeView.apply{
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                ScaffoldView(
+                MainView(
                     onNavigate = { dest -> findNavController().navigate(dest) },
                     sharedViewModel = sharedViewModel
                 )

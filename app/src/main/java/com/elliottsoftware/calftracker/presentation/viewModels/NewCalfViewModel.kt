@@ -29,7 +29,7 @@ data class NewCalfUIState(
 @HiltViewModel
 class NewCalfViewModel @Inject constructor(
     private val databaseRepository: DatabaseRepository ,
-    private val logoutUseCase: LogoutUseCase
+    private val logoutUseCase: LogoutUseCase // THIS IS CAUSING IT TO CRASH
 ):ViewModel() {
 
     private val _state = mutableStateOf(NewCalfUIState())
