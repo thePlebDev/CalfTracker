@@ -24,8 +24,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.presentation.components.register.Fail
 import com.elliottsoftware.calftracker.presentation.components.register.Success
+import com.elliottsoftware.calftracker.presentation.components.weather.ScaffoldView
+import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.LoginViewModel
 
+@Composable
+fun LoginViews(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit){
+    AppTheme(false){
+        LoginView( viewModel = viewModel,onNavigate= onNavigate)
+    }
+}
 
 @Composable
 fun LoginView(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit) {
@@ -48,7 +56,7 @@ fun LoginView(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit)
                 }
                 is Response.Failure -> {
                     //should probably show a snackbar
-                    Text("Username or Password incorrect")
+                    Text("Username or Password incorrect", color = MaterialTheme.colors.error)
                     Log.d("Login Error",response.e.message.toString())
                 }
             }

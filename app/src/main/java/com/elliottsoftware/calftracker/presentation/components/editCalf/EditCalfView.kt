@@ -25,11 +25,18 @@ import com.elliottsoftware.calftracker.presentation.components.main.FloatingButt
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
 import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
+import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 
 import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import kotlinx.coroutines.launch
 
+@Composable
+fun EditCalfView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit){
+    AppTheme(false){
+        ScaffoldView(viewModel=viewModel,onNavigate = onNavigate)
+    }
+}
 
 @Composable
 fun ScaffoldView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit) {
@@ -43,11 +50,7 @@ fun ScaffoldView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit) {
         scaffoldState = scaffoldState,
         drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { viewModel.validateText() }
-            ){
-                Icon(Icons.Filled.Add,"Press to update calf values")
-            }
+            FloatingButton(viewModel)
         },
         topBar = {
             TopAppBar(
@@ -240,6 +243,21 @@ fun Checkboxes(
 
 }
 
+
+@Composable
+fun FloatingButton(viewModel:EditCalfViewModel){
+    FloatingActionButton(
+        onClick = { viewModel.validateText() },
+        backgroundColor = MaterialTheme.colors.secondary,
+        content = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_add),
+                contentDescription = null,
+                tint = MaterialTheme.colors.onSecondary
+            )
+        }
+    )
+}
 
 
 

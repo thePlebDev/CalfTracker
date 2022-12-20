@@ -25,9 +25,17 @@ import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.SecondaryResponse
 import com.elliottsoftware.calftracker.presentation.components.login.LinearLoadingBar
+import com.elliottsoftware.calftracker.presentation.components.login.LoginView
+import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.LoginViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.RegisterViewModel
 
+@Composable
+fun RegisterViews(viewModel: RegisterViewModel = viewModel(),onNavigate:(Int) -> Unit){
+    AppTheme(false){
+        RegisterView( viewModel = viewModel,onNavigate= onNavigate)
+    }
+}
 
 @Composable
 fun RegisterView(viewModel: RegisterViewModel = viewModel(),onNavigate:(Int) -> Unit){

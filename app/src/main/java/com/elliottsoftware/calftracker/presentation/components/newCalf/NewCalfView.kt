@@ -24,18 +24,23 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.findNavController
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
+import com.elliottsoftware.calftracker.presentation.components.forgotPassword.ForgotPasswordView
 import com.elliottsoftware.calftracker.presentation.components.login.LinearLoadingBar
 import com.elliottsoftware.calftracker.presentation.components.main.*
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
 import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
+import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
 import kotlinx.coroutines.launch
 
 
 @Composable
 fun NewCalfView(onNavigate:(Int)->Unit) {
-    ScaffoldView(onNavigate = onNavigate)
+    AppTheme(false){
+        ScaffoldView(onNavigate = onNavigate)
+    }
+
 }
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable

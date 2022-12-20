@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentForgotPasswordBinding
 import com.elliottsoftware.calftracker.presentation.components.forgotPassword.ForgotPasswordView
+import com.elliottsoftware.calftracker.presentation.components.forgotPassword.ForgotPasswordViews
 
 
 /**
@@ -38,7 +39,7 @@ class ForgotPasswordFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 // In Compose world
-                ForgotPasswordView()
+                ForgotPasswordViews()
             }
         }
         return view

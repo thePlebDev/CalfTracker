@@ -20,7 +20,16 @@ import com.elliottsoftware.calftracker.presentation.viewModels.ForgotPasswordVie
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.presentation.components.login.LinearLoadingBar
+import com.elliottsoftware.calftracker.presentation.components.register.RegisterView
+import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 
+
+@Composable
+fun ForgotPasswordViews(viewModel: ForgotPasswordViewModel = viewModel()){
+    AppTheme(false){
+        ForgotPasswordView( viewModel = viewModel)
+    }
+}
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
