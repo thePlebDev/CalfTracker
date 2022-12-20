@@ -45,7 +45,7 @@ class EditCalfFragment : Fragment() {
         binding.composeView.apply{
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                ScaffoldView(sharedViewModel,onNavigate = { dest -> findNavController().navigate(dest) })
+                EditCalfView(sharedViewModel,onNavigate = { dest -> findNavController().navigate(dest) })
 
             }
 

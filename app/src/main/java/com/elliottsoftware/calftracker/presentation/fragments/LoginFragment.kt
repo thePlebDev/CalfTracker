@@ -24,6 +24,7 @@ import androidx.navigation.findNavController
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentLoginBinding
 import com.elliottsoftware.calftracker.presentation.components.login.LoginView
+import com.elliottsoftware.calftracker.presentation.components.login.LoginViews
 
 
 /**
@@ -55,7 +56,7 @@ class LoginFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
 
-                LoginView(onNavigate = { dest -> findNavController().navigate(dest) })
+                LoginViews(onNavigate = { dest -> findNavController().navigate(dest) })
 
 
             }
