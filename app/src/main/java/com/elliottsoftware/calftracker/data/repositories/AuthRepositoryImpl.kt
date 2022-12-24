@@ -14,6 +14,10 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 
 class AuthRepositoryImpl(
+    //TODO: change this to a AuthenticationSource interface class
+    // they we have that interface implementation call to the Firebase.auth
+    // create a source package and add this new class to it
+    // we will use the delegation pattern
     private val auth: FirebaseAuth= Firebase.auth
 ): AuthRepository {
 
