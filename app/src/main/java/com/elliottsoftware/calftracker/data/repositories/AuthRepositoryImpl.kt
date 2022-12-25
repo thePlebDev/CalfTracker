@@ -1,6 +1,7 @@
 package com.elliottsoftware.calftracker.data.repositories
 
 import android.util.Log
+import com.elliottsoftware.calftracker.data.source.FirebaseAuthenticationSource
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.SecondaryResponse
 import com.elliottsoftware.calftracker.domain.repositories.AuthRepository
@@ -18,14 +19,14 @@ class AuthRepositoryImpl(
     // they we have that interface implementation call to the Firebase.auth
     // create a source package and add this new class to it
     // we will use the delegation pattern
-    private val auth: FirebaseAuth= Firebase.auth
+    private val auth: FirebaseAuthenticationSource= FirebaseAuthenticationSource()
 ): AuthRepository {
 
 
     override suspend fun authRegister(email: String, password: String)= flow {
         try {
             emit(SecondaryResponse.Loading)
-            auth.createUserWithEmailAndPassword(email,password).await() //await() integrates with the Google task API
+            auth.createUserWithEmailAndPassword(email,password).await() //await() integrates with the Google task API //DONE
             emit(SecondaryResponse.Success(true))
         }catch (e:Exception){
             Log.d("AuthRepositoryImpl",e.message.toString())
@@ -36,7 +37,7 @@ class AuthRepositoryImpl(
     override suspend fun loginUser(email: String, password: String)= flow {
         try {
             emit(Response.Loading)
-            auth.signInWithEmailAndPassword(email, password).await() //can throw FirebaseAuthInvalidUserException
+            auth.signInWithEmailAndPassword(email, password).await() //can throw FirebaseAuthInvalidUserException //DONE
             emit(Response.Success(true))
         }catch (e:Exception){
             Log.d("AuthRepositoryImpl",e.message.toString())
@@ -45,13 +46,13 @@ class AuthRepositoryImpl(
     }
 
     override  fun isUserSignedIn(): Boolean {
-        val auth = auth.currentUser
+        val auth = auth.currentUser // TODO THIS ONE RETURNS A VALUE, SO COME BACK TO IT
         return auth != null
     }
 
     override fun signUserOut(): Boolean {
         try{
-            auth.signOut()
+            auth.signOut() //DONE
             return true
 
         }catch (e:Exception){
