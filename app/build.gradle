@@ -206,6 +206,10 @@ dependencies {
     implementation "com.google.dagger:hilt-android:2.44"
     kapt "com.google.dagger:hilt-compiler:2.44"
 
+    //MOCKITO
+    implementation 'org.mockito:mockito-core:4.10.0'
+
+
 
 
 }
