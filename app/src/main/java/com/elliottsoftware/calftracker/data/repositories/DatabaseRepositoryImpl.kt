@@ -5,6 +5,7 @@ import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.SecondaryResponse
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
 import com.elliottsoftware.calftracker.domain.repositories.DatabaseRepository
+import com.elliottsoftware.calftracker.util.Actions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -30,10 +31,10 @@ class DatabaseRepositoryImpl(
         )
         try{
             db.collection("users").document(email).set(user).await()
-            emit(SecondaryResponse.SecondActionSuccess)
+            emit(Response.Success(Actions.SECOND))
         }catch (e:Exception){
             Log.d("DatabaseRepository",e.message.toString())
-            emit(SecondaryResponse.Failure(e))
+            emit(Response.Failure(e))
         }
 
 

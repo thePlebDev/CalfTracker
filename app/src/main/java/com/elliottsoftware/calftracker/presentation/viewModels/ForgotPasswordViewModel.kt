@@ -7,7 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.useCases.ResetPasswordUseCase
 import com.elliottsoftware.calftracker.domain.useCases.ValidateEmailUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class ForgotPasswordUIState(
     val email:String = "",
@@ -15,9 +17,10 @@ data class ForgotPasswordUIState(
     val resetPassword:Response<Boolean> = Response.Success(false)
 )
 
-class ForgotPasswordViewModel(
-    val validateEmailUseCase: ValidateEmailUseCase = ValidateEmailUseCase(),
-    val resetPasswordUseCase: ResetPasswordUseCase = ResetPasswordUseCase()
+@HiltViewModel
+class ForgotPasswordViewModel @Inject constructor(
+    val validateEmailUseCase: ValidateEmailUseCase,
+    val resetPasswordUseCase: ResetPasswordUseCase
 
 ):ViewModel() {
 

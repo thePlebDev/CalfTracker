@@ -2,6 +2,7 @@ package com.elliottsoftware.calftracker.domain.repositories
 
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.SecondaryResponse
+import com.elliottsoftware.calftracker.util.Actions
 import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {
@@ -9,7 +10,7 @@ interface AuthRepository {
 
    // suspend fun firebaseSignInEmailNPassword(email:String, password:String): Flow<Response2<Boolean>>
 
-    suspend fun authRegister(email:String,password:String):Flow<SecondaryResponse<Boolean>>
+    suspend fun authRegister(email:String,password:String):Flow<Response<Actions>>
 
     suspend fun loginUser(email:String,password:String):Flow<Response<Boolean>>
 

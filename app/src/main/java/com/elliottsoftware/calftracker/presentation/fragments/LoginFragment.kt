@@ -25,6 +25,7 @@ import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentLoginBinding
 import com.elliottsoftware.calftracker.presentation.components.login.LoginView
 import com.elliottsoftware.calftracker.presentation.components.login.LoginViews
+import dagger.hilt.android.AndroidEntryPoint
 
 
 /**
@@ -32,6 +33,7 @@ import com.elliottsoftware.calftracker.presentation.components.login.LoginViews
  * Use the [LoginFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
+@AndroidEntryPoint
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
 
@@ -55,6 +57,7 @@ class LoginFragment : Fragment() {
             // is destroyed
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
+
 
                 LoginViews(onNavigate = { dest -> findNavController().navigate(dest) })
 

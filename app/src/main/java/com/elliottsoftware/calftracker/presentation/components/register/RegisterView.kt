@@ -29,6 +29,7 @@ import com.elliottsoftware.calftracker.presentation.components.login.LoginView
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.LoginViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.RegisterViewModel
+import com.elliottsoftware.calftracker.util.Actions
 
 @Composable
 fun RegisterViews(viewModel: RegisterViewModel = viewModel(),onNavigate:(Int) -> Unit){
@@ -47,18 +48,23 @@ fun RegisterView(viewModel: RegisterViewModel = viewModel(),onNavigate:(Int) -> 
         SubmitButton(viewModel)
 
         when(val response = viewModel.state.value.signInWithFirebaseResponse){
-            is SecondaryResponse.Loading -> LinearLoadingBar()
-            is SecondaryResponse.SecondActionSuccess ->{
-                onNavigate(R.id.action_registerFragment2_to_mainFragment2)
-            }
-            is SecondaryResponse.Success -> {
-                if(response.data){
+            is Response.Loading -> LinearLoadingBar()
+
+            is Response.Success -> {
+                //todo: I think we can change the response data to a more explicit enum
+                if(response.data == Actions.FIRST){
                     //THIS IS WHERE WE WOULD DO THE NAVIGATION
                     LinearLoadingBar()
                     viewModel.createUserDatabase(viewModel.state.value.email,viewModel.state.value.password)
                 }
+                if(response.data == Actions.SECOND){
+                    onNavigate(R.id.action_registerFragment2_to_mainFragment2)
+                }
+                if(response.data == Actions.RESTING){
+
+                }
             }
-            is SecondaryResponse.Failure -> {
+            is Response.Failure -> {
                 //should probably show a snackbar
                 Fail()
                 Log.d("Login Error",response.e.message.toString())
