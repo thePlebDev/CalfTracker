@@ -29,7 +29,7 @@ import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.LoginViewModel
 
 @Composable
-fun LoginViews(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit){
+fun LoginViews(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit = {}){
     AppTheme(false){
         LoginView( viewModel = viewModel,onNavigate= onNavigate)
     }

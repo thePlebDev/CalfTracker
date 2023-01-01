@@ -1,6 +1,8 @@
 package com.elliottsoftware.calftracker.domain.useCases
 
-class ValidateUsernameUseCase {
+import javax.inject.Inject
+
+class ValidateUsernameUseCase  @Inject constructor(){
 
     operator fun invoke(username:String):String?{
         if(username.isBlank()){

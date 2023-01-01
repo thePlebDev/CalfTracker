@@ -142,10 +142,10 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
 
         ){
             when(val response = state.data){
-                is Response.Loading -> CircularProgressIndicator()
+                is Response.Loading -> CircularProgressIndicator( color =MaterialTheme.colors.onPrimary)
                 is Response.Success -> {
                     if(response.data.isEmpty()){
-                        Text(text = "NO CALVES")
+                        Text(text = "NO CALVES",color =MaterialTheme.colors.onPrimary)
                     }else{
                         MessageList(response.data,viewModel,onNavigate,sharedViewModel)
                     }

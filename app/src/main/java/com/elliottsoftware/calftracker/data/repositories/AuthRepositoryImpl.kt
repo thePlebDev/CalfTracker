@@ -1,11 +1,9 @@
 package com.elliottsoftware.calftracker.data.repositories
 
 import android.util.Log
-import com.elliottsoftware.calftracker.data.source.FirebaseAuthenticationSource
 import com.elliottsoftware.calftracker.domain.models.Response
-import com.elliottsoftware.calftracker.domain.models.SecondaryResponse
 import com.elliottsoftware.calftracker.domain.repositories.AuthRepository
-import kotlinx.coroutines.flow.Flow
+import com.elliottsoftware.calftracker.util.Actions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -13,25 +11,26 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class AuthRepositoryImpl(
-    //TODO: change this to a AuthenticationSource interface class
-    // they we have that interface implementation call to the Firebase.auth
-    // create a source package and add this new class to it
-    // we will use the delegation pattern
-    private val auth: FirebaseAuthenticationSource= FirebaseAuthenticationSource()
+class AuthRepositoryImpl @Inject constructor(
+
+    private val auth: FirebaseAuth
 ): AuthRepository {
 
 
-    override suspend fun authRegister(email: String, password: String)= flow {
+    //TODO:1) change over to callbackFlow
+    //TODO:2) remove the SecondaryResponse (can maybe be replaced with a nested when)(move nested when to function)
+    override suspend fun authRegister(email: String, password: String) = callbackFlow {
         try {
-            emit(SecondaryResponse.Loading)
+            trySend(Response.Loading)
             auth.createUserWithEmailAndPassword(email,password).await() //await() integrates with the Google task API //DONE
-            emit(SecondaryResponse.Success(true))
+            trySend(Response.Success(Actions.FIRST))
         }catch (e:Exception){
             Log.d("AuthRepositoryImpl",e.message.toString())
-            emit(SecondaryResponse.Failure(e))
+            trySend(Response.Failure(e))
         }
+        awaitClose()
     }
 
     override suspend fun loginUser(email: String, password: String)= flow {

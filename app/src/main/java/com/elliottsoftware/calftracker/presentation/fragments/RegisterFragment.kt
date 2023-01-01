@@ -10,6 +10,7 @@ import androidx.navigation.findNavController
 import com.elliottsoftware.calftracker.databinding.FragmentRegisterBinding
 import com.elliottsoftware.calftracker.presentation.components.register.RegisterView
 import com.elliottsoftware.calftracker.presentation.components.register.RegisterViews
+import dagger.hilt.android.AndroidEntryPoint
 
 
 /**
@@ -17,6 +18,7 @@ import com.elliottsoftware.calftracker.presentation.components.register.Register
  * Use the [RegisterFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
+@AndroidEntryPoint
 class RegisterFragment : Fragment() {
     private var _binding: FragmentRegisterBinding?=null
     private val binding get() = _binding!!

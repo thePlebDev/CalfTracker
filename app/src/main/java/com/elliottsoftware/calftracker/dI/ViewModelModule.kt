@@ -8,6 +8,9 @@ import com.elliottsoftware.calftracker.data.repositories.WeatherRepositoryImpl
 import com.elliottsoftware.calftracker.domain.repositories.AuthRepository
 import com.elliottsoftware.calftracker.domain.repositories.DatabaseRepository
 import com.elliottsoftware.calftracker.domain.repositories.WeatherRepository
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,8 +30,12 @@ object ViewModelModule {
 
     //NOT SCOPED BECAUSE WE HAVE NOT DECLARED A SCOPE ANNOTATION
     @Provides
-    fun providesAuthRepository(): AuthRepository {
-        return  AuthRepositoryImpl()
+    fun providesAuthRepository(auth: FirebaseAuth): AuthRepository {
+        return  AuthRepositoryImpl(auth)
+    }
+    @Provides
+    fun providesFirebaseAuth(): FirebaseAuth {
+        return  Firebase.auth
     }
 
     @Provides

@@ -3,18 +3,21 @@ package com.elliottsoftware.calftracker.data.source
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.SecondaryResponse
 import com.elliottsoftware.calftracker.domain.repositories.AuthRepository
+import com.elliottsoftware.calftracker.util.Actions
 import kotlinx.coroutines.flow.Flow
 
 class FakeFirebaseAuth(): AuthRepository {
 
 
-     var shouldReturnNetworkError = false;
+      private var shouldReturnNetworkError:Boolean = false
+
+
 
 
     override suspend fun authRegister(
         email: String,
         password: String
-    ): Flow<SecondaryResponse<Boolean>> {
+    ): Flow<Response<Actions>> {
         TODO("Not yet implemented")
     }
 

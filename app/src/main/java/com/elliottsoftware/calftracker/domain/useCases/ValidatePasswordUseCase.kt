@@ -1,6 +1,8 @@
 package com.elliottsoftware.calftracker.domain.useCases
 
-class ValidatePasswordUseCase {
+import javax.inject.Inject
+
+class ValidatePasswordUseCase @Inject constructor() {
 
     operator fun invoke(password:String):String?{
         if(password.isBlank()){

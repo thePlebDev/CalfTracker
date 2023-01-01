@@ -13,8 +13,10 @@ import com.elliottsoftware.calftracker.domain.useCases.ValidatePasswordUseCase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class LoginUIState(
     val email:String = "",
@@ -27,11 +29,12 @@ data class LoginUIState(
     val loginStatus: Response<Boolean> = Response.Success(false)
 )
 
-class LoginViewModel(
-    private val validateEmail:ValidateEmailUseCase = ValidateEmailUseCase(),
-    private val validatePassword: ValidatePasswordUseCase = ValidatePasswordUseCase(),
-    private val checkUserLoggedIn: CheckUserLoggedInUseCase = CheckUserLoggedInUseCase(),
-    private val loginUseCase: LoginUseCase = LoginUseCase()
+@HiltViewModel
+class LoginViewModel @Inject constructor(
+    private val validateEmail:ValidateEmailUseCase,
+    private val validatePassword: ValidatePasswordUseCase,
+    private val checkUserLoggedIn: CheckUserLoggedInUseCase,
+    private val loginUseCase: LoginUseCase
 ):ViewModel() {
      var state:MutableState<LoginUIState> = mutableStateOf(LoginUIState())
         private set
@@ -47,8 +50,6 @@ class LoginViewModel(
             state.value = state.value.copy(loginStatus = response)
         }
     }
-
-
 
 
     fun updateEmail(email: String){

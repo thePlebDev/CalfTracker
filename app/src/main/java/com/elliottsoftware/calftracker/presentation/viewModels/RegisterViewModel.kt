@@ -8,7 +8,10 @@ import androidx.lifecycle.viewModelScope
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.SecondaryResponse
 import com.elliottsoftware.calftracker.domain.useCases.*
+import com.elliottsoftware.calftracker.util.Actions
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class RegisterUIState(
     val username:String = "",
@@ -19,20 +22,22 @@ data class RegisterUIState(
     val passwordError: String? = null,
     val passwordIconChecked:Boolean = false,
     val showProgressBar:Boolean = false,
-    val signInWithFirebaseResponse:SecondaryResponse<Boolean> =SecondaryResponse.Success(false),
-    val createUserDatabase:Response<Boolean> = Response.Success(false)
+    //todo: CHANGE BOOLEAN TO A MORE EXPLICIT VIEWMODEL
+    val signInWithFirebaseResponse:Response<Actions> =Response.Success(Actions.RESTING),
+
 )
 
-class RegisterViewModel(
-    val validateEmail: ValidateEmailUseCase = ValidateEmailUseCase(),
-    val validateUsername: ValidateUsernameUseCase = ValidateUsernameUseCase(),
-    val validatePassword: ValidatePasswordUseCase = ValidatePasswordUseCase(),
-    val registerUserUseCase: RegisterUserUseCase = RegisterUserUseCase(),
-    val createUserUseCase: CreateUserUseCase = CreateUserUseCase()
+@HiltViewModel
+class RegisterViewModel @Inject constructor(
+    val validateEmail: ValidateEmailUseCase,
+    val validateUsername: ValidateUsernameUseCase,
+    val validatePassword: ValidatePasswordUseCase,
+    val registerUserUseCase: RegisterUserUseCase,
+    val createUserUseCase: CreateUserUseCase
 ):ViewModel() {
 
     var state = mutableStateOf(RegisterUIState())
-    //var signInWithFirebaseResponse by mutableStateOf<Response<Boolean>>(Response.Success(false))
+
 
 
 
