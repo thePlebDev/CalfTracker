@@ -20,10 +20,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Logout
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Satellite
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,7 +51,7 @@ import com.elliottsoftware.calftracker.presentation.viewModels.WeatherViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-
+//TODO: NEED TO ADD THE SEARCH FUNCTIONALITY
 @RequiresApi(Build.VERSION_CODES.N)
 @Composable
 fun MainView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Unit,sharedViewModel: EditCalfViewModel){
@@ -93,7 +90,8 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
                     ) {
                         Icon(Icons.Filled.Menu, contentDescription = "Toggle navigation drawer")
                     }
-                }
+                },
+                actions = {}
             )
         },
         drawerContent = {
@@ -125,7 +123,21 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
 
                             }
                         }
+                    ),
+                    MenuItem(
+                        id= "stats",
+                        title="Stats",
+                        contentDescription = "Statistics page",
+                        icon = Icons.Default.Info,
+                        onClick = {
+                            scope.launch {
+                                scaffoldState.drawerState.close()
+                                onNavigate(R.id.action_mainFragment2_to_calfStatsFragment)
+
+                            }
+                        }
                     )
+
                 )
             )
             //END OF THE DRAWER BODY
@@ -271,38 +283,4 @@ fun FloatingButton(navigate:(Int)-> Unit){
             )
         }
     )
-}
-@Composable
-fun ThemeToggle(viewModel: MainViewModel = viewModel()){
-
-    var switchState by remember { mutableStateOf(true) }
-
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(20.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceEvenly
-
-
-    ) {
-        Text("Dark mode", style = TextStyle(fontSize = 18.sp),modifier = Modifier.weight(1f))
-
-
-        Switch(
-            checked = switchState,
-            onCheckedChange ={
-                switchState=it
-                viewModel.setDarkMode()
-            },//called when it is clicked
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = MaterialTheme.colors.primary,
-                uncheckedThumbColor = MaterialTheme.colors.primary,
-                checkedTrackColor = MaterialTheme.colors.secondary,
-                uncheckedTrackColor = MaterialTheme.colors.secondary,
-            )
-        )
-
-
-    }
 }
