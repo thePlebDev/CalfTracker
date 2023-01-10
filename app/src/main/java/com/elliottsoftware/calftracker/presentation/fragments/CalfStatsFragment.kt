@@ -11,6 +11,7 @@ import androidx.navigation.findNavController
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentCalfStatsBinding
 import com.elliottsoftware.calftracker.presentation.components.editCalf.EditCalfView
+import com.elliottsoftware.calftracker.presentation.components.statsCalf.StatsCalfView
 
 
 /**
@@ -42,7 +43,7 @@ class CalfStatsFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
 
-                Text("THIS IS THE PAGE WHERE THERE IS GOING TO BE A LARGE CIRCLE GRAPHIC")
+                StatsCalfView()
 
 
             }
