@@ -209,6 +209,9 @@ dependencies {
     //MOCKITO
     implementation 'org.mockito:mockito-core:4.10.0'
 
+    //CHARTS
+    implementation 'com.github.madrapps:plot:0.1.1'
+
 
 
 
