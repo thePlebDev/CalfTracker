@@ -18,9 +18,10 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
 import java.text.DecimalFormat
 
-data class DataPoint(val x: Float, val y: Float)
+data class DataPoint(val x: Float, val y: Float,val calves:List<FireBaseCalf>)
 
 /**
  * The configuration for the [LineGraph]
@@ -228,7 +229,7 @@ data class LinePlot(
      */
     data class Grid(
         val color: Color,
-        val steps: Int = 5,
+        val steps: Int = 6,
         val lineWidth: Dp = 1.dp,
         val draw: DrawScope.(Rect, Float, Float) -> Unit = { region, _, _ ->
             val (left, top, right, bottom) = region
