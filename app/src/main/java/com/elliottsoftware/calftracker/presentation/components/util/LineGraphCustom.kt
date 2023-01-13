@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlin.math.ceil
 
 @Composable
 fun LineGraph(
@@ -60,13 +61,13 @@ fun LineGraph(
     val xZoom = remember { mutableStateOf(globalXScale) }
     val rowHeight = remember { mutableStateOf(0f) }
     val columnWidth = remember { mutableStateOf(0f) }
-    val bgColor = MaterialTheme.colors.surface
+    val bgColor = MaterialTheme.colors.primary //MAIN BACKGROUND COLOR
 
     val lines = plot.lines
     val xUnit = plot.xAxis.unit
 
     CompositionLocalProvider(
-        LocalLayoutDirection provides LayoutDirection.Ltr,
+        LocalLayoutDirection provides LayoutDirection.Ltr, //CHANGING THE LAYOUT DIRECTION TO `LEFT TO RIGHT`
     ) {
         Box(
             modifier = modifier.clipToBounds(),
@@ -81,14 +82,18 @@ fun LineGraph(
                 .fillMaxWidth()
                 .background(bgColor)
                 .scrollable(
+                    // Scrollable state: describes how to consume
+                    // scrolling delta and update offset
+                    //returns the amount of scrolling distance consumed on each gesture
                     state = rememberScrollableState { delta ->
                         offset.value -= delta
                         if (offset.value < 0f) offset.value = 0f
                         if (offset.value > maxScrollOffset.value) {
                             offset.value = maxScrollOffset.value
                         }
-                        delta
-                    }, Orientation.Horizontal, enabled = true
+                         delta //amount of distance scrolled
+                    }, Orientation.Horizontal, //horizontal scrolling
+                    enabled = true //scrolling is enabled
                 )
                 .pointerInput(Unit, Unit) {
                     detectDragZoomGesture(

@@ -48,7 +48,7 @@ internal suspend fun PointerInputScope.detectDragZoomGesture(
 
                 do {
                     val event = awaitPointerEvent()
-                    val canceled = event.changes.any { it.positionChangeConsumed() } //todo: DEPRECIATED
+                    val canceled = event.changes.any { it.isConsumed } //todo: DEPRECIATED, positionChangeConsumed()
                     if (event.changes.size == 1) {
                         break
                     } else if (event.changes.size == 2) {
@@ -73,7 +73,7 @@ internal suspend fun PointerInputScope.detectDragZoomGesture(
                                     }
                                     event.changes.forEach {
                                         if (it.positionChanged()) {
-                                            it.consumeAllChanges()
+                                            it.consume() //todo: DEPRECIATED, consumeAllChanges()
                                         }
                                     }
                                 }
