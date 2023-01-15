@@ -34,10 +34,9 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.elliottsoftware.calftracker.R
+import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
-import com.elliottsoftware.calftracker.presentation.components.util.DataPoint
-import com.elliottsoftware.calftracker.presentation.components.util.LineGraph
-import com.elliottsoftware.calftracker.presentation.components.util.LinePlot
+import com.elliottsoftware.calftracker.presentation.components.util.*
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -74,9 +73,26 @@ fun MainView(viewModel:StatsViewModel = viewModel()){
             .background(MaterialTheme.colors.primary)
             .fillMaxHeight()) {
 
-            SampleLineGraph(listOf(DataPoints.dataPoints1),viewModel)
-            HeaderInfo()
-            CalfListView(viewModel.uiState.value.calfList)
+//            SampleLineGraph(listOf(DataPoints.dataPoints1),viewModel)
+//            HeaderInfo()
+//            CalfListView(viewModel.uiState.value.calfList)
+            when(val response = viewModel.uiState.value.graphData){
+                is Response.Loading -> LoadingShimmer(imageHeight = 180.dp)
+                is Response.Success -> {
+                    if (response.data.isNotEmpty()){
+                        SampleLineGraph(listOf(response.data),viewModel)
+                        HeaderInfo()
+                        CalfListView(viewModel.uiState.value.calfList)
+                    }else{
+                        Text(text = "NO DATA CREATED")
+                    }
+                }
+                is Response.Failure -> Text("FAIL")
+                
+            }
+
+            
+
 
         }
 
@@ -89,10 +105,10 @@ fun HeaderInfo(){
 
         Column(modifier = Modifier
             .padding(horizontal = 8.dp, vertical = 8.dp)
-            .background( MaterialTheme.colors.primary)
+            .background(MaterialTheme.colors.primary)
         ) {
             Text("Date : 2022-02-02",style = MaterialTheme.typography.h6)
-            Text("Bulsl : 2",style = MaterialTheme.typography.h6)
+            Text("Bulls : 2",style = MaterialTheme.typography.h6)
             Text("Heifers : 1",style = MaterialTheme.typography.h6)
         }
 
@@ -179,25 +195,7 @@ val calf = FireBaseCalf("22d2",
     "22d2ddrew4r","Bull","STUFF AND THINGS", Date(),"222"
 )
 
-object DataPoints {
-    val dataPoints1 = listOf(
-        DataPoint(0f, 0f, listOf(calf)),
-        DataPoint(1f, 2f, listOf(calf,calf)),
-        DataPoint(2f, 1f, listOf(calf)),
-        DataPoint(3f, 1f, listOf(calf,calf)),
-        DataPoint(4f, 5f, listOf(calf)),
-        DataPoint(5f, 2f, listOf(calf,calf)),
-        DataPoint(6f, 0f, listOf(calf)),
-        DataPoint(7f, 0f, listOf(calf,calf)),
-        DataPoint(8f, 0f, listOf(calf)),
-        DataPoint(9f, 1f, listOf(calf,calf)),
-        DataPoint(10f, 1f, listOf(calf)),
-        DataPoint(11f, 3f, listOf(calf,calf)),
-    )
 
-
-
-}
 
 
 
