@@ -35,9 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
-import com.elliottsoftware.calftracker.presentation.components.util.DataPoint
-import com.elliottsoftware.calftracker.presentation.components.util.LineGraph
-import com.elliottsoftware.calftracker.presentation.components.util.LinePlot
+import com.elliottsoftware.calftracker.presentation.components.util.*
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -74,9 +72,12 @@ fun MainView(viewModel:StatsViewModel = viewModel()){
             .background(MaterialTheme.colors.primary)
             .fillMaxHeight()) {
 
-            SampleLineGraph(listOf(DataPoints.dataPoints1),viewModel)
-            HeaderInfo()
-            CalfListView(viewModel.uiState.value.calfList)
+//            SampleLineGraph(listOf(DataPoints.dataPoints1),viewModel)
+//            HeaderInfo()
+//            CalfListView(viewModel.uiState.value.calfList)
+            
+            LoadingShimmer(imageHeight = 260.dp)
+
 
         }
 
@@ -92,7 +93,7 @@ fun HeaderInfo(){
             .background( MaterialTheme.colors.primary)
         ) {
             Text("Date : 2022-02-02",style = MaterialTheme.typography.h6)
-            Text("Bulsl : 2",style = MaterialTheme.typography.h6)
+            Text("Bulls : 2",style = MaterialTheme.typography.h6)
             Text("Heifers : 1",style = MaterialTheme.typography.h6)
         }
 
