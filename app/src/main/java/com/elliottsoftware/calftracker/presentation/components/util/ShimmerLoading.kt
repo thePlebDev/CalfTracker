@@ -91,8 +91,8 @@ fun LoadingShimmer(
         
         val infiniteTransition = rememberInfiniteTransition()
         val xChardShimmer = infiniteTransition.animateFloat(
-            initialValue = 0f,
-            targetValue = (cardWidthPx + gradientWidth),
+            initialValue = 0f, // starts here
+            targetValue = (cardWidthPx + gradientWidth), // ends here
             animationSpec = infiniteRepeatable(
                 animation = tween(
                     durationMillis = 1300,
