@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
 import java.text.DecimalFormat
 
-data class DataPoint(val x: Float, val y: Float,val calves:List<FireBaseCalf>)
+data class DataPoint(val x: Float, val y: Float,val calves:MutableList<FireBaseCalf>)
 
 /**
  * The configuration for the [LineGraph]
