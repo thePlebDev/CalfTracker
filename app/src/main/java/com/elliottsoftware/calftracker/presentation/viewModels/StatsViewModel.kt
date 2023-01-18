@@ -3,17 +3,25 @@ package com.elliottsoftware.calftracker.presentation.viewModels
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.elliottsoftware.calftracker.domain.models.DataPoint
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
+import com.elliottsoftware.calftracker.domain.models.fireBase.calfListToDataPointList
 import com.elliottsoftware.calftracker.domain.useCases.GetCalvesUseCase
-import com.elliottsoftware.calftracker.presentation.components.statsCalf.calf
-import com.elliottsoftware.calftracker.presentation.components.util.DataPoint
+import com.elliottsoftware.calftracker.domain.useCases.GetDataPointUseCase
+
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.*
+import javax.inject.Inject
 
+val calf = FireBaseCalf("22d2",
+    "22d2",
+    "22d2ddrew4r","Bull","STUFF AND THINGS", Date(),"222"
+)
 object DataPoints {
     val dataPoints1 = listOf(
         DataPoint(0f, 0f, mutableListOf(calf)),
@@ -34,6 +42,8 @@ object DataPoints {
 
 }
 
+
+
 data class StatsUiState(
 
     val calfList: List<FireBaseCalf> = listOf(),
@@ -42,29 +52,36 @@ data class StatsUiState(
 )
 
 
-class StatsViewModel(
-    //private val getCalvesUseCase: GetCalvesUseCase
+@HiltViewModel
+class StatsViewModel @Inject constructor(
+    private val getDataPointUseCase: GetDataPointUseCase
 ): ViewModel() {
 
 
-
-//    private val _uiState = mutableStateOf("NOTHING SELECTED") // used in the viewModel
-//    val uiState: State<String> = _uiState //exposed to the components
-
     private val _uiState = mutableStateOf(StatsUiState())
     val uiState: State<StatsUiState> = _uiState
+
+    init {
+        getDataPoints()
+    }
 
 
     fun changeListUI(calfList: List<FireBaseCalf>){
         _uiState.value = _uiState.value.copy(calfList = calfList)
     }
 
-//    fun getCalves() = viewModelScope.launch(){
-//        getCalvesUseCase.invoke().collect{response ->
-//            _uiState.value = _uiState.value.copy(data = response)
-//
-//        }
-//
-//    }
+
+    private fun getDataPoints() = viewModelScope.launch(){
+        getDataPointUseCase.invoke().collect{response ->
+
+            _uiState.value = _uiState.value.copy(graphData = response)
+
+        }
+
+    }
+    private fun getDataPointsTest(){
+        _uiState.value = _uiState.value.copy(graphData = Response.Success(DataPoints.dataPoints1))
+
+    }
 }
 
