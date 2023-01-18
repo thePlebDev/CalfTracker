@@ -14,4 +14,8 @@ class GetCalvesUseCase @Inject constructor(
     suspend operator fun invoke():Flow<Response<List<FireBaseCalf>>>{
         return databaseRepository.getCalves()
     }
+
+    suspend fun getCalfByTagNumber(tagNumber:String):Flow<Response<List<FireBaseCalf>>>{
+        return databaseRepository.getCalvesByTagNumber(tagNumber)
+    }
 }

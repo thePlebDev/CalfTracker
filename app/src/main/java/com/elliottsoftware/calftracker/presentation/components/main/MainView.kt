@@ -10,13 +10,15 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.material.icons.Icons
@@ -26,18 +28,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-
-import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
-import kotlinx.coroutines.launch
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
@@ -47,9 +45,8 @@ import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
 import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
-import com.elliottsoftware.calftracker.presentation.viewModels.WeatherViewModel
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
+import kotlinx.coroutines.launch
 
 //TODO: NEED TO ADD THE SEARCH FUNCTIONALITY
 @RequiresApi(Build.VERSION_CODES.N)
@@ -80,19 +77,7 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
         drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
         floatingActionButton = { FloatingButton(onNavigate) },
         topBar = {
-            TopAppBar(
-                title = { Text("Calf Tracker") },
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            scope.launch { scaffoldState.drawerState.open() }
-                        }
-                    ) {
-                        Icon(Icons.Filled.Menu, contentDescription = "Toggle navigation drawer")
-                    }
-                },
-                actions = {}
-            )
+            CustomTopBar(viewModel)
         },
         drawerContent = {
             DrawerHeader()
@@ -144,9 +129,12 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
             when(val response = state.data){
                 is Response.Loading -> CircularProgressIndicator( color =MaterialTheme.colors.onPrimary)
                 is Response.Success -> {
+
                     if(response.data.isEmpty()){
                         Text(text = "NO CALVES",color =MaterialTheme.colors.onPrimary)
                     }else{
+
+
                         MessageList(response.data,viewModel,onNavigate,sharedViewModel)
                     }
 
@@ -172,6 +160,7 @@ fun MessageList(
     sharedViewModel: EditCalfViewModel
 ) {
     val dateFormat = SimpleDateFormat("yyyy-mm-dd")
+    Log.d("SEARCHINGMETHOD",calfList.toString())
 
     LazyColumn(modifier=Modifier.background(MaterialTheme.colors.primary)) {
         items(calfList,key = { it.id!! }) { calf ->
@@ -222,11 +211,11 @@ fun MessageList(
                 modifier = Modifier
                     .padding(horizontal = 8.dp, vertical = 8.dp)
                     .fillMaxWidth()
-                //    .background(MaterialTheme.colors.primary) /*******THIS IS WHAT IS COLORING THE CORNERS********/
+                    //    .background(MaterialTheme.colors.primary) /*******THIS IS WHAT IS COLORING THE CORNERS********/
                     .clickable {
                         sharedViewModel.setCalf(calf)
                         onNavigate(R.id.action_mainFragment2_to_editCalfFragment)
-                               }
+                    }
                 ,
                 elevation = 2.dp,
                 backgroundColor = MaterialTheme.colors.secondary, /******THIS IS WHAT I CHANGED*******/
@@ -272,3 +261,81 @@ fun FloatingButton(navigate:(Int)-> Unit){
         }
     )
 }
+
+@Composable
+fun CustomTopBar(viewModel: MainViewModel){
+    var tagNumber by remember { mutableStateOf("") }
+    var clicked by remember { mutableStateOf(false)}
+    val source = remember {
+        MutableInteractionSource()
+    }
+    val icon = Icon(Icons.Filled.Search, contentDescription = "Search Icon")
+    val focusManager = LocalFocusManager.current
+
+    if ( source.collectIsPressedAsState().value){
+        clicked = true
+    }
+
+
+    Column() {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colors.primary,
+            elevation = 8.dp
+        ) {
+            Row(modifier = Modifier.fillMaxWidth(),verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = { /*TODO*/ }) {
+                    Icon(Icons.Filled.Menu, contentDescription = "Toggle navigation drawer")
+                }
+                TextField(
+                    //modifier = Modifier.clickable { Log.d("CLICK","CLICKED") },
+                    value = tagNumber, onValueChange = {tagNumber = it},
+                label = {Text("Search")},
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Search
+                ),
+                    trailingIcon = {
+                        if(clicked){
+                            Icon(
+                                Icons.Filled.Close,
+                                contentDescription = "Clear search icon",
+                                modifier = Modifier.clickable {
+                                    tagNumber = ""
+                                    viewModel.searchCalfListByTag("")
+                                    focusManager.clearFocus()
+                                }
+                            )
+                        }else{
+                            Icon(Icons.Filled.Search, contentDescription = "Search Icon")
+                        }
+
+                    },
+                    keyboardActions = KeyboardActions(
+                        onSearch = {
+                            viewModel.searchCalfListByTag(tagNumber)
+                            focusManager.clearFocus()
+                        }),
+                    interactionSource = source,
+                )
+            }
+
+        }
+        
+    }
+}
+
+//inside of scaffold topBar = {}
+//TopAppBar(
+//title = { Text("Calf Tracker") },
+//navigationIcon = {
+//    IconButton(
+//        onClick = {
+//            scope.launch { scaffoldState.drawerState.open() }
+//        }
+//    ) {
+//        Icon(Icons.Filled.Menu, contentDescription = "Toggle navigation drawer")
+//    }
+//},
+//actions = {}
+//)
