@@ -1,6 +1,7 @@
 package com.elliottsoftware.calftracker.presentation.viewModels
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 
@@ -24,7 +25,8 @@ import javax.inject.Inject
 data class MainUIState(
     val loggedUserOut:Boolean = false,
     val data:Response<List<FireBaseCalf>> = Response.Loading,
-    val darkTheme:Boolean = false
+    val darkTheme:Boolean = false,
+    val searchableList:List<FireBaseCalf> = listOf()
         )
 
 @HiltViewModel
@@ -46,8 +48,9 @@ class MainViewModel @Inject constructor(
     }
 
 
-    fun getCalves() = viewModelScope.launch(){
+    private fun getCalves() = viewModelScope.launch(){
         getCalvesUseCase.invoke().collect{response ->
+
             state.value = state.value.copy(data = response)
 
         }
@@ -63,6 +66,14 @@ class MainViewModel @Inject constructor(
         state.value = state.value.copy(darkTheme = !state.value.darkTheme)
     }
 
+
+
+    fun searchCalfListByTag(tagNumber:String) = viewModelScope.launch{
+        getCalvesUseCase.getCalfByTagNumber(tagNumber).collect{ response ->
+            state.value = state.value.copy(data = response)
+        }
+
+    }
 
 
 

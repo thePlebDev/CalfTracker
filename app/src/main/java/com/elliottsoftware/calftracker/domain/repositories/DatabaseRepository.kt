@@ -30,5 +30,7 @@ interface DatabaseRepository {
 
     suspend fun getDataPoints():Flow<Response<List<DataPoint>>>
 
+    suspend fun getCalvesByTagNumber(tagNumber:String):Flow<Response<List<FireBaseCalf>>>
+
 
 }

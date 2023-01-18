@@ -151,4 +151,32 @@ class DatabaseRepositoryImpl(
             docRef.remove()
         }
     }
+
+    override suspend fun getCalvesByTagNumber(tagNumber: String)= callbackFlow {
+        trySend(Response.Loading)
+        val docRef = db.collection("users")
+            .document(auth.currentUser?.email!!).collection("calves")
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.w("getDataPoints()", "Listen failed.", e)
+                    trySend(Response.Failure(e))
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    Log.d("getCalves()", "Current data: ${snapshot.size()}")
+                    val data = snapshot.map {  document ->
+                        document.toObject(FireBaseCalf::class.java)
+                    }
+                    val filteredCalfList = data.filter { it.calfTag!!.contains(tagNumber, ignoreCase = true) }
+                    trySend(Response.Success(filteredCalfList))
+                } else {
+                    Log.d("getDataPoints()", "Current data: null")
+                }
+            }
+
+        awaitClose{
+            docRef.remove()
+        }
+    }
 }
