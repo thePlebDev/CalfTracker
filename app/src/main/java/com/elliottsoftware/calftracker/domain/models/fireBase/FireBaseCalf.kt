@@ -1,6 +1,6 @@
 package com.elliottsoftware.calftracker.domain.models.fireBase
 
-import com.elliottsoftware.calftracker.presentation.components.util.DataPoint
+import com.elliottsoftware.calftracker.domain.models.DataPoint
 import java.util.*
 
 //TODO THE GETTERS AND SETTERS USED BY FIREBASE ARE CASE SENSITIVE
@@ -39,21 +39,21 @@ fun calfListToDataPoint(calfList:List<FireBaseCalf>,index:Int): DataPoint {
 }
 
 /**
- * Function that takes in the a random ordering of List<FireBaseCalf>. The individual implementations of
+ * * Function that takes in the a random ordering of List<FireBaseCalf>. The individual implementations of
  * FireBaseCalf are then grouped by date and then converted to a List<DataPoint>, which will then be used to
  * create a line graph
  *
  * @param calfList List of FireBaseCalf
  * @return List<DataPoint> the values to be plotted on the graph
  */
-fun groupedCalfListToDataPointList(calfList: List<FireBaseCalf>):List<DataPoint>{
+fun calfListToDataPointList(calfList: List<FireBaseCalf>):List<DataPoint>{
     //a list converted to a Map and grouped by `it.date`. Also converted back to a Pair based list with `.toList()`
     val calfListSortedByDate = calfList.groupBy { it.date }.toList()
 
     // calfListSortedByDate converted to a List<List<FireBaseCalf>>
     val listPairToNestedList = calfListSortedByDate.map { it.second }
 
-    //accessing the nested list through the mapIndexed{} and returning the determined List by calling calfListToDataPoint
+    //accessing the nested list through the mapIndexed{} and returning the wanted List by calling calfListToDataPoint
     val finalList = listPairToNestedList.mapIndexed{ index,list ->
         calfListToDataPoint(list,index)
     }

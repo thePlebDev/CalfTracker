@@ -1,9 +1,11 @@
 package com.elliottsoftware.calftracker.data.repositories
 
 import android.util.Log
+import com.elliottsoftware.calftracker.domain.models.DataPoint
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.SecondaryResponse
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
+import com.elliottsoftware.calftracker.domain.models.fireBase.calfListToDataPointList
 import com.elliottsoftware.calftracker.domain.repositories.DatabaseRepository
 import com.elliottsoftware.calftracker.util.Actions
 import com.google.firebase.auth.FirebaseAuth
@@ -120,5 +122,33 @@ class DatabaseRepositoryImpl(
             .addOnFailureListener{ trySend(Response.Failure(Exception("Update calf failed"))) }
 
         awaitClose()
+    }
+
+    override suspend fun getDataPoints()= callbackFlow{
+        trySend(Response.Loading)
+        val docRef = db.collection("users")
+            .document(auth.currentUser?.email!!).collection("calves")
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.w("getDataPoints()", "Listen failed.", e)
+                    trySend(Response.Failure(e))
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null) {
+                    Log.d("getCalves()", "Current data: ${snapshot.size()}")
+                    val data = snapshot.map {  document ->
+                        document.toObject(FireBaseCalf::class.java)
+                    }
+                    val transformedData = calfListToDataPointList(data)
+                    trySend(Response.Success(transformedData))
+                } else {
+                    Log.d("getDataPoints()", "Current data: null")
+                }
+            }
+
+        awaitClose{
+            docRef.remove()
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.elliottsoftware.calftracker.presentation.components.util
 
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -37,6 +38,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import com.elliottsoftware.calftracker.domain.models.DataPoint
 import kotlin.math.ceil
 
 @Composable
@@ -72,7 +74,9 @@ fun LineGraph(
         Box(
             modifier = modifier.clipToBounds(),
         ) {
+            //TODO:look into how the lines are draws
             val points = lines.flatMap { it.dataPoints }
+            Log.d("DATAPOINTSGRAPH",points.toString())
             val (xMin, xMax, xAxisScale) = getXAxisScale(points, plot)
             val (yMin, yMax, yAxisScale) = getYAxisScale(points, plot)
 

@@ -34,6 +34,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.elliottsoftware.calftracker.R
+import com.elliottsoftware.calftracker.domain.models.DataPoint
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
 import com.elliottsoftware.calftracker.presentation.components.util.*
@@ -80,6 +81,7 @@ fun MainView(viewModel:StatsViewModel = viewModel()){
                 is Response.Loading -> LoadingShimmer(imageHeight = 180.dp)
                 is Response.Success -> {
                     if (response.data.isNotEmpty()){
+
                         SampleLineGraph(listOf(response.data),viewModel)
                         HeaderInfo()
                         CalfListView(viewModel.uiState.value.calfList)
@@ -166,9 +168,10 @@ fun CalfListView( calfList:List<FireBaseCalf>){
 
 @Composable
 fun SampleLineGraph(lines: List<List<DataPoint>>, viewModel: StatsViewModel) {
+
     LineGraph(
         plot = LinePlot(
-            listOf(
+           lines = listOf(
                 LinePlot.Line(
                     lines[0],
                     LinePlot.Connection(color = MaterialTheme.colors.onPrimary),
@@ -190,10 +193,7 @@ fun SampleLineGraph(lines: List<List<DataPoint>>, viewModel: StatsViewModel) {
     )
 }
 
-val calf = FireBaseCalf("22d2",
-    "22d2",
-    "22d2ddrew4r","Bull","STUFF AND THINGS", Date(),"222"
-)
+
 
 
 

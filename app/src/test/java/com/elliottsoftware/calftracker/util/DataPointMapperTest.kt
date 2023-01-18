@@ -1,12 +1,10 @@
 package com.elliottsoftware.calftracker.util
 
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
-import com.elliottsoftware.calftracker.domain.models.fireBase.calfListToDataPoint
-import com.elliottsoftware.calftracker.domain.models.fireBase.groupedCalfListToDataPointList
-import com.elliottsoftware.calftracker.presentation.components.util.DataPoint
+
+import com.elliottsoftware.calftracker.domain.models.fireBase.calfListToDataPointList
 import org.junit.Assert
 import org.junit.Test
-import java.time.LocalDate
 import java.util.*
 
 class DataPointMapperTest {
@@ -28,7 +26,7 @@ class DataPointMapperTest {
         val calfList = listOf(calf,calf,calf1)
 
         /**WHEN**/
-       val sorted =  groupedCalfListToDataPointList(calfList)
+       val sorted =  calfListToDataPointList(calfList)
 
         /**THEN**/
         Assert.assertEquals(2, sorted[0].calves.size)

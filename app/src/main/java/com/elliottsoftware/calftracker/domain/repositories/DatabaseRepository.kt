@@ -5,6 +5,16 @@ import com.elliottsoftware.calftracker.domain.models.SecondaryResponse
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
 import com.elliottsoftware.calftracker.util.Actions
 import kotlinx.coroutines.flow.Flow
+import com.elliottsoftware.calftracker.domain.models.DataPoint
+
+
+/**
+ * A interface for interacting with a database. Methods in this interface support user/[FireBaseCalf] creation,
+ * [FireBaseCalf] retrieval, [FireBaseCalf] deletion, [FireBaseCalf] updates and [DataPoint] retrieval;
+ *
+ *
+ *
+ */
 
 interface DatabaseRepository {
 
@@ -17,5 +27,8 @@ interface DatabaseRepository {
     suspend fun deleteCalf(id:String):Flow<Response<Boolean>>
 
     suspend fun updateCalf(fireBaseCalf: FireBaseCalf):Flow<Response<Boolean>>
+
+    suspend fun getDataPoints():Flow<Response<List<DataPoint>>>
+
 
 }

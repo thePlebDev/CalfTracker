@@ -124,19 +124,7 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
                             }
                         }
                     ),
-                    MenuItem(
-                        id= "stats",
-                        title="Stats",
-                        contentDescription = "Statistics page",
-                        icon = Icons.Default.Info,
-                        onClick = {
-                            scope.launch {
-                                scaffoldState.drawerState.close()
-                                onNavigate(R.id.action_mainFragment2_to_calfStatsFragment)
-
-                            }
-                        }
-                    )
+                  
 
                 )
             )
