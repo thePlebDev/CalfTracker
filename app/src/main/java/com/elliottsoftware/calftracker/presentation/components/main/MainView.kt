@@ -47,6 +47,7 @@ import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 //TODO: NEED TO ADD THE SEARCH FUNCTIONALITY
@@ -78,7 +79,7 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
         drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
         floatingActionButton = { FloatingButton(onNavigate) },
         topBar = {
-            CustomTopBar(viewModel)
+            CustomTopBar(viewModel,scope,scaffoldState)
         },
         drawerContent = {
             DrawerHeader()
@@ -137,7 +138,7 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
 
                         MessageList(response.data,viewModel,onNavigate,sharedViewModel)
                     }
-                    
+
                 }
                 is Response.Failure -> Text("FAIL")
             }
@@ -262,13 +263,12 @@ fun FloatingButton(navigate:(Int)-> Unit){
 }
 
 @Composable
-fun CustomTopBar(viewModel: MainViewModel){
+fun CustomTopBar(viewModel: MainViewModel, scope: CoroutineScope, scaffoldState: ScaffoldState){
     var tagNumber by remember { mutableStateOf("") }
     var clicked by remember { mutableStateOf(false)}
     val source = remember {
         MutableInteractionSource()
     }
-    val icon = Icon(Icons.Filled.Search, contentDescription = "Search Icon")
     val focusManager = LocalFocusManager.current
 
     if ( source.collectIsPressedAsState().value){
@@ -284,7 +284,9 @@ fun CustomTopBar(viewModel: MainViewModel){
         ) {
             Column() {
                 Row(modifier = Modifier.fillMaxWidth(),verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {
+                        scope.launch { scaffoldState.drawerState.open() }
+                    }) {
                         Icon(Icons.Filled.Menu, contentDescription = "Toggle navigation drawer")
                     }
                     TextField(
@@ -336,20 +338,7 @@ fun CustomTopBar(viewModel: MainViewModel){
     }
 }
 
-//inside of scaffold topBar = {}
-//TopAppBar(
-//title = { Text("Calf Tracker") },
-//navigationIcon = {
-//    IconButton(
-//        onClick = {
-//            scope.launch { scaffoldState.drawerState.open() }
-//        }
-//    ) {
-//        Icon(Icons.Filled.Menu, contentDescription = "Toggle navigation drawer")
-//    }
-//},
-//actions = {}
-//)
+
 @Composable
 fun Chip(value:String){
     Surface(

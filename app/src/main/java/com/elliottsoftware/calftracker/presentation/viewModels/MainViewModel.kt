@@ -26,7 +26,7 @@ data class MainUIState(
     val loggedUserOut:Boolean = false,
     val data:Response<List<FireBaseCalf>> = Response.Loading,
     val darkTheme:Boolean = false,
-    val chipText:List<String> = listOf("TOTAL: 20 ","BULLS : 10","HEIFERS : 10")
+    val chipText:List<String> = listOf("TOTAL: 0 ","BULLS: 0","HEIFERS: 0")
         )
 
 @HiltViewModel
