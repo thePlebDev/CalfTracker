@@ -14,6 +14,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -129,16 +130,14 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
             when(val response = state.data){
                 is Response.Loading -> CircularProgressIndicator( color =MaterialTheme.colors.onPrimary)
                 is Response.Success -> {
-
+                    viewModel.setChipText(response.data)
                     if(response.data.isEmpty()){
                         Text(text = "NO CALVES",color =MaterialTheme.colors.onPrimary)
                     }else{
 
-
                         MessageList(response.data,viewModel,onNavigate,sharedViewModel)
                     }
-
-
+                    
                 }
                 is Response.Failure -> Text("FAIL")
             }
@@ -283,42 +282,54 @@ fun CustomTopBar(viewModel: MainViewModel){
             color = MaterialTheme.colors.primary,
             elevation = 8.dp
         ) {
-            Row(modifier = Modifier.fillMaxWidth(),verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(Icons.Filled.Menu, contentDescription = "Toggle navigation drawer")
-                }
-                TextField(
-                    //modifier = Modifier.clickable { Log.d("CLICK","CLICKED") },
-                    value = tagNumber, onValueChange = {tagNumber = it},
-                label = {Text("Search")},
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Search
-                ),
-                    trailingIcon = {
-                        if(clicked){
-                            Icon(
-                                Icons.Filled.Close,
-                                contentDescription = "Clear search icon",
-                                modifier = Modifier.clickable {
-                                    tagNumber = ""
-                                    viewModel.searchCalfListByTag("")
-                                    focusManager.clearFocus()
-                                }
-                            )
-                        }else{
-                            Icon(Icons.Filled.Search, contentDescription = "Search Icon")
-                        }
+            Column() {
+                Row(modifier = Modifier.fillMaxWidth(),verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(Icons.Filled.Menu, contentDescription = "Toggle navigation drawer")
+                    }
+                    TextField(
+                        placeholder = {Text("Search by tag number")},
+                        value = tagNumber, onValueChange = {tagNumber = it},
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text,
+                            imeAction = ImeAction.Search
+                        ),
+                        trailingIcon = {
+                            if(clicked){
+                                Icon(
+                                    Icons.Filled.Close,
+                                    contentDescription = "Clear search icon",
+                                    modifier = Modifier.clickable {
+                                        tagNumber = ""
+                                        viewModel.searchCalfListByTag("")
+                                        focusManager.clearFocus()
+                                    }
+                                )
+                            }else{
+                                Icon(Icons.Filled.Search, contentDescription = "Search Icon")
+                            }
 
-                    },
-                    keyboardActions = KeyboardActions(
-                        onSearch = {
-                            viewModel.searchCalfListByTag(tagNumber)
-                            focusManager.clearFocus()
-                        }),
-                    interactionSource = source,
-                )
+                        },
+                        keyboardActions = KeyboardActions(
+                            onSearch = {
+                                viewModel.searchCalfListByTag(tagNumber)
+                                focusManager.clearFocus()
+                            }),
+                        interactionSource = source,
+                    )
+                }
+                //CHIPS GO BELOW HERE
+
+                LazyRow(
+                    modifier=Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    items(viewModel.state.value.chipText){
+                        Chip(it)
+                    }
+                }
             }
+
 
         }
         
@@ -339,3 +350,20 @@ fun CustomTopBar(viewModel: MainViewModel){
 //},
 //actions = {}
 //)
+@Composable
+fun Chip(value:String){
+    Surface(
+        modifier = Modifier.padding(end = 8.dp),
+        elevation = 8.dp,
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colors.secondary
+    ) {
+        Text(
+            text = value,
+            style = MaterialTheme.typography.body2,
+            color = MaterialTheme.colors.onSecondary,
+            modifier = Modifier.padding(8.dp)
+        )
+
+    }
+}

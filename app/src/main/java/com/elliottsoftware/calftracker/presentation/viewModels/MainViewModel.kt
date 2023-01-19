@@ -26,7 +26,7 @@ data class MainUIState(
     val loggedUserOut:Boolean = false,
     val data:Response<List<FireBaseCalf>> = Response.Loading,
     val darkTheme:Boolean = false,
-    val searchableList:List<FireBaseCalf> = listOf()
+    val chipText:List<String> = listOf("TOTAL: 20 ","BULLS : 10","HEIFERS : 10")
         )
 
 @HiltViewModel
@@ -73,6 +73,14 @@ class MainViewModel @Inject constructor(
             state.value = state.value.copy(data = response)
         }
 
+    }
+    fun setChipText(calfList:List<FireBaseCalf>){
+        val total = calfList.size
+        val bulls = calfList.count{it.sex == "Bull"}
+        val heifers = calfList.count{it.sex == "Heifer"}
+
+        val chipTextList:List<String> = listOf("TOTAL: $total ","BULLS: $bulls","HEIFERS: $heifers")
+        state.value = state.value.copy(chipText = chipTextList)
     }
 
 
