@@ -65,6 +65,8 @@ class RegisterViewModel @Inject constructor(
          }
 
     }
+
+    //Creates the user inside the realtime database
     fun createUserDatabase(email:String, password:String) = viewModelScope.launch{
         createUserUseCase(email,password).collect{response ->
             state.value = state.value.copy(signInWithFirebaseResponse = response)

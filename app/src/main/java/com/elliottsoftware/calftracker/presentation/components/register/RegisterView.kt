@@ -55,7 +55,7 @@ fun RegisterView(viewModel: RegisterViewModel = viewModel(),onNavigate:(Int) -> 
                 if(response.data == Actions.FIRST){
                     //THIS IS WHERE WE WOULD DO THE NAVIGATION
                     LinearLoadingBar()
-                    viewModel.createUserDatabase(viewModel.state.value.email,viewModel.state.value.password)
+                    viewModel.createUserDatabase(viewModel.state.value.email,viewModel.state.value.username)
                 }
                 if(response.data == Actions.SECOND){
                     onNavigate(R.id.action_registerFragment2_to_mainFragment2)
