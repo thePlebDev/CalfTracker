@@ -2,6 +2,7 @@ package com.elliottsoftware.calftracker.data.repositories
 
 import android.util.Log
 import com.elliottsoftware.calftracker.domain.models.DataPoint
+import com.elliottsoftware.calftracker.domain.models.NetworkResponse
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.SecondaryResponse
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
@@ -101,6 +102,10 @@ class DatabaseRepositoryImpl(
         }
 
 
+    }
+
+    override suspend fun getCalvesTest()= flow {
+        emit(NetworkResponse.Success<List<FireBaseCalf>>(listOf()))
     }
 
     override suspend fun deleteCalf(id: String)= callbackFlow {
