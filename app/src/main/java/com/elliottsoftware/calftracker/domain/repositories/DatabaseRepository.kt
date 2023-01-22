@@ -6,6 +6,7 @@ import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
 import com.elliottsoftware.calftracker.util.Actions
 import kotlinx.coroutines.flow.Flow
 import com.elliottsoftware.calftracker.domain.models.DataPoint
+import com.elliottsoftware.calftracker.domain.models.NetworkResponse
 
 
 /**
@@ -24,6 +25,8 @@ interface DatabaseRepository {
 
     suspend fun getCalves():Flow<Response<List<FireBaseCalf>>>
 
+    suspend fun getCalvesTest():Flow<NetworkResponse<List<FireBaseCalf>>>
+
     suspend fun deleteCalf(id:String):Flow<Response<Boolean>>
 
     suspend fun updateCalf(fireBaseCalf: FireBaseCalf):Flow<Response<Boolean>>
@@ -31,6 +34,8 @@ interface DatabaseRepository {
     suspend fun getDataPoints():Flow<Response<List<DataPoint>>>
 
     suspend fun getCalvesByTagNumber(tagNumber:String):Flow<Response<List<FireBaseCalf>>>
+
+
 
 
 }

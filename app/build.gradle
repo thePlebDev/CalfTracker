@@ -212,6 +212,10 @@ dependencies {
     //CHARTS
     implementation 'com.github.madrapps:plot:0.1.1'
 
+    //TESTING COROUTINES
+    //testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4'
+
 
 
 
