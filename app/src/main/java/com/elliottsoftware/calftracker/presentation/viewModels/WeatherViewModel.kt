@@ -28,7 +28,7 @@ import kotlin.math.log
 
 data class WeatherUiState(
     val weatherData: Response<MutableList<WeatherViewData>> = Response.Loading,
-    val focusedWeatherData:WeatherViewData = WeatherViewData("Not selected",0.00),
+    val focusedWeatherData:WeatherViewData = WeatherViewData("24hr weather forecast",0.00),
     val currentCourseLocation: Response<Location> = Response.Loading,
     val loggedUserOut:Boolean = false,
     val darkMode:Boolean = false

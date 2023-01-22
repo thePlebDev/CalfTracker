@@ -57,6 +57,7 @@ class RegisterViewModel @Inject constructor(
 
     }
 
+    //goes first
     private fun signUpUserAuthRepository(email:String, password:String) =viewModelScope.launch{
          registerUserUseCase(email, password).collect{response ->
             // signInWithFirebaseResponse = response
@@ -66,7 +67,8 @@ class RegisterViewModel @Inject constructor(
 
     }
 
-    //Creates the user inside the realtime database
+        //goes second
+    //Creates the user inside the realtime database.
     fun createUserDatabase(email:String, password:String) = viewModelScope.launch{
         createUserUseCase(email,password).collect{response ->
             state.value = state.value.copy(signInWithFirebaseResponse = response)
