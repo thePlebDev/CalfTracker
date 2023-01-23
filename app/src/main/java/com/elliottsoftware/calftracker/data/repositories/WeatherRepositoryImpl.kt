@@ -18,8 +18,9 @@ class WeatherRepositoryImpl @Inject constructor(
         Log.d("WEATHERS","LOADING")
 
         try {
-            val data = api.getWeatherData(52.2,13.48).body()!!
+            val data = api.getWeatherData(lat,long).body()!!
             Log.d("WEATHERS","WEATHER DATA BELOW")
+           // Log.d("WEATHERS",data.daily.toString())
 
             val weatherList:MutableList<WeatherViewData> = mutableListOf()
             for(item in data.hourly.time.withIndex()){

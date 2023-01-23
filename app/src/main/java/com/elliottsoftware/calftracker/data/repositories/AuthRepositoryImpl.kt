@@ -24,9 +24,10 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun authRegister(email: String, password: String) = callbackFlow {
         try {
             trySend(Response.Loading)
+
             auth.createUserWithEmailAndPassword(email,password).await() //await() integrates with the Google task API //DONE
             trySend(Response.Success(Actions.FIRST))
-        }catch (e:Exception){
+        }catch (e:Exception){ //gets triggered on email already in use
             Log.d("AuthRepositoryImpl",e.message.toString())
             trySend(Response.Failure(e))
         }

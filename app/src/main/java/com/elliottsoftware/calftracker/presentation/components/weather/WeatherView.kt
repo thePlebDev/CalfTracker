@@ -178,6 +178,7 @@ fun HorizontalScrollScreen(viewModel: WeatherViewModel = viewModel()) {
         // a wrapper to fill the entire screen
         // BowWithConstraints will provide the maxWidth used below
 
+
             Card(modifier = Modifier
                 .weight(2f)
                 .fillMaxSize()
@@ -189,11 +190,13 @@ fun HorizontalScrollScreen(viewModel: WeatherViewModel = viewModel()) {
                         .background(MaterialTheme.colors.secondary),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(text = viewModel.uiState.value.focusedWeatherData.time ,
-                        modifier= Modifier
-                            .padding(10.dp)
-                            .align(Alignment.End),
-                        color = MaterialTheme.colors.onSecondary)
+
+                        Text(text = viewModel.uiState.value.focusedWeatherData.time ,
+                            modifier= Modifier
+                                .padding(10.dp).align(Alignment.End),
+                            color = MaterialTheme.colors.onSecondary)
+
+
                     Spacer(modifier=Modifier.height(16.dp))
                     Image(
                         painter = painterResource(id = R.drawable.ic_cloudy ),
@@ -237,8 +240,15 @@ fun HorizontalScrollScreen(viewModel: WeatherViewModel = viewModel()) {
 
         ) {
             // LazyRow to display your items horizontally
+            Column() {
+//                Row(horizontalArrangement = Arrangement.SpaceAround, modifier = Modifier.fillMaxWidth()){
+//                    Text("Today")
+//                    Text("Next 7 Days >")
+//                }
+                LazyRowComposable(locationPermissionState)
+            }
 
-            LazyRowComposable(locationPermissionState)
+
 
             //end of row
         }
@@ -262,7 +272,8 @@ fun LazyRowComposable(locationPermissionState:PermissionState,viewModel: Weather
 
             when(val coarseLocation = viewModel.uiState.value.currentCourseLocation){
                 is Response.Loading -> {
-                    viewModel.setFocusedData(WeatherViewData("Loading...",0.00))
+                    //CAUSES A STATE RELOAD BUG
+                   // viewModel.setFocusedData(WeatherViewData("Loading...",0.00))
                     viewModel.getLocation(context)
                     val list = listOf<String>("","")
                     itemsIndexed(list) { index, item ->
@@ -281,6 +292,7 @@ fun LazyRowComposable(locationPermissionState:PermissionState,viewModel: Weather
                             }
                         }
                         is Response.Success ->{
+                            /**********setFocusedData********/
                            // viewModel.setFocusedData(WeatherViewData("Please select time",0.00))
                             itemsIndexed(response.data) { index, item ->
                                 CardShown(item.time.substring(11),item.temperature)
