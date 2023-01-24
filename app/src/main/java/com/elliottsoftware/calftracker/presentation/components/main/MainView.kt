@@ -47,6 +47,8 @@ import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
+import com.elliottsoftware.calftracker.util.WindowType
+import com.elliottsoftware.calftracker.util.rememberWindowSize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -120,31 +122,40 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
         },
 
         ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp)
+        HomeView(viewModel,onNavigate,sharedViewModel)
 
 
-        ){
-            when(val response = state.data){
-                is Response.Loading -> CircularProgressIndicator( color =MaterialTheme.colors.onPrimary)
-                is Response.Success -> {
-                    viewModel.setChipText(response.data)
-                    if(response.data.isEmpty()){
-                        Text(text = "NO CALVES",color =MaterialTheme.colors.onPrimary)
-                    }else{
 
-                        MessageList(response.data,viewModel,onNavigate,sharedViewModel)
-                    }
+    }
+}
 
+@RequiresApi(Build.VERSION_CODES.N)
+@Composable
+fun HomeView(viewModel: MainViewModel,onNavigate: (Int) -> Unit,sharedViewModel: EditCalfViewModel){
+    val state = viewModel.state.value
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+
+
+    ){
+        when(val response = state.data){
+            is Response.Loading -> CircularProgressIndicator( color =MaterialTheme.colors.onPrimary)
+            is Response.Success -> {
+                viewModel.setChipText(response.data)
+                if(response.data.isEmpty()){
+                    Text(text = "NO CALVES",color =MaterialTheme.colors.onPrimary)
+                }else{
+
+                    MessageList(response.data,viewModel,onNavigate,sharedViewModel)
                 }
-                is Response.Failure -> Text("FAIL")
+
             }
-
+            is Response.Failure -> Text("FAIL")
+            else -> {}
         }
-
 
     }
 }
@@ -264,6 +275,49 @@ fun FloatingButton(navigate:(Int)-> Unit){
 
 @Composable
 fun CustomTopBar(viewModel: MainViewModel, scope: CoroutineScope, scaffoldState: ScaffoldState){
+
+
+
+    Column() {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colors.primary,
+            elevation = 8.dp
+        ) {
+            Column() {
+
+                //TODO: MOVE THIS TO THE MAIN FRAGMENT
+                val viewSize = rememberWindowSize()
+                val value = viewSize.width
+                if(value == WindowType.Compact){
+                    NonSportMode(viewModel,scope,scaffoldState)
+
+                }else{
+                    //CHIPS GO BELOW HERE
+                    LazyRow(
+                        modifier=Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        items(viewModel.state.value.chipText){
+                            Chip(it)
+                        }
+                    }
+
+                }
+
+
+
+
+            }
+
+
+        }
+        
+    }
+}
+
+@Composable
+fun NonSportMode(viewModel: MainViewModel,scope: CoroutineScope, scaffoldState: ScaffoldState){
     var tagNumber by remember { mutableStateOf("") }
     var clicked by remember { mutableStateOf(false)}
     val source = remember {
@@ -274,67 +328,43 @@ fun CustomTopBar(viewModel: MainViewModel, scope: CoroutineScope, scaffoldState:
     if ( source.collectIsPressedAsState().value){
         clicked = true
     }
-
-
-    Column() {
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colors.primary,
-            elevation = 8.dp
-        ) {
-            Column() {
-                Row(modifier = Modifier.fillMaxWidth(),verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = {
-                        scope.launch { scaffoldState.drawerState.open() }
-                    }) {
-                        Icon(Icons.Filled.Menu, contentDescription = "Toggle navigation drawer")
-                    }
-                    TextField(
-                        placeholder = {Text("Search by tag number")},
-                        value = tagNumber, onValueChange = {tagNumber = it},
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Search
-                        ),
-                        trailingIcon = {
-                            if(clicked){
-                                Icon(
-                                    Icons.Filled.Close,
-                                    contentDescription = "Clear search icon",
-                                    modifier = Modifier.clickable {
-                                        tagNumber = ""
-                                        viewModel.searchCalfListByTag("")
-                                        focusManager.clearFocus()
-                                    }
-                                )
-                            }else{
-                                Icon(Icons.Filled.Search, contentDescription = "Search Icon")
-                            }
-
-                        },
-                        keyboardActions = KeyboardActions(
-                            onSearch = {
-                                viewModel.searchCalfListByTag(tagNumber)
-                                focusManager.clearFocus()
-                            }),
-                        interactionSource = source,
-                    )
-                }
-                //CHIPS GO BELOW HERE
-
-                LazyRow(
-                    modifier=Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    items(viewModel.state.value.chipText){
-                        Chip(it)
-                    }
-                }
-            }
-
-
+    Row(modifier = Modifier.fillMaxWidth(),verticalAlignment = Alignment.CenterVertically) {
+        IconButton(onClick = {
+            scope.launch { scaffoldState.drawerState.open() }
+        }) {
+            Icon(Icons.Filled.Menu, contentDescription = "Toggle navigation drawer")
         }
-        
+        TextField(
+            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            placeholder = {Text("Search by tag number")},
+            value = tagNumber, onValueChange = {tagNumber = it},
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Search
+            ),
+            trailingIcon = {
+                if(clicked){
+                    Icon(
+                        Icons.Filled.Close,
+                        contentDescription = "Clear search icon",
+                        modifier = Modifier.clickable {
+                            tagNumber = ""
+                            viewModel.searchCalfListByTag("")
+                            focusManager.clearFocus()
+                        }
+                    )
+                }else{
+                    Icon(Icons.Filled.Search, contentDescription = "Search Icon")
+                }
+
+            },
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    viewModel.searchCalfListByTag(tagNumber)
+                    focusManager.clearFocus()
+                }),
+            interactionSource = source,
+        )
     }
 }
 
