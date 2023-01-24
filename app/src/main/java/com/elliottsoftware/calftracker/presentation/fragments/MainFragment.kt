@@ -30,7 +30,7 @@ import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-
+import timber.log.Timber
 
 
 /**
@@ -68,9 +68,11 @@ class MainFragment : Fragment() {
                     sharedViewModel = sharedViewModel
                 )
 
+
             }
 
         }
+
 
         return view
     }
