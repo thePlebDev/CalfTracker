@@ -216,6 +216,9 @@ dependencies {
     //testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4'
 
+    //WINDOW SIZE CLASSES
+    implementation "androidx.compose.material3:material3-window-size-class:1.0.0-alpha10"
+
 
 
 

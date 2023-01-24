@@ -41,9 +41,7 @@
         <action
             android:id="@+id/action_mainFragment2_to_weatherFragment"
             app:destination="@id/weatherFragment" />
-        <action
-            android:id="@+id/action_mainFragment2_to_calfStatsFragment"
-            app:destination="@id/calfStatsFragment" />
+
     </fragment>
     <fragment
         android:id="@+id/registerFragment2"
@@ -99,9 +97,4 @@
             android:id="@+id/action_weatherFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/calfStatsFragment"
-        android:name="com.elliottsoftware.calftracker.presentation.fragments.CalfStatsFragment"
-        android:label="fragment_calf_stats"
-        tools:layout="@layout/fragment_calf_stats" />
 </navigation>

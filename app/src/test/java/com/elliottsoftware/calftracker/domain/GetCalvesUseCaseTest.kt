@@ -1,8 +1,6 @@
 package com.elliottsoftware.calftracker.domain
 
 import com.elliottsoftware.calftracker.data.source.FakeDatabaseRepositoryImpl
-import com.elliottsoftware.calftracker.domain.useCases.FakeUseCase
-import com.elliottsoftware.calftracker.domain.useCases.GetCalvesUseCase
 import kotlinx.coroutines.flow.toList
 import org.junit.Test
 import kotlinx.coroutines.test.runTest
