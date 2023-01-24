@@ -9,10 +9,12 @@ import timber.log.Timber
 class ExceptionLogger : Timber.Tree() {
 
     override fun log(priority: Int, tag: String?, message: String, throwable: Throwable?) {
+        Log.d("MEATBALLS","LOGGING")
         if (priority == Log.VERBOSE || priority == Log.DEBUG) {
             return
         }
         val error = throwable ?: Exception(message)
+
 
         Firebase.crashlytics.recordException(error)
     }

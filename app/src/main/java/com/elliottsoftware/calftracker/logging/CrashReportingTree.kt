@@ -12,6 +12,7 @@ class CrashReportingTree: Timber.Tree() {
         if(priority == ERROR){
             if(t == null) crashlytics.recordException(Throwable(message))
             else crashlytics.recordException(t)
+
         }
     }
 }

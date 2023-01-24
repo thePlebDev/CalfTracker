@@ -1,5 +1,6 @@
 package com.elliottsoftware.calftracker.logging
 
+import android.util.Log
 import com.elliottsoftware.calftracker.BuildConfig
 import timber.log.Timber
 
@@ -11,8 +12,10 @@ object CrashAndLog {
                     return "(${element.fileName}:${element.lineNumber})#${element.methodName}"
                 }
             })
+
         }else{
-            CrashReportingTree()
+            Timber.plant(CrashReportingTree())
+
         }
     }
 }
