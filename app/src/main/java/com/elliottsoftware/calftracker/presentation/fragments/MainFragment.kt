@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.util.Log.ERROR
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -25,12 +26,17 @@ import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentMainBinding
+import com.elliottsoftware.calftracker.logging.ExceptionLogger
 import com.elliottsoftware.calftracker.presentation.components.main.*
 import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-
+import timber.log.Timber
+import java.lang.IllegalStateException
 
 
 /**
@@ -68,9 +74,13 @@ class MainFragment : Fragment() {
                     sharedViewModel = sharedViewModel
                 )
 
+
             }
 
         }
+      
+
+
 
         return view
     }
