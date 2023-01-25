@@ -11,6 +11,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
+import timber.log.Timber
 import javax.inject.Inject
 
 class AuthRepositoryImpl(
@@ -56,7 +57,7 @@ class AuthRepositoryImpl(
             return true
 
         }catch (e:Exception){
-            Log.d("AuthRepositoryImpl:isUserSignedIn()",e.message.toString())
+            Timber.e(e)
             return false
         }
 

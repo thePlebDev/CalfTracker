@@ -51,6 +51,7 @@ import com.elliottsoftware.calftracker.util.WindowType
 import com.elliottsoftware.calftracker.util.rememberWindowSize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 //TODO: NEED TO ADD THE SEARCH FUNCTIONALITY
 @RequiresApi(Build.VERSION_CODES.N)
@@ -149,6 +150,7 @@ fun HomeView(viewModel: MainViewModel,onNavigate: (Int) -> Unit,sharedViewModel:
                     Text(text = "NO CALVES",color =MaterialTheme.colors.onPrimary)
                 }else{
 
+
                     MessageList(response.data,viewModel,onNavigate,sharedViewModel)
                 }
 
@@ -188,6 +190,7 @@ fun MessageList(
     Log.d("SEARCHINGMETHOD",calfList.toString())
 
     LazyColumn(modifier=Modifier.background(MaterialTheme.colors.primary)) {
+
         items(calfList,key = { it.id!! }) { calf ->
             val dismissState = rememberDismissState(
                 confirmStateChange = {
@@ -289,6 +292,9 @@ fun FloatingButton(navigate:(Int)-> Unit){
 
 @Composable
 fun CustomTopBar(viewModel: MainViewModel, scope: CoroutineScope, scaffoldState: ScaffoldState){
+    //TODO: MOVE THIS TO THE MAIN FRAGMENT
+//    val viewSize = rememberWindowSize()
+//    val value = viewSize.width
 
 
 
@@ -300,13 +306,8 @@ fun CustomTopBar(viewModel: MainViewModel, scope: CoroutineScope, scaffoldState:
         ) {
             Column() {
 
-                //TODO: MOVE THIS TO THE MAIN FRAGMENT
-                val viewSize = rememberWindowSize()
-                val value = viewSize.width
-                if(value == WindowType.Compact){
-                    NonSportMode(viewModel,scope,scaffoldState)
 
-                }else{
+                 SearchText(viewModel,scope,scaffoldState)
                     //CHIPS GO BELOW HERE
                     LazyRow(
                         modifier= Modifier
@@ -319,7 +320,7 @@ fun CustomTopBar(viewModel: MainViewModel, scope: CoroutineScope, scaffoldState:
                         }
                     }
 
-                }
+
 
 
 
@@ -333,7 +334,7 @@ fun CustomTopBar(viewModel: MainViewModel, scope: CoroutineScope, scaffoldState:
 }
 
 @Composable
-fun NonSportMode(viewModel: MainViewModel,scope: CoroutineScope, scaffoldState: ScaffoldState){
+fun SearchText(viewModel: MainViewModel,scope: CoroutineScope, scaffoldState: ScaffoldState){
     var tagNumber by remember { mutableStateOf("") }
     var clicked by remember { mutableStateOf(false)}
     val source = remember {

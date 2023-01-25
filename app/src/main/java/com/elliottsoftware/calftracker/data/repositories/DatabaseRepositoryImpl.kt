@@ -12,9 +12,11 @@ import com.elliottsoftware.calftracker.util.Actions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.MetadataChanges
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -37,7 +39,7 @@ class DatabaseRepositoryImpl(
             db.collection("users").document(email).set(user).await()
             emit(Response.Success(Actions.SECOND))
         }catch (e:Exception){
-            Log.d("DatabaseRepository",e.message.toString())
+            Timber.e(e)
             emit(Response.Failure(e))
         }
 
@@ -79,38 +81,30 @@ class DatabaseRepositoryImpl(
     override suspend fun getCalves(): Flow<Response<List<FireBaseCalf>>> = callbackFlow{
 
             trySend(Response.Loading)
+           
         try{
-            
-            val docRef = db.collection("users")
-                .document(auth.currentUser?.email!!).collection("calves")
-                .addSnapshotListener { snapshot, e ->
-                    if (e != null) {
-                        Log.w("getCalves()", "Listen failed.", e)
-                        trySend(Response.Failure(e))
-                        return@addSnapshotListener
-                    }
 
-                    if (snapshot != null) {
-                        Log.d("getCalves()", "Current data: ${snapshot.size()}")
-                        val data = snapshot.map {  document ->
+            db.collection("users")
+                .document(auth.currentUser?.email!!).collection("calves")
+                .get()
+                .addOnSuccessListener { result ->
+//                    for (document in result){
+//                        document.
+//                    }
+                    val data = result.map {  document ->
                             document.toObject(FireBaseCalf::class.java)
                         }
                         trySend(Response.Success(data))
-                    } else {
-                        Log.d("getCalves()", "Current data: null")
-                    }
+
                 }
 
-            awaitClose{
-                docRef.remove()
-            }
         }catch (e:Exception){
             trySend(Response.Failure(e))
             Timber.e(e)
-            awaitClose()
+
         }
 
-
+        awaitClose()
 
     }
 
