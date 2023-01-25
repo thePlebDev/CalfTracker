@@ -153,11 +153,25 @@ fun HomeView(viewModel: MainViewModel,onNavigate: (Int) -> Unit,sharedViewModel:
                 }
 
             }
-            is Response.Failure -> Text("FAIL")
-            else -> {}
+            is Response.Failure -> ErrorResponse()
+
         }
 
     }
+}
+
+@Composable
+fun ErrorResponse(){
+    Card(backgroundColor = MaterialTheme.colors.secondary,modifier = Modifier.padding(vertical = 20.dp)) {
+        Column(modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth(),horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("User notice", style = MaterialTheme.typography.h4)
+            Text("A Error has occurred and the development team has been notified. Thank you for your continued support ",
+                style = MaterialTheme.typography.subtitle1)
+        }
+    }
+
 }
 
 
@@ -295,7 +309,9 @@ fun CustomTopBar(viewModel: MainViewModel, scope: CoroutineScope, scaffoldState:
                 }else{
                     //CHIPS GO BELOW HERE
                     LazyRow(
-                        modifier=Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp),
+                        modifier= Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 18.dp, vertical = 8.dp),
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         items(viewModel.state.value.chipText){
@@ -335,7 +351,9 @@ fun NonSportMode(viewModel: MainViewModel,scope: CoroutineScope, scaffoldState: 
             Icon(Icons.Filled.Menu, contentDescription = "Toggle navigation drawer")
         }
         TextField(
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
             placeholder = {Text("Search by tag number")},
             value = tagNumber, onValueChange = {tagNumber = it},
             keyboardOptions = KeyboardOptions(

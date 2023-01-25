@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
+import timber.log.Timber
 
 class DatabaseRepositoryImpl(
     private val db: FirebaseFirestore = Firebase.firestore,
@@ -46,6 +47,7 @@ class DatabaseRepositoryImpl(
     override suspend fun createCalf(calf: FireBaseCalf)= callbackFlow {
 
             trySend(Response.Loading)
+
            val document = db.collection("users").document(auth.currentUser?.email!!)
                 .collection("calves").document()
             calf.id = document.id
@@ -77,6 +79,8 @@ class DatabaseRepositoryImpl(
     override suspend fun getCalves(): Flow<Response<List<FireBaseCalf>>> = callbackFlow{
 
             trySend(Response.Loading)
+        try{
+            
             val docRef = db.collection("users")
                 .document(auth.currentUser?.email!!).collection("calves")
                 .addSnapshotListener { snapshot, e ->
@@ -88,7 +92,7 @@ class DatabaseRepositoryImpl(
 
                     if (snapshot != null) {
                         Log.d("getCalves()", "Current data: ${snapshot.size()}")
-                       val data = snapshot.map {  document ->
+                        val data = snapshot.map {  document ->
                             document.toObject(FireBaseCalf::class.java)
                         }
                         trySend(Response.Success(data))
@@ -97,9 +101,15 @@ class DatabaseRepositoryImpl(
                     }
                 }
 
-        awaitClose{
-            docRef.remove()
+            awaitClose{
+                docRef.remove()
+            }
+        }catch (e:Exception){
+            trySend(Response.Failure(e))
+            Timber.e(e)
+            awaitClose()
         }
+
 
 
     }
