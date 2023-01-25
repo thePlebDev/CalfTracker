@@ -29,6 +29,7 @@ import com.elliottsoftware.calftracker.databinding.FragmentMainBinding
 import com.elliottsoftware.calftracker.logging.ExceptionLogger
 import com.elliottsoftware.calftracker.presentation.components.main.*
 import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
+import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
@@ -65,11 +66,13 @@ class MainFragment : Fragment() {
         _binding = FragmentMainBinding.inflate(inflater,container,false)
         val view = binding.root
         val sharedViewModel: EditCalfViewModel by activityViewModels()
+        val mainViewModel: MainViewModel by activityViewModels()
 //        (activity as AppCompatActivity?)!!.supportActionBar!!.hide()
         binding.composeView.apply{
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 MainView(
+                    viewModel = mainViewModel,
                     onNavigate = { dest -> findNavController().navigate(dest) },
                     sharedViewModel = sharedViewModel
                 )
