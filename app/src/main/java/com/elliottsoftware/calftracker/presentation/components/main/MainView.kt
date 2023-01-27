@@ -47,11 +47,8 @@ import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
-import com.elliottsoftware.calftracker.util.WindowType
-import com.elliottsoftware.calftracker.util.rememberWindowSize
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 //TODO: NEED TO ADD THE SEARCH FUNCTIONALITY
 @RequiresApi(Build.VERSION_CODES.N)
@@ -72,9 +69,9 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
     val state = viewModel.state.value
-    if(state.loggedUserOut){
-        onNavigate(R.id.action_mainFragment2_to_loginFragment)
-    }
+//    if(state.loggedUserOut){
+//        onNavigate(R.id.action_mainFragment2_to_loginFragment)
+//    }
     Scaffold(
 
         backgroundColor = MaterialTheme.colors.primary,
@@ -95,8 +92,10 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
                         icon = Icons.Default.Logout,
                         onClick = {
                             scope.launch {
-                                scaffoldState.drawerState.close()
                                 viewModel.signUserOut()
+                                onNavigate(R.id.action_mainFragment2_to_loginFragment)
+                                scaffoldState.drawerState.close()
+
 
                             }
                         }
@@ -155,25 +154,40 @@ fun HomeView(viewModel: MainViewModel,onNavigate: (Int) -> Unit,sharedViewModel:
                 }
 
             }
-            is Response.Failure -> ErrorResponse()
+            is Response.Failure -> ErrorResponse(viewModel)
 
         }
+
 
     }
 }
 
 @Composable
-fun ErrorResponse(){
+fun ErrorResponse(viewModel: MainViewModel) {
     Card(backgroundColor = MaterialTheme.colors.secondary,modifier = Modifier.padding(vertical = 20.dp)) {
         Column(modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth(),horizontalAlignment = Alignment.CenterHorizontally) {
             Text("User notice", style = MaterialTheme.typography.h4)
             Text("A Error has occurred and the development team has been notified. Thank you for your continued support ",
-                style = MaterialTheme.typography.subtitle1)
+                style = MaterialTheme.typography.subtitle1,
+                textAlign = TextAlign.Center
+            )
+            ErrorButton(viewModel)
         }
     }
 
+}
+
+@Composable
+fun ErrorButton(viewModel: MainViewModel) {
+    Button(onClick = {
+            viewModel.getCalves()
+    }) {
+        Text(text = "Click to reload",
+            style = MaterialTheme.typography.subtitle1,
+            textAlign = TextAlign.Center)
+    }
 }
 
 
@@ -255,7 +269,7 @@ fun MessageList(
                 ){
                     Column(modifier = Modifier.weight(2f)){
 
-                        Text(calf.calfTag!!,style=typography.h6,color=MaterialTheme.colors.onSecondary, textAlign = TextAlign.Start,maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(calf.calftag!!,style=typography.h6,color=MaterialTheme.colors.onSecondary, textAlign = TextAlign.Start,maxLines = 1, overflow = TextOverflow.Ellipsis)
                         Text(calf.details!!,style=typography.subtitle1,color=MaterialTheme.colors.onSecondary,maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                     Column(modifier = Modifier.weight(1f)){

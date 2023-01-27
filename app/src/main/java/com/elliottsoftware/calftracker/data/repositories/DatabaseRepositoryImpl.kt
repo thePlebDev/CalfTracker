@@ -20,10 +20,12 @@ import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
+import java.util.*
 
 class DatabaseRepositoryImpl(
     private val db: FirebaseFirestore = Firebase.firestore,
@@ -49,62 +51,79 @@ class DatabaseRepositoryImpl(
     override suspend fun createCalf(calf: FireBaseCalf)= callbackFlow {
 
             trySend(Response.Loading)
-
-           val document = db.collection("users").document(auth.currentUser?.email!!)
-                .collection("calves").document()
+        try{
+            val collection = db.collection("users").document(auth.currentUser?.email!!)
+                .collection("calves")
+            val document = collection.document()
+            val id = document.id
             calf.id = document.id
-
-            val response = document.addSnapshotListener { value, error ->
-                if (error != null) {
-                    Log.w("TAGSS", "Listen error", error)
-                    trySend(Response.Failure(error))
-                }
-                if (value?.metadata?.isFromCache!!){
-                    Log.w("TAGSS", "offline data", error)
-                    document.set(calf)
+            collection.document(id).set(calf)
+                .addOnSuccessListener { document ->
+                    Timber.d( "DocumentSnapshot written with ID: ${calf.id}")
                     trySend(Response.Success(true))
                 }
-                else{
-                    document.set(calf)
-                    trySend(Response.Success(true))
+                .addOnFailureListener { e ->
+                    Timber.e( "Error adding document", e)
+                    trySend(Response.Failure(e))
                 }
 
-            }
-
-
-        awaitClose{
-            response.remove()
+        }catch (e:Exception){
+            Timber.e(e)
+            trySend(Response.Failure(e))
         }
 
+
+
+
+        awaitClose()
+
     }
+
+    //addSnapshotListener is needed for the real time updates
 
     override suspend fun getCalves(): Flow<Response<List<FireBaseCalf>>> = callbackFlow{
 
             trySend(Response.Loading)
-           
-        try{
 
-            db.collection("users")
+
+            val query = db.collection("users")
                 .document(auth.currentUser?.email!!).collection("calves")
-                .get()
-                .addOnSuccessListener { result ->
-//                    for (document in result){
-//                        document.
-//                    }
-                    val data = result.map {  document ->
-                            document.toObject(FireBaseCalf::class.java)
-                        }
-                        trySend(Response.Success(data))
+           val  docRef = query.addSnapshotListener { snapshot, e ->
+               //error handling for snapshot listeners
+                if (e != null) {
+                    Timber.e(e)
+
+
+                    return@addSnapshotListener
 
                 }
 
-        }catch (e:Exception){
-            trySend(Response.Failure(e))
-            Timber.e(e)
 
+                if (snapshot != null) {
+
+                    val calfList = mutableListOf<FireBaseCalf>()
+                    for(doc in snapshot){
+                        val calf = doc.toObject(FireBaseCalf::class.java)
+                        calfList.add(calf)
+                    }
+//                    val data = snapshot.mapNotNull {  document ->
+//
+//                        document.toObject(FireBaseCalf::class.java)
+//                    }
+                    Timber.d(calfList.toString())
+                    trySend(Response.Success(calfList))
+                } else {
+                    Timber.d("current data null")
+                    trySend(Response.Failure(Exception("FAILED")))
+                }
+            }
+
+
+
+
+        awaitClose{
+            docRef.remove()
         }
-
-        awaitClose()
 
     }
 
@@ -122,44 +141,42 @@ class DatabaseRepositoryImpl(
 
     }
 
+//    data class FireBaseCalf(val calfTag: String? = null,
+//                            val cowTag:String? = null,
+//                            val cciaNumber: String? = null,
+//                            val sex:String? = null,
+//                            val details:String?=null,
+//                            val date: Date? = null,
+//                            val birthWeight:String? = null,
+//                            var id: String? = null,
+//
+//                            )
+
     override suspend fun updateCalf(fireBaseCalf: FireBaseCalf)= callbackFlow {
         trySend(Response.Loading)
         db.collection("users").document(auth.currentUser?.email!!)
             .collection("calves").document(fireBaseCalf.id!!).set(fireBaseCalf)
+//            .update(
+//                "calfTag",fireBaseCalf.calfTag,
+//                "cowTag",fireBaseCalf.cowTag,
+//                "cciaNumber",fireBaseCalf.cciaNumber,
+//                "sex",fireBaseCalf.sex,
+//                "birthWeight",fireBaseCalf.birthWeight,
+//            )
             .addOnSuccessListener { trySend(Response.Success(true)) }
-            .addOnCanceledListener { trySend(Response.Failure(Exception("Update calf canceled"))) }
-            .addOnFailureListener{ trySend(Response.Failure(Exception("Update calf failed"))) }
+            .addOnCanceledListener {
+                Timber.d("CANCELED")
+                trySend(Response.Failure(Exception("Update calf canceled")))
+            }
+            .addOnFailureListener{
+                Timber.d("FAILED")
+                trySend(Response.Failure(Exception("Update calf failed")))
+            }
 
         awaitClose()
     }
 
-    override suspend fun getDataPoints()= callbackFlow{
-        trySend(Response.Loading)
-        val docRef = db.collection("users")
-            .document(auth.currentUser?.email!!).collection("calves")
-            .addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    Log.w("getDataPoints()", "Listen failed.", e)
-                    trySend(Response.Failure(e))
-                    return@addSnapshotListener
-                }
 
-                if (snapshot != null) {
-                    Log.d("getCalves()", "Current data: ${snapshot.size()}")
-                    val data = snapshot.map {  document ->
-                        document.toObject(FireBaseCalf::class.java)
-                    }
-                    val transformedData = calfListToDataPointList(data)
-                    trySend(Response.Success(transformedData))
-                } else {
-                    Log.d("getDataPoints()", "Current data: null")
-                }
-            }
-
-        awaitClose{
-            docRef.remove()
-        }
-    }
 
     override suspend fun getCalvesByTagNumber(tagNumber: String)= callbackFlow {
         trySend(Response.Loading)
@@ -177,7 +194,7 @@ class DatabaseRepositoryImpl(
                     val data = snapshot.map {  document ->
                         document.toObject(FireBaseCalf::class.java)
                     }
-                    val filteredCalfList = data.filter { it.calfTag!!.contains(tagNumber, ignoreCase = true) }
+                    val filteredCalfList = data.filter { it.calftag!!.contains(tagNumber, ignoreCase = true) }
                     trySend(Response.Success(filteredCalfList))
                 } else {
                     Log.d("getDataPoints()", "Current data: null")

@@ -35,25 +35,33 @@ class AuthRepositoryImpl(
         awaitClose()
     }
 
+    //TODO: CHANGE THIS OVER FROM AWAIT TO CALLBACKFLOW
     override suspend fun loginUser(email: String, password: String)= flow {
         try {
             emit(Response.Loading)
             auth.signInWithEmailAndPassword(email, password).await() //can throw FirebaseAuthInvalidUserException //DONE
             emit(Response.Success(true))
         }catch (e:Exception){
-            Log.d("AuthRepositoryImpl",e.message.toString())
+            Timber.e(e)
             emit(Response.Failure(e))
         }
     }
 
     override  fun isUserSignedIn(): Boolean {
-        val auth = auth.currentUser // TODO THIS ONE RETURNS A VALUE, SO COME BACK TO IT
-        return auth != null
+        try{
+            val auth = auth.currentUser // TODO THIS ONE RETURNS A VALUE, SO COME BACK TO IT
+            return auth != null
+        }catch (e:Exception){
+            Timber.e(e)
+            return false
+        }
+
     }
 
     override fun signUserOut(): Boolean {
         try{
             auth.signOut() //DONE
+
             return true
 
         }catch (e:Exception){
@@ -82,5 +90,18 @@ class AuthRepositoryImpl(
             }
         awaitClose()
     }
+
+//    //TESITNG
+//    //TODO: So apparently flow does not need a suspend keyword
+//      fun MEATBALLTEXT(email: String, password: String)= flow {
+//        try {
+//            emit(Response.Loading)
+//            auth.signInWithEmailAndPassword(email, password).await() //can throw FirebaseAuthInvalidUserException //DONE
+//            emit(Response.Success(true))
+//        }catch (e:Exception){
+//            Timber.e(e)
+//            emit(Response.Failure(e))
+//        }
+//    }
 
 }

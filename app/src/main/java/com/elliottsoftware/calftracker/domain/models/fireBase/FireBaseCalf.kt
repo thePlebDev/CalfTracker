@@ -4,13 +4,13 @@ import com.elliottsoftware.calftracker.domain.models.DataPoint
 import java.util.*
 
 //TODO THE GETTERS AND SETTERS USED BY FIREBASE ARE CASE SENSITIVE
-data class FireBaseCalf(val calfTag: String? = null,
-                        val cowTag:String? = null,
-                        val cciaNumber: String? = null,
-                        val sex:String? = null,
-                        val details:String?=null,
-                        val date: Date? = null,
-                        val birthWeight:String? = null,
+data class FireBaseCalf(var calftag: String? = null,
+                        var cowtag:String? = null,
+                        var ccianumber: String? = null,
+                        var sex:String? = null,
+                        var details:String?=null,
+                        var date: Date? = null,
+                        var birthweight:String? = null,
                         var id: String? = null,
 
                         ) {
