@@ -47,11 +47,11 @@ class EditCalfViewModel @Inject constructor(
     fun setCalf(calf:FireBaseCalf){
 
         _uiState.value = _uiState.value.copy(
-            calfTagNumber = calf.calfTag?:"",
-            cowTagNumber = calf.cowTag?:"",
+            calfTagNumber = calf.calftag?:"",
+            cowTagNumber = calf.cowtag?:"",
             description = calf.details?:"",
-            cCIANUmber = calf.cciaNumber?:"",
-            birthWeight = calf.birthWeight?:"",
+            cCIANUmber = calf.ccianumber?:"",
+            birthWeight = calf.birthweight?:"",
             sex = calf.sex?:"Bull",
             birthDate= calf.date,
             firebaseId = calf.id?:""
@@ -95,12 +95,12 @@ class EditCalfViewModel @Inject constructor(
     fun updateCalf()= viewModelScope.launch {
         val state = _uiState.value
        val fireBaseCalf = FireBaseCalf(
-           calfTag = state.calfTagNumber,
-           cowTag = state.cowTagNumber,
-           cciaNumber = state.cCIANUmber,
+           calftag = state.calfTagNumber,
+           cowtag = state.cowTagNumber,
+           ccianumber = state.cCIANUmber,
            sex = state.sex,
            details = state.description,
-           birthWeight = state.birthWeight,
+           birthweight = state.birthWeight,
            date = state.birthDate,
            id = state.firebaseId
        )

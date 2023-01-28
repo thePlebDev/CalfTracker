@@ -7,7 +7,7 @@ import java.util.*
 data class FireBaseCalf(var calftag: String? = null,
                         var cowtag:String? = null,
                         var ccianumber: String? = null,
-                        var sex:String? = null,
+                        val sex:String? = null,
                         var details:String?=null,
                         var date: Date? = null,
                         var birthweight:String? = null,

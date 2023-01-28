@@ -88,9 +88,12 @@ class DatabaseRepositoryImpl(
 
             val query = db.collection("users")
                 .document(auth.currentUser?.email!!).collection("calves")
+
            val  docRef = query.addSnapshotListener { snapshot, e ->
                //error handling for snapshot listeners
                 if (e != null) {
+                    Timber.d("BELOW")
+                    Timber.d(auth.currentUser.toString())
                     Timber.e(e)
 
 
@@ -99,19 +102,16 @@ class DatabaseRepositoryImpl(
                 }
 
 
+
                 if (snapshot != null) {
 
-                    val calfList = mutableListOf<FireBaseCalf>()
-                    for(doc in snapshot){
-                        val calf = doc.toObject(FireBaseCalf::class.java)
-                        calfList.add(calf)
+                    val data = snapshot.mapNotNull {  document ->
+
+                        document.toObject<FireBaseCalf>()
                     }
-//                    val data = snapshot.mapNotNull {  document ->
-//
-//                        document.toObject(FireBaseCalf::class.java)
-//                    }
-                    Timber.d(calfList.toString())
-                    trySend(Response.Success(calfList))
+                    Timber.d(snapshot.metadata.isFromCache.toString())
+                    Timber.d(data.toString())
+                    trySend(Response.Success(data))
                 } else {
                     Timber.d("current data null")
                     trySend(Response.Failure(Exception("FAILED")))

@@ -49,6 +49,7 @@ import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 //TODO: NEED TO ADD THE SEARCH FUNCTIONALITY
 @RequiresApi(Build.VERSION_CODES.N)
@@ -147,6 +148,10 @@ fun HomeView(viewModel: MainViewModel,onNavigate: (Int) -> Unit,sharedViewModel:
                 viewModel.setChipText(response.data)
                 if(response.data.isEmpty()){
                     Text(text = "NO CALVES",color =MaterialTheme.colors.onPrimary)
+                }
+                else if(response.data[0].calftag == null){
+                    Timber.e("the values are null again")
+                    ErrorResponse(viewModel)
                 }else{
 
 
@@ -201,6 +206,7 @@ fun MessageList(
     sharedViewModel: EditCalfViewModel
 ) {
     val dateFormat = SimpleDateFormat("yyyy-mm-dd")
+    val testString = ""
     Log.d("SEARCHINGMETHOD",calfList.toString())
 
     LazyColumn(modifier=Modifier.background(MaterialTheme.colors.primary)) {
