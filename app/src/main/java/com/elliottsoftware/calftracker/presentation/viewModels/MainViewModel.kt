@@ -23,7 +23,7 @@ import javax.inject.Inject
 
 
 data class MainUIState(
-    val loggedUserOut:Boolean = false,
+    //val loggedUserOut:Boolean = false,
     val data:Response<List<FireBaseCalf>> = Response.Loading,
     val darkTheme:Boolean = false,
     val chipText:List<String> = listOf("TOTAL: 0 ","BULLS: 0","HEIFERS: 0")
@@ -43,12 +43,13 @@ class MainViewModel @Inject constructor(
     }
 
     fun signUserOut(){
-        state.value = state.value.copy(loggedUserOut = logoutUseCase.invoke())
+        //state.value = state.value.copy(loggedUserOut = logoutUseCase.invoke())
+        logoutUseCase.invoke()
 
     }
 
 
-    private fun getCalves() = viewModelScope.launch(){
+     fun getCalves() = viewModelScope.launch(){
         getCalvesUseCase.invoke().collect{response ->
 
             state.value = state.value.copy(data = response)

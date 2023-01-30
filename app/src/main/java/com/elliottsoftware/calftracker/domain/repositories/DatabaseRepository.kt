@@ -31,7 +31,6 @@ interface DatabaseRepository {
 
     suspend fun updateCalf(fireBaseCalf: FireBaseCalf):Flow<Response<Boolean>>
 
-    suspend fun getDataPoints():Flow<Response<List<DataPoint>>>
 
     suspend fun getCalvesByTagNumber(tagNumber:String):Flow<Response<List<FireBaseCalf>>>
 
