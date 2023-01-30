@@ -149,10 +149,7 @@ fun HomeView(viewModel: MainViewModel,onNavigate: (Int) -> Unit,sharedViewModel:
                 if(response.data.isEmpty()){
                     Text(text = "NO CALVES",color =MaterialTheme.colors.onPrimary)
                 }
-                else if(response.data[0].calftag == null){
-                    Timber.e("the values are null again")
-                    ErrorResponse(viewModel)
-                }else{
+                else{
 
 
                     MessageList(response.data,viewModel,onNavigate,sharedViewModel)
