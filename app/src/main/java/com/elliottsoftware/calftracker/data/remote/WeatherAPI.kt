@@ -1,5 +1,6 @@
 package com.elliottsoftware.calftracker.data.remote
 
+import com.elliottsoftware.calftracker.data.remote.models.WeatherDto
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query

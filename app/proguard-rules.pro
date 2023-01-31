@@ -30,3 +30,4 @@
      # *;
    # }
     -keep class com.elliottsoftware.calftracker.domain.models.fireBase.** { *; }
+    -keep class com.elliottsoftware.calftracker.data.remote.models.** { *; }

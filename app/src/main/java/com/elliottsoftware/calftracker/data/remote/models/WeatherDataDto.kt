@@ -1,4 +1,4 @@
-package com.elliottsoftware.calftracker.data.remote
+package com.elliottsoftware.calftracker.data.remote.models
 
 import com.squareup.moshi.Json
 

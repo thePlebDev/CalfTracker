@@ -2,28 +2,19 @@ package com.elliottsoftware.calftracker.presentation.viewModels
 
 import android.content.Context
 import android.location.Location
-import android.util.Log
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.elliottsoftware.calftracker.data.remote.WeatherDto
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.useCases.GetWeatherUseCase
 import com.elliottsoftware.calftracker.domain.useCases.LogoutUseCase
 import com.elliottsoftware.calftracker.domain.weather.WeatherViewData
-import com.elliottsoftware.calftracker.util.LocationManagerUtil
 import com.elliottsoftware.calftracker.util.locationFlow
 import com.google.android.gms.location.LocationServices
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.log
-
 
 
 data class WeatherUiState(
