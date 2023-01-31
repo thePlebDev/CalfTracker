@@ -27,6 +27,7 @@ import com.elliottsoftware.calftracker.presentation.components.register.Success
 import com.elliottsoftware.calftracker.presentation.components.weather.ScaffoldView
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.LoginViewModel
+import timber.log.Timber
 
 @Composable
 fun LoginViews(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit = {}){
@@ -51,13 +52,14 @@ fun LoginView(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit)
                 is Response.Success -> {
                     if(response.data){
                         //THIS IS WHERE WE WOULD DO THE NAVIGATION
+
                         onNavigate(R.id.action_loginFragment_to_mainFragment2)
                     }
                 }
                 is Response.Failure -> {
                     //should probably show a snackbar
                     Text("Username or Password incorrect", color = MaterialTheme.colors.error)
-                    Log.d("Login Error",response.e.message.toString())
+                    Timber.tag("LoginError").d(response.e.message.toString())
                 }
             }
 

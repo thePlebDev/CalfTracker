@@ -41,8 +41,10 @@ class AuthRepositoryImpl(
             emit(Response.Loading)
             auth.signInWithEmailAndPassword(email, password).await() //can throw FirebaseAuthInvalidUserException //DONE
             emit(Response.Success(true))
+            Timber.tag("LoginSuccess").d(email)
         }catch (e:Exception){
-            Timber.e(e)
+
+            Timber.tag("LoginFailure").e(e)
             emit(Response.Failure(e))
         }
     }

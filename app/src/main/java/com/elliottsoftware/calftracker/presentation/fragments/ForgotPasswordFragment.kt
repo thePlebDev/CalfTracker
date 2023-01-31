@@ -11,6 +11,7 @@ import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentForgotPasswordBinding
 import com.elliottsoftware.calftracker.presentation.components.forgotPassword.ForgotPasswordView
 import com.elliottsoftware.calftracker.presentation.components.forgotPassword.ForgotPasswordViews
+import dagger.hilt.android.AndroidEntryPoint
 
 
 /**
@@ -18,6 +19,7 @@ import com.elliottsoftware.calftracker.presentation.components.forgotPassword.Fo
  * Use the [ForgotPasswordFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
+@AndroidEntryPoint
 class ForgotPasswordFragment : Fragment() {
     private var _binding:FragmentForgotPasswordBinding? = null
     private val binding get() = _binding!!
