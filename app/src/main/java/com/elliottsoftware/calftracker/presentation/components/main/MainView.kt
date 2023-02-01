@@ -1,6 +1,7 @@
 package com.elliottsoftware.calftracker.presentation.components.main
 
 import android.annotation.SuppressLint
+import android.graphics.drawable.GradientDrawable
 import android.icu.text.DateFormat
 import android.icu.text.SimpleDateFormat
 import android.os.Build
@@ -10,6 +11,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
@@ -29,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
@@ -36,7 +39,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
@@ -49,7 +54,7 @@ import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import timber.log.Timber
+
 
 //TODO: NEED TO ADD THE SEARCH FUNCTIONALITY
 @RequiresApi(Build.VERSION_CODES.N)
@@ -147,12 +152,17 @@ fun HomeView(viewModel: MainViewModel,onNavigate: (Int) -> Unit,sharedViewModel:
             is Response.Success -> {
                 viewModel.setChipText(response.data)
                 if(response.data.isEmpty()){
-                    Text(text = "NO CALVES",color =MaterialTheme.colors.onPrimary)
+                    Column(){
+                        Text(text = "NO CALVES",color =MaterialTheme.colors.onPrimary)
+
+                    }
                 }
                 else{
 
 
-                    MessageList(response.data,viewModel,onNavigate,sharedViewModel)
+
+                        MessageList(response.data,viewModel,onNavigate,sharedViewModel)
+
                 }
 
             }
@@ -202,11 +212,10 @@ fun MessageList(
     onNavigate: (Int) -> Unit,
     sharedViewModel: EditCalfViewModel
 ) {
-    val dateFormat = SimpleDateFormat("yyyy-mm-dd")
-    val testString = ""
-    Log.d("SEARCHINGMETHOD",calfList.toString())
+
 
     LazyColumn(modifier=Modifier.background(MaterialTheme.colors.primary)) {
+
 
         items(calfList,key = { it.id!! }) { calf ->
             val dismissState = rememberDismissState(
@@ -422,3 +431,6 @@ fun Chip(value:String){
 
     }
 }
+
+
+

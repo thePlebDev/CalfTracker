@@ -38,6 +38,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.lang.IllegalStateException
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 
 
 /**
@@ -56,6 +58,7 @@ class MainFragment : Fragment() {
 
     }
 
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     @RequiresApi(Build.VERSION_CODES.N)
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     override fun onCreateView(
@@ -71,6 +74,7 @@ class MainFragment : Fragment() {
         binding.composeView.apply{
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
+                val windowSize = calculateWindowSizeClass(activity?.parent!!)
                 MainView(
                     viewModel = mainViewModel,
                     onNavigate = { dest -> findNavController().navigate(dest) },
