@@ -49,25 +49,7 @@ class DatabaseRepositoryImpl(
             val document = collection.document()
             val id = document.id
             calf.id = id
-            //    data class FireBaseCalf(val calfTag: String? = null,
-//                            val cowTag:String? = null,
-//                            val cciaNumber: String? = null,
-//                            val sex:String? = null,
-//                            val details:String?=null,
-//                            val date: Date? = null,
-//                            val birthWeight:String? = null,
-//                            var id: String? = null,
-//
-//                            )
-//            val docData: MutableMap<String, Any> = HashMap()
-//            docData["cowtag"] = calf.cowtag?:""
-//            docData["calftag"] = calf.calftag?:""
-//            docData["ccianumber"] = calf.ccianumber?:""
-//            docData["sex"] = calf.sex?:""
-//            docData["details"] = calf.details?:""
-//            docData["date"] = calf.date?:""
-//            docData["birthweight"] = calf.birthweight?:""
-//            docData["id"] = calf.id?:""
+
             Timber.d(calf.toString())
             collection.document(id).set(calf)
                 .addOnSuccessListener { document ->
@@ -122,20 +104,7 @@ class DatabaseRepositoryImpl(
 
                         document.toObject<FireBaseCalf>()
                     }
-//                    val allCalves = mutableListOf<FireBaseCalf>()
-//                    val documents = snapshot.documents
-//                    documents.forEach { item ->
-//                        val specimen = item.toObject(FireBaseCalf::class.java)
-//                        if (specimen != null) {
-//                            specimen.id = item.id
-//                           val stuff =  item.data
-//                           val tag = stuff?.get("cowtag")
-//                            Timber.d("BELOW")
-//                            Timber.d(tag.toString())
-//
-//                            allCalves.add(specimen)
-//                        }
-//                    }
+
                     if(data.isNotEmpty() && data[0].calftag == null){
                         Timber.e(data.toString())
                         trySend(Response.Failure(Exception("FAILED")))
@@ -216,22 +185,24 @@ class DatabaseRepositoryImpl(
             .document(auth.currentUser?.email!!).collection("calves")
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
-                    Log.w("getDataPoints()", "Listen failed.", e)
+
+                    Timber.e(e)
                     trySend(Response.Failure(e))
                     return@addSnapshotListener
                 }
 
                 if (snapshot != null) {
-                    Log.d("getCalves()", "Current data: ${snapshot.size()}")
+
                     val data = snapshot.map {  document ->
                         document.toObject(FireBaseCalf::class.java)
                     }
-                    Timber.e(data.toString())
+
                     val filteredCalfList = data.filter { it.calftag!!.contains(tagNumber, ignoreCase = true) }
 
                     trySend(Response.Success(filteredCalfList))
                 } else {
-                    Log.d("getDataPoints()", "Current data: null")
+                    Timber.e("getCalvesByTagNumber data is null")
+
                 }
             }
 

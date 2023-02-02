@@ -26,6 +26,8 @@ import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,16 +54,23 @@ import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
+import com.elliottsoftware.calftracker.util.MainViewContentType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 
-//TODO: NEED TO ADD THE SEARCH FUNCTIONALITY
 @RequiresApi(Build.VERSION_CODES.N)
 @Composable
-fun MainView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Unit,sharedViewModel: EditCalfViewModel){
+fun MainView(
+    viewModel: MainViewModel = viewModel(),
+    onNavigate: (Int) -> Unit,
+    sharedViewModel: EditCalfViewModel,
+    windowSize: WindowWidthSizeClass
+
+){
     AppTheme(false){
-        ScaffoldView(viewModel,onNavigate,sharedViewModel)
+        ScaffoldView(viewModel,onNavigate,sharedViewModel,windowSize)
     }
 
 
@@ -71,13 +80,10 @@ fun MainView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Unit,sh
 @RequiresApi(Build.VERSION_CODES.N)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Unit,sharedViewModel: EditCalfViewModel){
+fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Unit,sharedViewModel: EditCalfViewModel,windowSize: WindowWidthSizeClass){
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
-    val state = viewModel.state.value
-//    if(state.loggedUserOut){
-//        onNavigate(R.id.action_mainFragment2_to_loginFragment)
-//    }
+
     Scaffold(
 
         backgroundColor = MaterialTheme.colors.primary,
@@ -128,7 +134,9 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
         },
 
         ) {
+
         HomeView(viewModel,onNavigate,sharedViewModel)
+
 
 
 
