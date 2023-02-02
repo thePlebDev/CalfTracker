@@ -17,6 +17,7 @@ import com.elliottsoftware.calftracker.presentation.components.newCalf.NewCalfVi
 import androidx.fragment.app.activityViewModels
 import com.elliottsoftware.calftracker.presentation.components.editCalf.ScaffoldView
 import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
+import timber.log.Timber
 
 
 /**
@@ -42,6 +43,7 @@ class EditCalfFragment : Fragment() {
         _binding = FragmentEditCalfBinding.inflate(inflater,container,false)
         val view = binding.root
         val sharedViewModel: EditCalfViewModel by activityViewModels()
+
         binding.composeView.apply{
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {

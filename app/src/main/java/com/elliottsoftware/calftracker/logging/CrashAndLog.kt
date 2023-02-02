@@ -17,5 +17,6 @@ object CrashAndLog {
             Timber.plant(CrashReportingTree())
 
         }
+
     }
 }

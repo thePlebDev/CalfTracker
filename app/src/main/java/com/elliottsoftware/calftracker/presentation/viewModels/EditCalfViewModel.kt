@@ -11,6 +11,7 @@ import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
 import com.elliottsoftware.calftracker.domain.useCases.LogoutUseCase
 import com.elliottsoftware.calftracker.domain.useCases.UpdateCalfUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -109,4 +110,7 @@ class EditCalfViewModel @Inject constructor(
         }
     }
 
+fun updateCalfUpdatedStateToFalse(){
+    _uiState.value = _uiState.value.copy(calfUpdated = Response.Success(false))
+}
 }

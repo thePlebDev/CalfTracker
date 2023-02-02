@@ -3,41 +3,25 @@ package com.elliottsoftware.calftracker.presentation.fragments
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import android.util.Log.ERROR
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.*
 //import androidx.compose.material.AppBar
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Logout
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Terrain
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.res.stringResource
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.Navigation
 import androidx.navigation.findNavController
-import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentMainBinding
-import com.elliottsoftware.calftracker.logging.ExceptionLogger
 import com.elliottsoftware.calftracker.presentation.components.main.*
 import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
-import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
 
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
-import timber.log.Timber
-import java.lang.IllegalStateException
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
+import com.elliottsoftware.calftracker.util.findActivity
 
 
 /**
@@ -56,6 +40,7 @@ class MainFragment : Fragment() {
 
     }
 
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     @RequiresApi(Build.VERSION_CODES.N)
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     override fun onCreateView(
@@ -68,13 +53,18 @@ class MainFragment : Fragment() {
         val sharedViewModel: EditCalfViewModel by activityViewModels()
         val mainViewModel: MainViewModel by activityViewModels()
 //        (activity as AppCompatActivity?)!!.supportActionBar!!.hide()
+
+        val activity = activity?.findActivity()!!
+
         binding.composeView.apply{
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
+                val windowSize = calculateWindowSizeClass(activity).widthSizeClass
                 MainView(
                     viewModel = mainViewModel,
                     onNavigate = { dest -> findNavController().navigate(dest) },
-                    sharedViewModel = sharedViewModel
+                    sharedViewModel = sharedViewModel,
+                    windowSize
                 )
 
 

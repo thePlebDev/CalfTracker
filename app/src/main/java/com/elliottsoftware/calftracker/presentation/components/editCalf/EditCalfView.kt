@@ -30,6 +30,7 @@ import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @Composable
 fun EditCalfView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit){
@@ -124,6 +125,7 @@ fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNav
             is Response.Loading -> LinearProgressIndicator()
             is Response.Success ->{
                 if(response.data){
+                    viewModel.updateCalfUpdatedStateToFalse()
                     onNavigate(R.id.action_editCalfFragment_to_mainFragment2)
 
                 }
@@ -247,7 +249,10 @@ fun Checkboxes(
 @Composable
 fun FloatingButton(viewModel:EditCalfViewModel){
     FloatingActionButton(
-        onClick = { viewModel.validateText() },
+        onClick = {
+             viewModel.validateText()
+
+                  },
         backgroundColor = MaterialTheme.colors.secondary,
         content = {
             Icon(
