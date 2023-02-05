@@ -10,10 +10,14 @@ import javax.inject.Inject
 
 class UpdateCalfUseCase @Inject constructor(
     private val databaseRepository: DatabaseRepository
-) {
+):UseCase<FireBaseCalf,Flow<Response<Boolean>>>() {
 
-    suspend operator fun invoke(fireBaseCalf: FireBaseCalf): Flow<Response<Boolean>> {
+//    suspend operator fun invoke(fireBaseCalf: FireBaseCalf): Flow<Response<Boolean>> {
+//
+//        return databaseRepository.updateCalf(fireBaseCalf)
+//    }
 
-        return databaseRepository.updateCalf(fireBaseCalf)
+    override suspend fun execute(params: FireBaseCalf): Flow<Response<Boolean>> {
+        return databaseRepository.updateCalf(params)
     }
 }
