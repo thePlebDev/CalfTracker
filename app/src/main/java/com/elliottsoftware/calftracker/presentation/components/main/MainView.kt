@@ -66,11 +66,11 @@ fun MainView(
     viewModel: MainViewModel = viewModel(),
     onNavigate: (Int) -> Unit,
     sharedViewModel: EditCalfViewModel,
-    windowSize: WindowWidthSizeClass
+
 
 ){
     AppTheme(false){
-        ScaffoldView(viewModel,onNavigate,sharedViewModel,windowSize)
+        ScaffoldView(viewModel,onNavigate,sharedViewModel)
     }
 
 
@@ -80,7 +80,7 @@ fun MainView(
 @RequiresApi(Build.VERSION_CODES.N)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Unit,sharedViewModel: EditCalfViewModel,windowSize: WindowWidthSizeClass){
+fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Unit,sharedViewModel: EditCalfViewModel){
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
 
@@ -135,13 +135,20 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
 
         ) {
 
+
         HomeView(viewModel,onNavigate,sharedViewModel)
+
+
+
 
 
 
 
     }
 }
+
+
+
 
 @RequiresApi(Build.VERSION_CODES.N)
 @Composable
@@ -438,6 +445,22 @@ fun Chip(value:String){
         )
 
     }
+}
+
+@Composable
+fun NormalTopBar(viewModel: MainViewModel, scope: CoroutineScope, scaffoldState: ScaffoldState){
+    TopAppBar(
+        title = { Text("Calf Tracker") },
+        navigationIcon = {
+            IconButton(
+                onClick = {
+                    scope.launch { scaffoldState.drawerState.open() }
+                }
+            ) {
+                Icon(Icons.Filled.Menu, contentDescription = "Toggle navigation drawer")
+            }
+        }
+    )
 }
 
 

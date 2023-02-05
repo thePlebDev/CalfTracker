@@ -59,12 +59,12 @@ class MainFragment : Fragment() {
         binding.composeView.apply{
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                val windowSize = calculateWindowSizeClass(activity).widthSizeClass
+
                 MainView(
                     viewModel = mainViewModel,
                     onNavigate = { dest -> findNavController().navigate(dest) },
                     sharedViewModel = sharedViewModel,
-                    windowSize
+
                 )
 
 

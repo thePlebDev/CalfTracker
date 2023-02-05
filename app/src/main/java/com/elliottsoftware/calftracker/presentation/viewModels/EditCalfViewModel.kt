@@ -93,7 +93,7 @@ class EditCalfViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(loggedUserOut = logoutUseCase.invoke())
     }
 
-    fun updateCalf()= viewModelScope.launch {
+    private fun updateCalf()= viewModelScope.launch {
         val state = _uiState.value
        val fireBaseCalf = FireBaseCalf(
            calftag = state.calfTagNumber,
@@ -105,7 +105,7 @@ class EditCalfViewModel @Inject constructor(
            date = state.birthDate,
            id = state.firebaseId
        )
-        updateCalfUseCase(fireBaseCalf).collect{ response ->
+        updateCalfUseCase.execute(fireBaseCalf).collect{ response ->
             _uiState.value = _uiState.value.copy(calfUpdated = response)
         }
     }
