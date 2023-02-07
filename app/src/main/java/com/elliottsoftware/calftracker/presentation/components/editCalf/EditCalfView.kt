@@ -1,6 +1,8 @@
 package com.elliottsoftware.calftracker.presentation.components.editCalf
 
 import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -26,12 +28,19 @@ import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
 import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
+import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
+import com.maxkeppeker.sheets.core.models.base.rememberSheetState
+import com.maxkeppeler.sheets.calendar.CalendarDialog
+import com.maxkeppeler.sheets.calendar.models.CalendarConfig
+import com.maxkeppeler.sheets.calendar.models.CalendarSelection
 
 
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.time.LocalDate
+import java.time.ZoneId
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun EditCalfView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit){
     AppTheme(false){
@@ -39,6 +48,7 @@ fun EditCalfView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit){
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ScaffoldView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit) {
     val scaffoldState = rememberScaffoldState()
@@ -94,6 +104,7 @@ fun ScaffoldView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNavigate: (Int) -> Unit){
 
@@ -121,6 +132,8 @@ fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNav
             { value -> viewModel.updateBirthWeight(value) })
 
         Checkboxes(state = viewModel.uiState.value.sex, {value -> viewModel.updateSex(value) })
+
+        CalendarStuff(viewModel)
         
         when(val response = viewModel.uiState.value.calfUpdated){
             is Response.Loading -> LinearProgressIndicator()
@@ -265,6 +278,34 @@ fun FloatingButton(viewModel:EditCalfViewModel){
     )
 }
 
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun CalendarStuff(viewModel: EditCalfViewModel){
+    val calfDate = viewModel.uiState.value.birthDate!!
+    val convertedDate = calfDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    val selectedDate = remember { mutableStateOf<LocalDate?>(convertedDate) }
+    val calendarState = rememberSheetState()
+
+    CalendarDialog(
+        state = calendarState,
+        config = CalendarConfig(
+            monthSelection = true,
+            yearSelection = true
+        ),
+        selection = CalendarSelection.Date(selectedDate = selectedDate.value){ newDate ->
+
+            selectedDate.value = newDate
+            viewModel.updateDate(newDate)
+
+        }
+    )
+
+    Button(onClick = {calendarState.show()}){
+        Text("Edit date born")
+    }
+
+}
 
 
 
