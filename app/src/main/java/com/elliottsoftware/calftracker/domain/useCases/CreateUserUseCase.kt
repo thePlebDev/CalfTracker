@@ -8,11 +8,19 @@ import com.elliottsoftware.calftracker.util.Actions
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
+data class CreateUserParams(
+    val email: String,
+    val username: String,
+)
+
 class CreateUserUseCase @Inject constructor(
     private val database:DatabaseRepository
-) {
+){
 
     suspend operator fun invoke(email:String, username:String):Flow<Response<Actions>>{
         return database.createUser(email, username)
     }
+
+
 }
+

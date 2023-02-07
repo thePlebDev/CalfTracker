@@ -1,6 +1,8 @@
 package com.elliottsoftware.calftracker.presentation.components.newCalf
 
 import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -32,9 +34,19 @@ import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
 import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
+import com.maxkeppeker.sheets.core.models.base.rememberSheetState
+import com.maxkeppeler.sheets.calendar.CalendarDialog
+import com.maxkeppeler.sheets.calendar.models.CalendarConfig
+import com.maxkeppeler.sheets.calendar.models.CalendarSelection
+
+
 import kotlinx.coroutines.launch
+import timber.log.Timber
+import java.time.LocalDate
+import java.util.*
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NewCalfView(onNavigate:(Int)->Unit) {
     AppTheme(false){
@@ -42,6 +54,7 @@ fun NewCalfView(onNavigate:(Int)->Unit) {
     }
 
 }
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun ScaffoldView(viewModel: NewCalfViewModel = viewModel(),onNavigate:(Int)->Unit){
@@ -94,63 +107,79 @@ fun ScaffoldView(viewModel: NewCalfViewModel = viewModel(),onNavigate:(Int)->Uni
         },
 
         ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp)
-                .verticalScroll(rememberScrollState())
 
-
-        ) {
-
-            TextInput(
-                viewModel.state.value.calfTag,
-                "Calf tag number",
-                updateValue = { value -> viewModel.updateCalfTag(value) },
-                errorMessage = viewModel.state.value.calfTagError
-            )
-            TextInput(
-                viewModel.state.value.cowTagNumber,
-                "Cow tag number",
-                updateValue = { value -> viewModel.updateCowTagNumber(value) }
-            )
-            TextInput(
-                viewModel.state.value.cciaNumber,
-                "Ccia number",
-                updateValue = { value -> viewModel.updateCciaNumber(value) }
-            )
-            TextInput(
-                viewModel.state.value.description,
-                "Description",
-                updateValue = { value -> viewModel.updateDescription(value) }
-            )
-
-
-            NumberInput(
-                "Birth Weight",
-                viewModel.state.value.birthWeight,
-                updateValue = {value -> viewModel.updateBirthWeight(value)}
-            )
-            Checkboxes(viewModel.state.value.sex, updateSex = {value -> viewModel.updateSex(value)})
-            when(val response = viewModel.state.value.calfSaved){
-                is Response.Loading -> CircularProgressIndicator()
-                is Response.Success ->{
-                    if(response.data){
-                        //THIS IS WHERE WE DO THE NAVIGATION
-                        onNavigate(R.id.action_newCalfFragment_to_mainFragment2)
-                    }
-                }
-                is Response.Failure ->{
-                    Text("ERROR PLEASE TRY AGAIN")
-                }
-            }
-
-
-
-        }
+        MainBodyView(viewModel,onNavigate)
 
     }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun MainBodyView(viewModel: NewCalfViewModel,onNavigate:(Int)->Unit){
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+            .verticalScroll(rememberScrollState())
+
+
+    ) {
+
+        TextInput(
+            viewModel.state.value.calfTag,
+            "Calf tag number",
+            updateValue = { value -> viewModel.updateCalfTag(value) },
+            errorMessage = viewModel.state.value.calfTagError
+        )
+        TextInput(
+            viewModel.state.value.cowTagNumber,
+            "Cow tag number",
+            updateValue = { value -> viewModel.updateCowTagNumber(value) }
+        )
+        TextInput(
+            viewModel.state.value.cciaNumber,
+            "Ccia number",
+            updateValue = { value -> viewModel.updateCciaNumber(value) }
+        )
+        TextInput(
+            viewModel.state.value.description,
+            "Description",
+            updateValue = { value -> viewModel.updateDescription(value) }
+        )
+
+
+        NumberInput(
+            "Birth Weight",
+            viewModel.state.value.birthWeight,
+            updateValue = {value -> viewModel.updateBirthWeight(value)}
+        )
+        Checkboxes(viewModel.state.value.sex, updateSex = {value -> viewModel.updateSex(value)})
+
+
+
+        /**CALANDAR STUFF**/
+        CalendarStuff()
+
+
+
+        when(val response = viewModel.state.value.calfSaved){
+            is Response.Loading -> CircularProgressIndicator()
+            is Response.Success ->{
+                if(response.data){
+                    //THIS IS WHERE WE DO THE NAVIGATION
+                    onNavigate(R.id.action_newCalfFragment_to_mainFragment2)
+                }
+            }
+            is Response.Failure ->{
+                Text("ERROR PLEASE TRY AGAIN")
+            }
+        }
+
+
+
+    }
+
 }
 
 @Composable
@@ -249,6 +278,31 @@ fun Checkboxes(
                 .clickable(onClick = { })
                 .padding(start = 4.dp)
         )
+    }
+
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun CalendarStuff(){
+    val selectedDate = remember { mutableStateOf<LocalDate?>(LocalDate.now()) }
+    val calendarState = rememberSheetState()
+
+    CalendarDialog(
+        state = calendarState,
+        config = CalendarConfig(
+            monthSelection = true,
+            yearSelection = true
+        ),
+        selection = CalendarSelection.Date(selectedDate = selectedDate.value){newDate ->
+
+            selectedDate.value = newDate
+
+        }
+    )
+
+    Button(onClick = {calendarState.show()}){
+        Text("Select date born")
     }
 
 }

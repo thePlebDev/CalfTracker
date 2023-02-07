@@ -37,6 +37,7 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+
     }
 
     buildTypes {
@@ -70,6 +71,10 @@ android {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
+    }
+    // This is handled for you by the 2.0+ Gradle Plugin
+    aaptOptions {
+        additionalParameters "--no-version-vectors"
     }
 
 }
@@ -231,6 +236,16 @@ dependencies {
     // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation 'com.google.firebase:firebase-crashlytics-ktx'
     implementation 'com.google.firebase:firebase-analytics-ktx'
+
+
+    //core
+    implementation "com.maxkeppeler.sheets-compose-dialogs:core:1.0.2"
+    // CALENDAR
+    implementation "com.maxkeppeler.sheets-compose-dialogs:calendar:1.0.2"
+
+
+
+
 
 
 
