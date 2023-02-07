@@ -18,6 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -72,7 +73,7 @@ fun ScaffoldView(viewModel: NewCalfViewModel = viewModel(),onNavigate:(Int)->Uni
         }) },
         topBar = {
             TopAppBar(
-                title = { Text("Calf Tracker") },
+                title = { Text(stringResource(R.string.title)) },
                 navigationIcon = {
                     IconButton(
                         onClick = {
@@ -90,8 +91,8 @@ fun ScaffoldView(viewModel: NewCalfViewModel = viewModel(),onNavigate:(Int)->Uni
                 items = listOf(
                     MenuItem(
                         id= "logout",
-                        title="Logout",
-                        contentDescription = "logout of account",
+                        title=stringResource(R.string.logout),
+                        contentDescription = stringResource(R.string.logout),
                         icon = Icons.Default.Logout,
                         onClick = {
                             scope.launch {
@@ -303,7 +304,7 @@ fun CalendarStuff(viewModel: NewCalfViewModel){
     )
 
     Button(onClick = {calendarState.show()}){
-        Text("Select date born")
+        Text(stringResource(R.string.select_birth_date))
     }
 
 }
