@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Brush.Companion.linearGradient
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -90,7 +91,7 @@ fun ScaffoldView(viewModel: WeatherViewModel = viewModel(),onNavigate: (Int) -> 
         drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
         topBar = {
             TopAppBar(
-                title = { Text("Calf Tracker") },
+                title = { Text(stringResource(R.string.title)) },
                 navigationIcon = {
                     IconButton(
                         onClick = {
@@ -109,8 +110,8 @@ fun ScaffoldView(viewModel: WeatherViewModel = viewModel(),onNavigate: (Int) -> 
                 items = listOf(
                     MenuItem(
                         id= "logout",
-                        title="Logout",
-                        contentDescription = "logout of account",
+                        title=stringResource(R.string.logout),
+                        contentDescription = stringResource(R.string.logout),
                         icon = Icons.Default.Logout,
                         onClick = {
                             scope.launch {
@@ -122,8 +123,8 @@ fun ScaffoldView(viewModel: WeatherViewModel = viewModel(),onNavigate: (Int) -> 
                     ),
                     MenuItem(
                         id= "home",
-                        title="Home",
-                        contentDescription = "Home Icon",
+                        title=stringResource(R.string.home),
+                        contentDescription = stringResource(R.string.home),
                         icon = Icons.Default.Home,
                         onClick = {
                             scope.launch {
@@ -214,13 +215,13 @@ fun HorizontalScrollScreen(viewModel: WeatherViewModel = viewModel()) {
                             val textToShow = if (locationPermissionState.status.shouldShowRationale) {
                                 // If the user has denied the permission but the rationale can be shown,
                                 // then gently explain why the app requires this permission
-                                "Location is required in this app. Please request permission."
+                                 stringResource(R.string.request_permission)
                             } else {
                                 // If it's the first time the user lands on this feature, or the user
                                 // doesn't want to be asked again for this permission, explain that the
                                 // permission is required
-                                "This weather application requires your location to function properly. " +
-                                        "Please grant the permission in settings"
+
+                                stringResource(R.string.grant_permission)
                             }
 
                             PermissionText(textToShow,locationPermissionState, modifier = Modifier.align(Alignment.CenterHorizontally))
@@ -299,7 +300,7 @@ fun LazyRowComposable(locationPermissionState:PermissionState,viewModel: Weather
                             }
                         }
                         is Response.Failure ->{
-                            viewModel.setFocusedData(WeatherViewData("Error, please try again",0.00))
+                            viewModel.setFocusedData(WeatherViewData("Error, please try again" ,0.00))
                             val list = listOf<String>("","")
                             itemsIndexed(list) { index, item ->
                                 CardShownShimmer()

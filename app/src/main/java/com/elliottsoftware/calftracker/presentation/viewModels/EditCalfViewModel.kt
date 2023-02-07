@@ -120,7 +120,7 @@ class EditCalfViewModel @Inject constructor(
     fun updateDate(date: LocalDate){
 
         val convertedDate= Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        Timber.tag("CALENDAR").d(convertedDate.toString())
+
         _uiState.value = _uiState.value.copy(birthDate = convertedDate)
 
     }

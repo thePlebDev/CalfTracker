@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -41,7 +42,7 @@ fun RegisterViews(viewModel: RegisterViewModel = viewModel(),onNavigate:(Int) ->
 @Composable
 fun RegisterView(viewModel: RegisterViewModel = viewModel(),onNavigate:(Int) -> Unit){
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        BannerCard("Calf Tracker", "Powered by Elliott Software")
+        BannerCard(stringResource(R.string.title), stringResource(R.string.sub_title))
         UsernameInput(viewModel)
         EmailInput(viewModel)
         PasswordInput(viewModel)
@@ -86,7 +87,7 @@ fun UsernameInput(viewModel: RegisterViewModel){
             onValueChange = { viewModel.updateUsername(it)},
             singleLine = true,
             placeholder = {
-                Text(text = "Username",fontSize = 26.sp)
+                Text(text = stringResource(R.string.username),fontSize = 26.sp)
             },
             modifier = Modifier.padding(start = 0.dp,40.dp,0.dp,0.dp)
             ,
@@ -113,7 +114,7 @@ fun EmailInput(viewModel: RegisterViewModel){
             onValueChange = { viewModel.updateEmail(it)},
             singleLine = true,
             placeholder = {
-                Text(text = "Email",fontSize = 26.sp)
+                Text(text =stringResource(R.string.email),fontSize = 26.sp)
             },
             modifier = Modifier.padding(start = 0.dp,10.dp,0.dp,0.dp)
             ,
@@ -143,7 +144,7 @@ fun PasswordInput(viewModel: RegisterViewModel){
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         OutlinedTextField(value = state.password,
             onValueChange = {viewModel.updatePassword(it)},
-            placeholder = { Text(text = "Password", fontSize = 26.sp) },
+            placeholder = { Text(text =stringResource(R.string.password), fontSize = 26.sp) },
             modifier = Modifier.padding(start = 0.dp, 10.dp, 0.dp, 0.dp),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password
@@ -179,15 +180,15 @@ fun SubmitButton(viewModel: RegisterViewModel){
             .width(280.dp)
             .padding(start = 0.dp, 20.dp, 0.dp, 0.dp)) {
 
-        Text(text = "Register",fontSize = 26.sp)
+        Text(text =stringResource(R.string.register),fontSize = 26.sp)
     }
 
 }
 @Composable
 fun Fail() {
-    Text("FAIL")
+    Text( stringResource(R.string.fail))
 }
 @Composable
 fun Success() {
-    Text("SUCCESS")
+    Text(stringResource(R.string.success))
 }

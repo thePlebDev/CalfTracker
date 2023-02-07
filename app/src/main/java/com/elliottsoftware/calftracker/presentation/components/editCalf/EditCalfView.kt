@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -65,7 +66,7 @@ fun ScaffoldView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit) {
         },
         topBar = {
             TopAppBar(
-                title = { Text("Calf Tracker") },
+                title = { Text(stringResource(R.string.title)) },
                 navigationIcon = {
                     IconButton(
                         onClick = {
@@ -83,8 +84,8 @@ fun ScaffoldView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit) {
                 items = listOf(
                     MenuItem(
                         id = "logout",
-                        title = "Logout",
-                        contentDescription = "logout of account",
+                        title = stringResource(R.string.logout),
+                        contentDescription = stringResource(R.string.logout),
                         icon = Icons.Default.Logout,
                         onClick = {
                             scope.launch {
@@ -144,7 +145,7 @@ fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNav
 
                 }
             }
-            is Response.Failure -> {Text("FAILURE")}
+            is Response.Failure -> {Text(stringResource(R.string.fail))}
         }
 
     }
@@ -242,7 +243,7 @@ fun Checkboxes(
     ) {
         RadioButton(selected = state=="Bull", onClick = {updateSex("Bull") })
         Text(
-            text = "Bull",
+            text = "Bull" ,
             modifier = Modifier
                 .clickable(onClick = { })
                 .padding(start = 4.dp)
@@ -250,7 +251,7 @@ fun Checkboxes(
 
         RadioButton(selected = state=="Heifer", onClick = { updateSex("Heifer")})
         Text(
-            text = "Heifer",
+            text = stringResource(R.string.heifer),
             modifier = Modifier
                 .clickable(onClick = { })
                 .padding(start = 4.dp)
@@ -302,7 +303,7 @@ fun CalendarStuff(viewModel: EditCalfViewModel){
     )
 
     Button(onClick = {calendarState.show()}){
-        Text("Edit date born")
+        Text(stringResource(R.string.edit_birth_date))
     }
 
 }

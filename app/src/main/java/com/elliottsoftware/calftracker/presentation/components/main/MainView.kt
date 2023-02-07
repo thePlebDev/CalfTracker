@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -99,7 +100,7 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
                 items = listOf(
                     MenuItem(
                         id= "logout",
-                        title="Logout",
+                        title=stringResource(R.string.logout),
                         contentDescription = "logout of account",
                         icon = Icons.Default.Logout,
                         onClick = {
@@ -114,8 +115,8 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
                     ),
                     MenuItem(
                         id= "weather",
-                        title="Weather",
-                        contentDescription = "Weather",
+                        title=stringResource(R.string.weather),
+                        contentDescription = stringResource(R.string.weather),
                         icon = Icons.Default.Satellite,
                         onClick = {
                             scope.launch {
@@ -168,8 +169,9 @@ fun HomeView(viewModel: MainViewModel,onNavigate: (Int) -> Unit,sharedViewModel:
                 viewModel.setChipText(response.data)
                 if(response.data.isEmpty()){
                     Column(){
-                        Text(text = "NO CALVES",color =MaterialTheme.colors.onPrimary)
+                        Text(text = stringResource(R.string.no_calves),color =MaterialTheme.colors.onPrimary)
 
+                        //NO CALVES
                     }
                 }
                 else{
@@ -195,8 +197,8 @@ fun ErrorResponse(viewModel: MainViewModel) {
         Column(modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth(),horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("User notice", style = MaterialTheme.typography.h4)
-            Text("A Error has occurred and the development team has been notified. Thank you for your continued support ",
+            Text(stringResource(R.string.user_notice), style = MaterialTheme.typography.h4)
+            Text(stringResource(R.string.main_view_error_message),
                 style = MaterialTheme.typography.subtitle1,
                 textAlign = TextAlign.Center
             )
@@ -211,7 +213,7 @@ fun ErrorButton(viewModel: MainViewModel) {
     Button(onClick = {
             viewModel.getCalves()
     }) {
-        Text(text = "Click to reload",
+        Text(text = stringResource(R.string.click_to_reload),
             style = MaterialTheme.typography.subtitle1,
             textAlign = TextAlign.Center)
     }
@@ -396,7 +398,7 @@ fun SearchText(viewModel: MainViewModel,scope: CoroutineScope, scaffoldState: Sc
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
-            placeholder = {Text("Search by tag number")},
+            placeholder = {Text(stringResource(R.string.search_tag_number))},
             value = tagNumber, onValueChange = {tagNumber = it},
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,
@@ -450,7 +452,7 @@ fun Chip(value:String){
 @Composable
 fun NormalTopBar(viewModel: MainViewModel, scope: CoroutineScope, scaffoldState: ScaffoldState){
     TopAppBar(
-        title = { Text("Calf Tracker") },
+        title = { Text(stringResource(R.string.title)) },
         navigationIcon = {
             IconButton(
                 onClick = {
