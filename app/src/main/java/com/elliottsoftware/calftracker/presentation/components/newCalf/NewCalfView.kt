@@ -159,7 +159,7 @@ fun MainBodyView(viewModel: NewCalfViewModel,onNavigate:(Int)->Unit){
 
 
         /**CALANDAR STUFF**/
-        CalendarStuff()
+        CalendarStuff(viewModel)
 
 
 
@@ -284,7 +284,7 @@ fun Checkboxes(
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun CalendarStuff(){
+fun CalendarStuff(viewModel: NewCalfViewModel){
     val selectedDate = remember { mutableStateOf<LocalDate?>(LocalDate.now()) }
     val calendarState = rememberSheetState()
 
@@ -297,6 +297,7 @@ fun CalendarStuff(){
         selection = CalendarSelection.Date(selectedDate = selectedDate.value){newDate ->
 
             selectedDate.value = newDate
+            viewModel.updateDate(newDate)
 
         }
     )

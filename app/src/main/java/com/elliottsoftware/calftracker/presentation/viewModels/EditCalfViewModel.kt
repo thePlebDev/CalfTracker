@@ -1,6 +1,8 @@
 package com.elliottsoftware.calftracker.presentation.viewModels
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -17,6 +19,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import timber.log.Timber
+import java.time.LocalDate
+import java.time.ZoneId
 import java.util.*
 import javax.inject.Inject
 
@@ -110,7 +115,11 @@ class EditCalfViewModel @Inject constructor(
         }
     }
 
+
+
+
 fun updateCalfUpdatedStateToFalse(){
     _uiState.value = _uiState.value.copy(calfUpdated = Response.Success(false))
 }
+
 }
