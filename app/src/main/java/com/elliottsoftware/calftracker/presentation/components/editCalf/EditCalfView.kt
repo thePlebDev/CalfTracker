@@ -27,10 +27,10 @@ import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
 import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 
-import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
-import com.google.android.material.progressindicator.LinearProgressIndicator
+
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.time.LocalDate
 
 @Composable
 fun EditCalfView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit){
@@ -96,6 +96,7 @@ fun ScaffoldView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit) {
 
 @Composable
 fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNavigate: (Int) -> Unit){
+
 
 
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(paddingValues)) {
@@ -263,6 +264,8 @@ fun FloatingButton(viewModel:EditCalfViewModel){
         }
     )
 }
+
+
 
 
 

@@ -59,8 +59,10 @@ class LoginViewModel @Inject constructor(
     fun updatePassword(password:String){
         state.value = state.value.copy(password = password)
     }
+
     private fun checkLogInStatus(){
         val auth = checkUserLoggedIn.invoke()
+
         state.value = state.value.copy(isUserLoggedIn = auth)
 
     }
