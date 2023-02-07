@@ -42,7 +42,7 @@ fun RegisterViews(viewModel: RegisterViewModel = viewModel(),onNavigate:(Int) ->
 @Composable
 fun RegisterView(viewModel: RegisterViewModel = viewModel(),onNavigate:(Int) -> Unit){
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        BannerCard(stringResource(R.string.title), stringResource(R.string.sub_title))
+        BannerCard("Calf Tracker", "Powered by Elliott Software")
         UsernameInput(viewModel)
         EmailInput(viewModel)
         PasswordInput(viewModel)
@@ -87,7 +87,7 @@ fun UsernameInput(viewModel: RegisterViewModel){
             onValueChange = { viewModel.updateUsername(it)},
             singleLine = true,
             placeholder = {
-                Text(text = stringResource(R.string.username),fontSize = 26.sp)
+                Text(text = "Username",fontSize = 26.sp)
             },
             modifier = Modifier.padding(start = 0.dp,40.dp,0.dp,0.dp)
             ,
@@ -114,7 +114,7 @@ fun EmailInput(viewModel: RegisterViewModel){
             onValueChange = { viewModel.updateEmail(it)},
             singleLine = true,
             placeholder = {
-                Text(text =stringResource(R.string.email),fontSize = 26.sp)
+                Text(text ="Email",fontSize = 26.sp)
             },
             modifier = Modifier.padding(start = 0.dp,10.dp,0.dp,0.dp)
             ,
@@ -144,7 +144,7 @@ fun PasswordInput(viewModel: RegisterViewModel){
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         OutlinedTextField(value = state.password,
             onValueChange = {viewModel.updatePassword(it)},
-            placeholder = { Text(text =stringResource(R.string.password), fontSize = 26.sp) },
+            placeholder = { Text(text ="Password", fontSize = 26.sp) },
             modifier = Modifier.padding(start = 0.dp, 10.dp, 0.dp, 0.dp),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password
@@ -180,15 +180,15 @@ fun SubmitButton(viewModel: RegisterViewModel){
             .width(280.dp)
             .padding(start = 0.dp, 20.dp, 0.dp, 0.dp)) {
 
-        Text(text =stringResource(R.string.register),fontSize = 26.sp)
+        Text(text ="Register",fontSize = 26.sp)
     }
 
 }
 @Composable
 fun Fail() {
-    Text( stringResource(R.string.fail))
+    Text("FAILURE")
 }
 @Composable
 fun Success() {
-    Text(stringResource(R.string.success))
+    Text("SUCCESS")
 }

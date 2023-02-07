@@ -73,7 +73,7 @@ fun ScaffoldView(viewModel: NewCalfViewModel = viewModel(),onNavigate:(Int)->Uni
         }) },
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.title)) },
+                title = { Text("Calf Tracker") },
                 navigationIcon = {
                     IconButton(
                         onClick = {
@@ -91,8 +91,8 @@ fun ScaffoldView(viewModel: NewCalfViewModel = viewModel(),onNavigate:(Int)->Uni
                 items = listOf(
                     MenuItem(
                         id= "logout",
-                        title=stringResource(R.string.logout),
-                        contentDescription = stringResource(R.string.logout),
+                        title="Logout",
+                        contentDescription = "Logout",
                         icon = Icons.Default.Logout,
                         onClick = {
                             scope.launch {
@@ -304,7 +304,7 @@ fun CalendarStuff(viewModel: NewCalfViewModel){
     )
 
     Button(onClick = {calendarState.show()}){
-        Text(stringResource(R.string.select_birth_date))
+        Text("Select birth date")
     }
 
 }

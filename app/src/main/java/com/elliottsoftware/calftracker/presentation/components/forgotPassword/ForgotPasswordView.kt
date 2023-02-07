@@ -24,6 +24,7 @@ import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.presentation.components.login.LinearLoadingBar
 import com.elliottsoftware.calftracker.presentation.components.register.RegisterView
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
+import timber.log.Timber
 
 
 @Composable
@@ -39,18 +40,19 @@ fun ForgotPasswordView(viewModel: ForgotPasswordViewModel = viewModel()){
 
     Scaffold(){
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxSize()){
-            BannerCard(stringResource(R.string.title), stringResource(R.string.sub_title))
+            BannerCard("Calf Tracker", "Powered by Elliott Software")
             EmailInput(viewModel)
-            SubmitButton({viewModel.validateEmailText()})
+            SubmitButton { viewModel.validateEmailText() }
             when(val response = viewModel.state.value.resetPassword){
                 is Response.Loading -> LinearLoadingBar()
                 is Response.Success ->{
                     if(response.data){
-                        Text(stringResource(R.string.email_sent),fontSize = 20.sp,modifier = Modifier.padding(start = 0.dp,16.dp,0.dp,0.dp))
+                        Timber.tag("SENDINGEMAIL").d("email sent")
+                        Text("Email sent",fontSize = 20.sp,modifier = Modifier.padding(start = 0.dp,16.dp,0.dp,0.dp))
                     }
                 }
                 is Response.Failure -> {
-                    Text( stringResource(R.string.email_not_found),fontSize = 20.sp,modifier = Modifier.padding(start = 0.dp,16.dp,0.dp,0.dp))
+                    Text( "Email not found",fontSize = 20.sp,modifier = Modifier.padding(start = 0.dp,16.dp,0.dp,0.dp))
                 }
 
             }
@@ -91,7 +93,7 @@ fun EmailInput(viewModel: ForgotPasswordViewModel = viewModel()){
             //style
             singleLine = true,
             placeholder = {
-                Text(text =stringResource(R.string.recovery_email),fontSize = 26.sp)
+                Text(text ="Recovery Email",fontSize = 26.sp)
             },
             modifier = Modifier.padding(start = 0.dp,40.dp,0.dp,0.dp)
             ,
@@ -126,7 +128,7 @@ fun SubmitButton(buttonFunc:()->Unit){
             .width(280.dp)
             .padding(start = 0.dp, 20.dp, 0.dp, 0.dp)) {
 
-        Text(text = stringResource(R.string.reset_password),fontSize = 26.sp)
+        Text(text = "Reset Password",fontSize = 26.sp)
     }
 }
 

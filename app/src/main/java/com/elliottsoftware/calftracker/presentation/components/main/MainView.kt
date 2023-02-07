@@ -100,7 +100,7 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
                 items = listOf(
                     MenuItem(
                         id= "logout",
-                        title=stringResource(R.string.logout),
+                        title="Logout",
                         contentDescription = "logout of account",
                         icon = Icons.Default.Logout,
                         onClick = {
@@ -115,8 +115,8 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
                     ),
                     MenuItem(
                         id= "weather",
-                        title=stringResource(R.string.weather),
-                        contentDescription = stringResource(R.string.weather),
+                        title="Weather",
+                        contentDescription = "Weather",
                         icon = Icons.Default.Satellite,
                         onClick = {
                             scope.launch {
@@ -169,7 +169,7 @@ fun HomeView(viewModel: MainViewModel,onNavigate: (Int) -> Unit,sharedViewModel:
                 viewModel.setChipText(response.data)
                 if(response.data.isEmpty()){
                     Column(){
-                        Text(text = stringResource(R.string.no_calves),color =MaterialTheme.colors.onPrimary)
+                        Text(text = "NO CALVES",color =MaterialTheme.colors.onPrimary)
 
                         //NO CALVES
                     }
@@ -197,8 +197,8 @@ fun ErrorResponse(viewModel: MainViewModel) {
         Column(modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth(),horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(stringResource(R.string.user_notice), style = MaterialTheme.typography.h4)
-            Text(stringResource(R.string.main_view_error_message),
+            Text("User Notice", style = MaterialTheme.typography.h4)
+            Text("A Error has occurred and the development team has been notified. Thank you for your continued support ",
                 style = MaterialTheme.typography.subtitle1,
                 textAlign = TextAlign.Center
             )
@@ -213,7 +213,7 @@ fun ErrorButton(viewModel: MainViewModel) {
     Button(onClick = {
             viewModel.getCalves()
     }) {
-        Text(text = stringResource(R.string.click_to_reload),
+        Text(text = "Click to reload",
             style = MaterialTheme.typography.subtitle1,
             textAlign = TextAlign.Center)
     }
@@ -398,7 +398,7 @@ fun SearchText(viewModel: MainViewModel,scope: CoroutineScope, scaffoldState: Sc
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
-            placeholder = {Text(stringResource(R.string.search_tag_number))},
+            placeholder = {Text("Search by tag number")},
             value = tagNumber, onValueChange = {tagNumber = it},
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,
@@ -449,21 +449,6 @@ fun Chip(value:String){
     }
 }
 
-@Composable
-fun NormalTopBar(viewModel: MainViewModel, scope: CoroutineScope, scaffoldState: ScaffoldState){
-    TopAppBar(
-        title = { Text(stringResource(R.string.title)) },
-        navigationIcon = {
-            IconButton(
-                onClick = {
-                    scope.launch { scaffoldState.drawerState.open() }
-                }
-            ) {
-                Icon(Icons.Filled.Menu, contentDescription = "Toggle navigation drawer")
-            }
-        }
-    )
-}
 
 
 
