@@ -66,7 +66,7 @@ fun ScaffoldView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit) {
         },
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.title)) },
+                title = { Text("Calf Tracker") },
                 navigationIcon = {
                     IconButton(
                         onClick = {
@@ -84,8 +84,8 @@ fun ScaffoldView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit) {
                 items = listOf(
                     MenuItem(
                         id = "logout",
-                        title = stringResource(R.string.logout),
-                        contentDescription = stringResource(R.string.logout),
+                        title = "Logout",
+                        contentDescription = "Logout",
                         icon = Icons.Default.Logout,
                         onClick = {
                             scope.launch {
@@ -145,7 +145,7 @@ fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNav
 
                 }
             }
-            is Response.Failure -> {Text(stringResource(R.string.fail))}
+            is Response.Failure -> {Text("FAILURE")}
         }
 
     }
@@ -251,7 +251,7 @@ fun Checkboxes(
 
         RadioButton(selected = state=="Heifer", onClick = { updateSex("Heifer")})
         Text(
-            text = stringResource(R.string.heifer),
+            text = "Heifer",
             modifier = Modifier
                 .clickable(onClick = { })
                 .padding(start = 4.dp)
@@ -303,7 +303,7 @@ fun CalendarStuff(viewModel: EditCalfViewModel){
     )
 
     Button(onClick = {calendarState.show()}){
-        Text(stringResource(R.string.edit_birth_date))
+        Text("Edit date born")
     }
 
 }

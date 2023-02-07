@@ -91,7 +91,7 @@ fun ScaffoldView(viewModel: WeatherViewModel = viewModel(),onNavigate: (Int) -> 
         drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.title)) },
+                title = { Text("Calf Tracker") },
                 navigationIcon = {
                     IconButton(
                         onClick = {
@@ -110,8 +110,8 @@ fun ScaffoldView(viewModel: WeatherViewModel = viewModel(),onNavigate: (Int) -> 
                 items = listOf(
                     MenuItem(
                         id= "logout",
-                        title=stringResource(R.string.logout),
-                        contentDescription = stringResource(R.string.logout),
+                        title="Logout",
+                        contentDescription = "Logout",
                         icon = Icons.Default.Logout,
                         onClick = {
                             scope.launch {
@@ -123,8 +123,8 @@ fun ScaffoldView(viewModel: WeatherViewModel = viewModel(),onNavigate: (Int) -> 
                     ),
                     MenuItem(
                         id= "home",
-                        title=stringResource(R.string.home),
-                        contentDescription = stringResource(R.string.home),
+                        title="Home",
+                        contentDescription = "Home",
                         icon = Icons.Default.Home,
                         onClick = {
                             scope.launch {
@@ -215,13 +215,13 @@ fun HorizontalScrollScreen(viewModel: WeatherViewModel = viewModel()) {
                             val textToShow = if (locationPermissionState.status.shouldShowRationale) {
                                 // If the user has denied the permission but the rationale can be shown,
                                 // then gently explain why the app requires this permission
-                                 stringResource(R.string.request_permission)
+                                 "Location is required in this app. Please request permission."
                             } else {
                                 // If it's the first time the user lands on this feature, or the user
                                 // doesn't want to be asked again for this permission, explain that the
                                 // permission is required
 
-                                stringResource(R.string.grant_permission)
+                                "This weather application requires your location to function properly.Please grant the permission in settings"
                             }
 
                             PermissionText(textToShow,locationPermissionState, modifier = Modifier.align(Alignment.CenterHorizontally))

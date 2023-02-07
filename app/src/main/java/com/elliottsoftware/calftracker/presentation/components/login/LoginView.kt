@@ -43,7 +43,7 @@ fun LoginView(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit)
         onNavigate(R.id.action_loginFragment_to_mainFragment2)
     }else{
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            BannerCard(stringResource(R.string.title), stringResource(R.string.sub_title))
+            BannerCard("Calf Tracker", "Powered by Elliott Software")
             EmailInput(viewModel)
             PasswordInput(viewModel)
             SubmitButton(viewModel,onNavigate)
@@ -59,7 +59,7 @@ fun LoginView(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit)
                 }
                 is Response.Failure -> {
                     //should probably show a snackbar
-                    Text( stringResource(R.string.login_error), color = MaterialTheme.colors.error)
+                    Text( "Username or Password incorrect", color = MaterialTheme.colors.error)
                     Timber.tag("LoginError").d(response.e.message.toString())
                 }
             }
@@ -126,7 +126,7 @@ fun PasswordInput(viewModel: LoginViewModel){
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         OutlinedTextField(value = state.password,
             onValueChange = {viewModel.updatePassword(it)},
-            placeholder = { Text(text = stringResource(R.string.password), fontSize = 26.sp) },
+            placeholder = { Text(text = "Password", fontSize = 26.sp) },
             modifier = Modifier.padding(start = 0.dp, 10.dp, 0.dp, 0.dp),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password
@@ -162,7 +162,7 @@ fun SubmitButton(loginViewModel: LoginViewModel,onNavigate: (Int) -> Unit){
             .width(280.dp)
             .padding(start = 0.dp, 20.dp, 0.dp, 0.dp)) {
 
-        Text(text=stringResource(R.string.login),fontSize = 26.sp)
+        Text(text="Login",fontSize = 26.sp)
     }
 }
 @Composable
@@ -170,13 +170,13 @@ fun SignUpForgotPassword(onNavigate: (Int) -> Unit){
     Row(verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier.padding(start = 0.dp,25.dp,0.dp,0.dp).fillMaxWidth()) {
-        Text(stringResource(R.string.forgot_password),
+        Text("Forgot Password",
             fontSize = 16.sp,
             modifier = Modifier.clickable(enabled = true) {
                 onNavigate(R.id.action_loginFragment_to_forgotPasswordFragment)
             }
         )
-        Text( stringResource(R.string.register),
+        Text( "Register",
             fontSize = 16.sp,
             modifier = Modifier
                 .clickable(enabled = true) {

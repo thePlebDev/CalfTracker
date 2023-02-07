@@ -78,6 +78,7 @@ class AuthRepositoryImpl(
         auth.sendPasswordResetEmail(email)
             .addOnCompleteListener { task ->
             if (task.isSuccessful) {
+                Timber.tag("SENDINGEMAIL").d("resetPassword() called")
                 trySend(Response.Success(true))
             }
         }
