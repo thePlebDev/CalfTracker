@@ -8,9 +8,10 @@ import javax.inject.Inject
 
 class DeleteCalfUseCase @Inject constructor(
     private val databaseRepository: DatabaseRepository
-) {
-    suspend operator fun invoke(id:String): Flow<Response<Boolean>> {
-        return databaseRepository.deleteCalf(id)
+):UseCase<String,Flow<Response<Boolean>>>() {
 
+
+    override suspend fun execute(params: String): Flow<Response<Boolean>> {
+        return databaseRepository.deleteCalf(params)
     }
 }

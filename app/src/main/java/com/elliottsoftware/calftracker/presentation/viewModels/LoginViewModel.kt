@@ -6,16 +6,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.Navigation
 import com.elliottsoftware.calftracker.domain.models.Response
-import com.elliottsoftware.calftracker.domain.useCases.CheckUserLoggedInUseCase
-import com.elliottsoftware.calftracker.domain.useCases.LoginUseCase
-import com.elliottsoftware.calftracker.domain.useCases.ValidateEmailUseCase
-import com.elliottsoftware.calftracker.domain.useCases.ValidatePasswordUseCase
+import com.elliottsoftware.calftracker.domain.useCases.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 data class LoginUIState(
@@ -46,7 +44,7 @@ class LoginViewModel @Inject constructor(
 
 
     private fun loginUser(email: String,password:String)= viewModelScope.launch{
-        loginUseCase(email,password).collect{ response ->
+        loginUseCase.execute(LoginParams(email,password)).collect{ response ->
             state.value = state.value.copy(loginStatus = response)
         }
     }
@@ -60,8 +58,8 @@ class LoginViewModel @Inject constructor(
         state.value = state.value.copy(password = password)
     }
 
-    private fun checkLogInStatus(){
-        val auth = checkUserLoggedIn.invoke()
+    private fun checkLogInStatus() = viewModelScope.launch{
+        val auth = checkUserLoggedIn.execute(Unit)
 
         state.value = state.value.copy(isUserLoggedIn = auth)
 

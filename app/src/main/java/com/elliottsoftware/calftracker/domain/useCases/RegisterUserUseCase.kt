@@ -7,12 +7,17 @@ import com.elliottsoftware.calftracker.domain.repositories.AuthRepository
 import com.elliottsoftware.calftracker.util.Actions
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
+data class RegisterUserParams(
+    val email: String,
+    val password: String,
+)
 
 class RegisterUserUseCase @Inject constructor(
     private val authRepository: AuthRepository
-) {
-    suspend operator fun invoke(email:String, password:String):Flow<Response<Actions>>{
-        return authRepository.authRegister(email, password)
+):UseCase<RegisterUserParams,Flow<Response<Actions>>>() {
 
+
+    override suspend fun execute(params: RegisterUserParams): Flow<Response<Actions>> {
+        return authRepository.authRegister(params.email, params.password)
     }
 }

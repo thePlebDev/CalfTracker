@@ -7,11 +7,19 @@ import com.elliottsoftware.calftracker.domain.weather.WeatherViewData
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
+data class GetWeatherParams(
+    val lat:Double,
+    val long:Double,
+)
+
+
 class GetWeatherUseCase @Inject constructor(
     private val weatherRepositoryImpl: WeatherRepository
-) {
+):UseCase<GetWeatherParams,Flow<Response<MutableList<WeatherViewData>>>>() {
 
-    suspend operator fun invoke(lat:Double, long:Double): Flow<Response<MutableList<WeatherViewData>>> {
-        return weatherRepositoryImpl.getWeather(33.4,55.3);
+
+
+    override suspend fun execute(params: GetWeatherParams): Flow<Response<MutableList<WeatherViewData>>> {
+        return weatherRepositoryImpl.getWeather(params.lat,params.long);
     }
 }

@@ -15,10 +15,12 @@ data class CreateUserParams(
 
 class CreateUserUseCase @Inject constructor(
     private val database:DatabaseRepository
-){
+):UseCase<CreateUserParams,Flow<Response<Actions>>>(){
 
-    suspend operator fun invoke(email:String, username:String):Flow<Response<Actions>>{
-        return database.createUser(email, username)
+
+
+    override suspend fun execute(params: CreateUserParams): Flow<Response<Actions>> {
+        return database.createUser(params.email, params.username)
     }
 
 

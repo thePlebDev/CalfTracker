@@ -94,8 +94,8 @@ class EditCalfViewModel @Inject constructor(
         }
     }
 
-    fun signUserOut(){
-        _uiState.value = _uiState.value.copy(loggedUserOut = logoutUseCase.invoke())
+    fun signUserOut() = viewModelScope.launch{
+        _uiState.value = _uiState.value.copy(loggedUserOut = logoutUseCase.execute(Unit))
     }
 
     private fun updateCalf()= viewModelScope.launch {
