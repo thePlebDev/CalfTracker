@@ -53,26 +53,7 @@ object ViewModelModule {
         return WeatherRetrofitInstance.api
     }
 
-/***********THIS IS WHAT WE WANT TO DO****************/
-//@Provides
-//fun provideFetchApi():FetchApi{
-//    return Retrofit.Builder()
-//        .baseUrl("https://fetch-hiring.s3.amazonaws.com")
-//        .addConverterFactory(GsonConverterFactory.create())
-//        .build()
-//        .create(FetchApi::class.java)
-//}
-//
-//
-//
-//    @Provides
-//    fun provideRemoteRepository(
-//        fetchApi: FetchApi
-//    ):RemoteRepository{
-//        return RemoteRepositoryImpl(
-//            fetchApi
-//        )
-//    }
+
 
 
 }
