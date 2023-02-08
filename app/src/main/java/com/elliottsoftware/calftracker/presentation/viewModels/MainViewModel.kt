@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
 import com.elliottsoftware.calftracker.domain.useCases.DeleteCalfUseCase
+import com.elliottsoftware.calftracker.domain.useCases.GetCalfByTagNumberUseCase
 import com.elliottsoftware.calftracker.domain.useCases.GetCalvesUseCase
 import com.elliottsoftware.calftracker.domain.useCases.LogoutUseCase
 
@@ -33,7 +34,8 @@ data class MainUIState(
 class MainViewModel @Inject constructor(
    private val logoutUseCase: LogoutUseCase,
    private val getCalvesUseCase: GetCalvesUseCase,
-   private val deleteCalfUseCase: DeleteCalfUseCase
+   private val deleteCalfUseCase: DeleteCalfUseCase,
+   private val getCalfByTagNumberUseCase: GetCalfByTagNumberUseCase
 
 ):ViewModel() {
     var state: MutableState<MainUIState> = mutableStateOf(MainUIState())
@@ -70,7 +72,7 @@ class MainViewModel @Inject constructor(
 
 
     fun searchCalfListByTag(tagNumber:String) = viewModelScope.launch{
-        getCalvesUseCase.getCalfByTagNumber(tagNumber).collect{ response ->
+        getCalfByTagNumberUseCase.execute(tagNumber).collect{ response ->
             state.value = state.value.copy(data = response)
         }
 
