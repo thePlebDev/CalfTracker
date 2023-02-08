@@ -2,6 +2,7 @@ package com.elliottsoftware.calftracker.presentation.components.editCalf
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Range
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -34,6 +35,7 @@ import com.maxkeppeker.sheets.core.models.base.rememberSheetState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
 import com.maxkeppeler.sheets.calendar.models.CalendarSelection
+import com.maxkeppeler.sheets.calendar.models.CalendarStyle
 
 
 import kotlinx.coroutines.launch
@@ -132,9 +134,14 @@ fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNav
             "Birth Weight",
             { value -> viewModel.updateBirthWeight(value) })
 
+
+        CalendarDock(viewModel,paddingValues)
+
+
         Checkboxes(state = viewModel.uiState.value.sex, {value -> viewModel.updateSex(value) })
 
-        CalendarStuff(viewModel)
+
+
         
         when(val response = viewModel.uiState.value.calfUpdated){
             is Response.Loading -> LinearProgressIndicator()
@@ -280,9 +287,10 @@ fun FloatingButton(viewModel:EditCalfViewModel){
 }
 
 
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun CalendarStuff(viewModel: EditCalfViewModel){
+fun CalendarDock(viewModel: EditCalfViewModel,paddingValues: PaddingValues){
     val calfDate = viewModel.uiState.value.birthDate!!
     val convertedDate = calfDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     val selectedDate = remember { mutableStateOf<LocalDate?>(convertedDate) }
@@ -301,12 +309,32 @@ fun CalendarStuff(viewModel: EditCalfViewModel){
 
         }
     )
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp).clickable { calendarState.show() }
+    ) {
+        OutlinedTextField(
+            //state
+            enabled = false,
+            value = "Date born: "+ selectedDate.value.toString(),
+            onValueChange = {  },
+            //style
+            singleLine = true,
+            placeholder = {
+                Text(text = "Date", fontSize = 20.sp)
+            },
+            modifier = Modifier
+                .fillMaxWidth(),
+            textStyle = TextStyle(fontSize = 20.sp),
 
-    Button(onClick = {calendarState.show()}){
-        Text("Edit date born")
+
+            )
     }
 
+
 }
+
+
 
 
 

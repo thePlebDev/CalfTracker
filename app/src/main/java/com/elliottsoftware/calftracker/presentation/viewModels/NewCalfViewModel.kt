@@ -84,7 +84,7 @@ class NewCalfViewModel @Inject constructor(
 
             val calf = FireBaseCalf(state.calfTag,
                 state.cowTagNumber,
-                state.cciaNumber,state.sex,state.description, Date(),state.birthWeight
+                state.cciaNumber,state.sex,state.description, state.birthDate,state.birthWeight
             )
             databaseRepository.createCalf(calf).collect{ response ->
                 _state.value = state.copy(calfSaved = response)

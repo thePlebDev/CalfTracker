@@ -2,6 +2,7 @@ package com.elliottsoftware.calftracker.presentation.components.newCalf
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Range
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -34,16 +35,19 @@ import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
 import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
+import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
 import com.maxkeppeker.sheets.core.models.base.rememberSheetState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
 import com.maxkeppeler.sheets.calendar.models.CalendarSelection
+import com.maxkeppeler.sheets.calendar.models.CalendarStyle
 
 
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.time.LocalDate
+import java.time.ZoneId
 import java.util.*
 
 
@@ -155,12 +159,14 @@ fun MainBodyView(viewModel: NewCalfViewModel,onNavigate:(Int)->Unit){
             viewModel.state.value.birthWeight,
             updateValue = {value -> viewModel.updateBirthWeight(value)}
         )
+        /**CALANDAR STUFF**/
+        CalendarDock(viewModel)
         Checkboxes(viewModel.state.value.sex, updateSex = {value -> viewModel.updateSex(value)})
 
 
 
-        /**CALANDAR STUFF**/
-        CalendarStuff(viewModel)
+
+
 
 
 
@@ -283,9 +289,10 @@ fun Checkboxes(
 
 }
 
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun CalendarStuff(viewModel: NewCalfViewModel){
+fun CalendarDock(viewModel: NewCalfViewModel, ){
     val selectedDate = remember { mutableStateOf<LocalDate?>(LocalDate.now()) }
     val calendarState = rememberSheetState()
 
@@ -295,16 +302,34 @@ fun CalendarStuff(viewModel: NewCalfViewModel){
             monthSelection = true,
             yearSelection = true
         ),
-        selection = CalendarSelection.Date(selectedDate = selectedDate.value){newDate ->
+        selection = CalendarSelection.Date(selectedDate = selectedDate.value){ newDate ->
 
             selectedDate.value = newDate
             viewModel.updateDate(newDate)
 
         }
     )
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp).clickable { calendarState.show() }
+    ) {
+        OutlinedTextField(
+            //state
+            enabled = false,
+            value = "Date born: "+ selectedDate.value.toString(),
+            onValueChange = {  },
+            //style
+            singleLine = true,
+            placeholder = {
+                Text(text = "Date", fontSize = 20.sp)
+            },
+            modifier = Modifier
+                .fillMaxWidth(),
+            textStyle = TextStyle(fontSize = 20.sp),
 
-    Button(onClick = {calendarState.show()}){
-        Text("Select birth date")
+
+            )
     }
+
 
 }
