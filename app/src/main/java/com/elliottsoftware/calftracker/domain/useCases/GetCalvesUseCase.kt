@@ -9,13 +9,15 @@ import javax.inject.Inject
 
 class GetCalvesUseCase @Inject constructor(
     val databaseRepository: DatabaseRepository
-) {
+):UseCase<Unit,Flow<Response<List<FireBaseCalf>>>>() {
 
-    suspend operator fun invoke():Flow<Response<List<FireBaseCalf>>>{
-        return databaseRepository.getCalves()
-    }
+
 
     suspend fun getCalfByTagNumber(tagNumber:String):Flow<Response<List<FireBaseCalf>>>{
         return databaseRepository.getCalvesByTagNumber(tagNumber)
+    }
+
+    override suspend fun execute(params: Unit): Flow<Response<List<FireBaseCalf>>> {
+        return databaseRepository.getCalves()
     }
 }

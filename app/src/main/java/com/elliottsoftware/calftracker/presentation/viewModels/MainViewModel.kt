@@ -42,15 +42,15 @@ class MainViewModel @Inject constructor(
         getCalves()
     }
 
-    fun signUserOut(){
+    fun signUserOut()= viewModelScope.launch{
         //state.value = state.value.copy(loggedUserOut = logoutUseCase.invoke())
-        logoutUseCase.invoke()
+        logoutUseCase.execute(Unit)
 
     }
 
 
      fun getCalves() = viewModelScope.launch(){
-        getCalvesUseCase.invoke().collect{response ->
+        getCalvesUseCase.execute(Unit).collect{response ->
 
             state.value = state.value.copy(data = response)
 
@@ -58,7 +58,7 @@ class MainViewModel @Inject constructor(
 
     }
     fun deleteCalf(id:String) = viewModelScope.launch{
-        deleteCalfUseCase.invoke(id).collect{
+        deleteCalfUseCase.execute(id).collect{
         }
 
 

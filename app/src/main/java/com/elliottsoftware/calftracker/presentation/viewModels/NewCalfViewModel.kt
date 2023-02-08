@@ -62,8 +62,8 @@ class NewCalfViewModel @Inject constructor(
     fun updateSex(sex:String){
         _state.value = _state.value.copy(sex = sex)
     }
-    fun signUserOut(){
-        _state.value = _state.value.copy(loggedUserOut = logoutUseCase.invoke())
+    fun signUserOut() = viewModelScope.launch{
+        _state.value = _state.value.copy(loggedUserOut = logoutUseCase.execute(Unit))
     }
     @RequiresApi(Build.VERSION_CODES.O)
     fun updateDate(date: LocalDate){

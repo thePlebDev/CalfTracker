@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.elliottsoftware.calftracker.domain.models.Response
+import com.elliottsoftware.calftracker.domain.useCases.GetWeatherParams
 import com.elliottsoftware.calftracker.domain.useCases.GetWeatherUseCase
 import com.elliottsoftware.calftracker.domain.useCases.LogoutUseCase
 import com.elliottsoftware.calftracker.domain.weather.WeatherViewData
@@ -44,7 +45,7 @@ class WeatherViewModel @Inject constructor(
 
 
     fun getWeatherData(data: Location) =viewModelScope.launch{
-        getWeatherUseCase(data.latitude,data.longitude).collect{ response ->
+        getWeatherUseCase.execute(GetWeatherParams(data.latitude,data.longitude)).collect{ response ->
 
 
             _uiState.value = _uiState.value.copy(weatherData = response)
@@ -68,8 +69,8 @@ class WeatherViewModel @Inject constructor(
     fun setDarkMode(){
         _uiState.value = _uiState.value.copy(darkMode = !_uiState.value.darkMode)
     }
-    fun signUserOut(){
-        _uiState.value = _uiState.value.copy(loggedUserOut = logoutUseCase.invoke())
+    fun signUserOut() = viewModelScope.launch{
+        _uiState.value = _uiState.value.copy(loggedUserOut = logoutUseCase.execute(Unit))
 
     }
 

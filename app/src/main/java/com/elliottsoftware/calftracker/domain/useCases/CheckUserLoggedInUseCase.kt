@@ -6,9 +6,10 @@ import javax.inject.Inject
 
 class CheckUserLoggedInUseCase @Inject constructor(
     private val authRepository: AuthRepository
-){
-    operator fun invoke():Boolean{
-        return authRepository.isUserSignedIn()
+):UseCase<Unit,Boolean>(){
+
+    override suspend fun execute(params: Unit): Boolean {
+        return authRepository.isUserSignedIn();
     }
 
 

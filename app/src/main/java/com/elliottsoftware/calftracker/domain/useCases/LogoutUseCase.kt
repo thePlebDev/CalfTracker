@@ -6,10 +6,11 @@ import javax.inject.Inject
 
 class LogoutUseCase @Inject constructor(
     private val authRepository: AuthRepository
-) {
-    operator fun invoke():Boolean{
-        return authRepository.signUserOut()
+):UseCase<Unit,Boolean>() {
 
+
+    override suspend fun execute(params: Unit): Boolean {
+        return authRepository.signUserOut()
     }
 
 

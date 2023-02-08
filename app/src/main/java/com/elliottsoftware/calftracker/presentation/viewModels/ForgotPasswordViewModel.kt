@@ -47,7 +47,7 @@ class ForgotPasswordViewModel @Inject constructor(
 
     private fun sendEmail(email:String) = viewModelScope.launch{
 
-        resetPasswordUseCase.invoke(email).collect{response ->
+        resetPasswordUseCase.execute(email).collect{response ->
 
             _uiState.value = _uiState.value.copy(resetPassword = response)
         }
