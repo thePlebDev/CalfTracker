@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.findNavController
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
@@ -42,7 +43,8 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.time.LocalDate
 import java.time.ZoneId
-
+import java.util.*
+//modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp).clickable { calendarState.show() }
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun EditCalfView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit){
@@ -135,7 +137,13 @@ fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNav
             { value -> viewModel.updateBirthWeight(value) })
 
 
-        CalendarDock(viewModel,paddingValues)
+
+
+
+        CalendarDock(viewModel.uiState.value.birthDate!!,
+            selectedAction = { date -> viewModel.updateDate(date)},
+            modifier = Modifier.fillMaxWidth()
+        )
 
 
         Checkboxes(state = viewModel.uiState.value.sex, {value -> viewModel.updateSex(value) })
@@ -288,11 +296,13 @@ fun FloatingButton(viewModel:EditCalfViewModel){
 
 
 
+
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun CalendarDock(viewModel: EditCalfViewModel,paddingValues: PaddingValues){
-    val calfDate = viewModel.uiState.value.birthDate!!
-    val convertedDate = calfDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+fun CalendarDock(dateBorn: Date,selectedAction:(LocalDate)->Unit,modifier: Modifier = Modifier){
+
+    val convertedDate = dateBorn.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     val selectedDate = remember { mutableStateOf<LocalDate?>(convertedDate) }
     val calendarState = rememberSheetState()
 
@@ -305,7 +315,7 @@ fun CalendarDock(viewModel: EditCalfViewModel,paddingValues: PaddingValues){
         selection = CalendarSelection.Date(selectedDate = selectedDate.value){ newDate ->
 
             selectedDate.value = newDate
-            viewModel.updateDate(newDate)
+            selectedAction(newDate)
 
         }
     )
@@ -323,8 +333,7 @@ fun CalendarDock(viewModel: EditCalfViewModel,paddingValues: PaddingValues){
             placeholder = {
                 Text(text = "Date", fontSize = 20.sp)
             },
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = modifier,
             textStyle = TextStyle(fontSize = 20.sp),
 
 
@@ -333,11 +342,6 @@ fun CalendarDock(viewModel: EditCalfViewModel,paddingValues: PaddingValues){
 
 
 }
-
-
-
-
-
 
 
 
