@@ -132,14 +132,14 @@ class DatabaseRepositoryImpl(
         emit(NetworkResponse.Success<List<FireBaseCalf>>(listOf()))
     }
 
-    override suspend fun deleteCalf(id: String)= callbackFlow {
+    override suspend fun deleteCalf(id: String,calfTag:String)= callbackFlow {
         Timber.d("IDBELOW")
         Timber.d(id)
        db.collection("users").document(auth.currentUser?.email!!)
             .collection("calves").document(id).delete()
             .addOnSuccessListener {
                 Timber.d("DELETE SUCCESS")
-                trySend(Response.Success(true))
+                trySend(Response.Success(calfTag))
             }
             .addOnFailureListener {
                 Timber.d("DELETE FAIL")

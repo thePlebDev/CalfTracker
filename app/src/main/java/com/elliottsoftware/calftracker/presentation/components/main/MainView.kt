@@ -1,17 +1,15 @@
 package com.elliottsoftware.calftracker.presentation.components.main
 
 import android.annotation.SuppressLint
-import android.graphics.drawable.GradientDrawable
 import android.icu.text.DateFormat
-import android.icu.text.SimpleDateFormat
 import android.os.Build
-import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
@@ -26,25 +24,20 @@ import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
@@ -55,10 +48,8 @@ import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
-import com.elliottsoftware.calftracker.util.MainViewContentType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 
 @RequiresApi(Build.VERSION_CODES.N)
@@ -137,7 +128,7 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
         ) {
 
 
-        HomeView(viewModel,onNavigate,sharedViewModel)
+        HomeView(viewModel,onNavigate,sharedViewModel,scaffoldState)
 
 
 
@@ -153,8 +144,15 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
 
 @RequiresApi(Build.VERSION_CODES.N)
 @Composable
-fun HomeView(viewModel: MainViewModel,onNavigate: (Int) -> Unit,sharedViewModel: EditCalfViewModel){
+fun HomeView(
+    viewModel: MainViewModel,
+    onNavigate: (Int) -> Unit,
+    sharedViewModel: EditCalfViewModel,
+    scaffoldState: ScaffoldState
+){
     val state = viewModel.state.value
+
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -178,7 +176,7 @@ fun HomeView(viewModel: MainViewModel,onNavigate: (Int) -> Unit,sharedViewModel:
 
 
 
-                        MessageList(response.data,viewModel,onNavigate,sharedViewModel)
+                        MessageList(response.data,viewModel,onNavigate,sharedViewModel,scaffoldState)
 
                 }
 
@@ -189,47 +187,24 @@ fun HomeView(viewModel: MainViewModel,onNavigate: (Int) -> Unit,sharedViewModel:
 
 
     }
-}
-
-@Composable
-fun ErrorResponse(viewModel: MainViewModel) {
-    Card(backgroundColor = MaterialTheme.colors.secondary,modifier = Modifier.padding(vertical = 20.dp)) {
-        Column(modifier = Modifier
-            .padding(8.dp)
-            .fillMaxWidth(),horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("User Notice", style = MaterialTheme.typography.h4)
-            Text("A Error has occurred and the development team has been notified. Thank you for your continued support ",
-                style = MaterialTheme.typography.subtitle1,
-                textAlign = TextAlign.Center
-            )
-            ErrorButton(viewModel)
-        }
-    }
 
 }
 
-@Composable
-fun ErrorButton(viewModel: MainViewModel) {
-    Button(onClick = {
-            viewModel.getCalves()
-    }) {
-        Text(text = "Click to reload",
-            style = MaterialTheme.typography.subtitle1,
-            textAlign = TextAlign.Center)
-    }
-}
+
 
 
 @OptIn(ExperimentalMaterialApi::class)
 @RequiresApi(Build.VERSION_CODES.N)
 @Composable
 fun MessageList(
-    calfList:List<FireBaseCalf>,
+    calfList: List<FireBaseCalf>,
     viewModel: MainViewModel,
     onNavigate: (Int) -> Unit,
-    sharedViewModel: EditCalfViewModel
-) {
+    sharedViewModel: EditCalfViewModel,
+    scaffoldState: ScaffoldState,
 
+    ) {
+    val scope = rememberCoroutineScope()
 
     LazyColumn(modifier=Modifier.background(MaterialTheme.colors.primary)) {
 
@@ -238,8 +213,8 @@ fun MessageList(
             val dismissState = rememberDismissState(
                 confirmStateChange = {
                     if(it == DismissValue.DismissedToEnd || it == DismissValue.DismissedToStart){
-                        viewModel.deleteCalf(calf.id!!)
-
+                       viewModel.deleteCalf(calf.id!!,calf.calftag!!)
+                        
                     }
 
                     true
@@ -313,6 +288,7 @@ fun MessageList(
 
             }
         }
+
         }
 
     }
@@ -449,6 +425,35 @@ fun Chip(value:String){
     }
 }
 
+
+/**************ERRORS*****************/
+@Composable
+fun ErrorResponse(viewModel: MainViewModel) {
+    Card(backgroundColor = MaterialTheme.colors.secondary,modifier = Modifier.padding(vertical = 20.dp)) {
+        Column(modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth(),horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("User Notice", style = MaterialTheme.typography.h4)
+            Text("A Error has occurred and the development team has been notified. Thank you for your continued support ",
+                style = MaterialTheme.typography.subtitle1,
+                textAlign = TextAlign.Center
+            )
+            ErrorButton(viewModel)
+        }
+    }
+
+}
+
+@Composable
+fun ErrorButton(viewModel: MainViewModel) {
+    Button(onClick = {
+        viewModel.getCalves()
+    }) {
+        Text(text = "Click to reload",
+            style = MaterialTheme.typography.subtitle1,
+            textAlign = TextAlign.Center)
+    }
+}
 
 
 

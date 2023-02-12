@@ -9,10 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
-import com.elliottsoftware.calftracker.domain.useCases.DeleteCalfUseCase
-import com.elliottsoftware.calftracker.domain.useCases.GetCalfByTagNumberUseCase
-import com.elliottsoftware.calftracker.domain.useCases.GetCalvesUseCase
-import com.elliottsoftware.calftracker.domain.useCases.LogoutUseCase
+import com.elliottsoftware.calftracker.domain.useCases.*
 
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +24,8 @@ data class MainUIState(
     //val loggedUserOut:Boolean = false,
     val data:Response<List<FireBaseCalf>> = Response.Loading,
     val darkTheme:Boolean = false,
-    val chipText:List<String> = listOf("TOTAL: 0 ","BULLS: 0","HEIFERS: 0")
+    val chipText:List<String> = listOf("TOTAL: 0 ","BULLS: 0","HEIFERS: 0"),
+    val calfDeleted:Response<String> = Response.Loading
         )
 
 @HiltViewModel
@@ -59,8 +57,9 @@ class MainViewModel @Inject constructor(
         }
 
     }
-    fun deleteCalf(id:String) = viewModelScope.launch{
-        deleteCalfUseCase.execute(id).collect{
+    fun deleteCalf(id:String,calfTag:String) = viewModelScope.launch{
+        deleteCalfUseCase.execute(DeleteCalfParams(id,calfTag)).collect{ response ->
+            state.value = state.value.copy(calfDeleted = response)
         }
 
 
