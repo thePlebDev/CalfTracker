@@ -3,7 +3,6 @@ package com.elliottsoftware.calftracker.presentation.components.main
 import android.annotation.SuppressLint
 import android.icu.text.DateFormat
 import android.os.Build
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -50,6 +49,7 @@ import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 
 @RequiresApi(Build.VERSION_CODES.N)
@@ -83,7 +83,7 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
         drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
         floatingActionButton = { FloatingButton(onNavigate) },
         topBar = {
-            CustomTopBar(viewModel,scope,scaffoldState)
+            CustomTopBar(viewModel.state.value.chipText,{tagNumber -> viewModel.searchCalfListByTag(tagNumber)},scope,scaffoldState)
         },
         drawerContent = {
             DrawerHeader()
@@ -128,13 +128,10 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
         ) {
 
 
-        HomeView(viewModel,onNavigate,sharedViewModel,scaffoldState)
-
-
-
-
-
-
+        HomeView(viewModel,onNavigate,sharedViewModel,viewModel.state.value.data,
+            {chipText -> viewModel.setChipText(chipText)},
+            {viewModel.getCalves()}
+        )
 
     }
 }
@@ -148,9 +145,11 @@ fun HomeView(
     viewModel: MainViewModel,
     onNavigate: (Int) -> Unit,
     sharedViewModel: EditCalfViewModel,
-    scaffoldState: ScaffoldState
+    state:Response<List<FireBaseCalf>>,
+    setChipTextMethod:(data:List<FireBaseCalf>) -> Unit,
+    errorRefreshMethod:()->Unit
 ){
-    val state = viewModel.state.value
+
 
 
     Column(
@@ -161,11 +160,12 @@ fun HomeView(
 
 
     ){
-        when(val response = state.data){
+        when(state){
             is Response.Loading -> CircularProgressIndicator( color =MaterialTheme.colors.onPrimary)
             is Response.Success -> {
-                viewModel.setChipText(response.data)
-                if(response.data.isEmpty()){
+
+                setChipTextMethod(state.data)
+                if(state.data.isEmpty()){
                     Column(){
                         Text(text = "NO CALVES",color =MaterialTheme.colors.onPrimary)
 
@@ -176,12 +176,12 @@ fun HomeView(
 
 
 
-                        MessageList(response.data,viewModel,onNavigate,sharedViewModel,scaffoldState)
+                        MessageList(state.data, viewModel, onNavigate, sharedViewModel)
 
                 }
 
             }
-            is Response.Failure -> ErrorResponse(viewModel)
+            is Response.Failure -> ErrorResponse(refreshMethod = { errorRefreshMethod() })
 
         }
 
@@ -201,10 +201,9 @@ fun MessageList(
     viewModel: MainViewModel,
     onNavigate: (Int) -> Unit,
     sharedViewModel: EditCalfViewModel,
-    scaffoldState: ScaffoldState,
+    //deleteCalfMethod:(String) -> Unit
 
     ) {
-    val scope = rememberCoroutineScope()
 
     LazyColumn(modifier=Modifier.background(MaterialTheme.colors.primary)) {
 
@@ -214,7 +213,8 @@ fun MessageList(
                 confirmStateChange = {
                     if(it == DismissValue.DismissedToEnd || it == DismissValue.DismissedToStart){
                        viewModel.deleteCalf(calf.id!!,calf.calftag!!)
-                        
+                        //deleteCalfMethod(calf.id!!)
+
                     }
 
                     true
@@ -310,7 +310,7 @@ fun FloatingButton(navigate:(Int)-> Unit){
 }
 
 @Composable
-fun CustomTopBar(viewModel: MainViewModel, scope: CoroutineScope, scaffoldState: ScaffoldState){
+fun CustomTopBar(chipTextList:List<String>,searchMethod:(String)->Unit, scope: CoroutineScope, scaffoldState: ScaffoldState){
     //TODO: MOVE THIS TO THE MAIN FRAGMENT
 //    val viewSize = rememberWindowSize()
 //    val value = viewSize.width
@@ -326,7 +326,7 @@ fun CustomTopBar(viewModel: MainViewModel, scope: CoroutineScope, scaffoldState:
             Column() {
 
 
-                 SearchText(viewModel,scope,scaffoldState)
+                 SearchText(searchMethod= { tagNumber -> searchMethod(tagNumber) },scope,scaffoldState)
                     //CHIPS GO BELOW HERE
                     LazyRow(
                         modifier= Modifier
@@ -334,7 +334,7 @@ fun CustomTopBar(viewModel: MainViewModel, scope: CoroutineScope, scaffoldState:
                             .padding(horizontal = 18.dp, vertical = 8.dp),
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
-                        items(viewModel.state.value.chipText){
+                        items(chipTextList){
                             Chip(it)
                         }
                     }
@@ -353,7 +353,7 @@ fun CustomTopBar(viewModel: MainViewModel, scope: CoroutineScope, scaffoldState:
 }
 
 @Composable
-fun SearchText(viewModel: MainViewModel,scope: CoroutineScope, scaffoldState: ScaffoldState){
+fun SearchText(searchMethod:(String)->Unit,scope: CoroutineScope, scaffoldState: ScaffoldState){
     var tagNumber by remember { mutableStateOf("") }
     var clicked by remember { mutableStateOf(false)}
     val source = remember {
@@ -387,7 +387,7 @@ fun SearchText(viewModel: MainViewModel,scope: CoroutineScope, scaffoldState: Sc
                         contentDescription = "Clear search icon",
                         modifier = Modifier.clickable {
                             tagNumber = ""
-                            viewModel.searchCalfListByTag("")
+                            searchMethod("")
                             focusManager.clearFocus()
                         }
                     )
@@ -398,7 +398,7 @@ fun SearchText(viewModel: MainViewModel,scope: CoroutineScope, scaffoldState: Sc
             },
             keyboardActions = KeyboardActions(
                 onSearch = {
-                    viewModel.searchCalfListByTag(tagNumber)
+                    searchMethod(tagNumber)
                     focusManager.clearFocus()
                 }),
             interactionSource = source,
@@ -428,7 +428,7 @@ fun Chip(value:String){
 
 /**************ERRORS*****************/
 @Composable
-fun ErrorResponse(viewModel: MainViewModel) {
+fun ErrorResponse(refreshMethod:()->Unit) {
     Card(backgroundColor = MaterialTheme.colors.secondary,modifier = Modifier.padding(vertical = 20.dp)) {
         Column(modifier = Modifier
             .padding(8.dp)
@@ -438,22 +438,30 @@ fun ErrorResponse(viewModel: MainViewModel) {
                 style = MaterialTheme.typography.subtitle1,
                 textAlign = TextAlign.Center
             )
-            ErrorButton(viewModel)
+            ErrorButton(refreshMethod)
         }
     }
 
 }
 
 @Composable
-fun ErrorButton(viewModel: MainViewModel) {
+fun ErrorButton(refreshMethod:()->Unit) {
     Button(onClick = {
-        viewModel.getCalves()
+        refreshMethod()
     }) {
         Text(text = "Click to reload",
             style = MaterialTheme.typography.subtitle1,
             textAlign = TextAlign.Center)
     }
 }
+
+/**************SCAFFOLD*****************/
+@Composable
+fun ScaffoldView(){
+
+}
+
+
 
 
 
