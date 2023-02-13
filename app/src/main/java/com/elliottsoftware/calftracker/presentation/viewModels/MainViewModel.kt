@@ -25,7 +25,7 @@ data class MainUIState(
     val data:Response<List<FireBaseCalf>> = Response.Loading,
     val darkTheme:Boolean = false,
     val chipText:List<String> = listOf("TOTAL: 0 ","BULLS: 0","HEIFERS: 0"),
-    val calfDeleted:Response<String> = Response.Loading
+
         )
 
 @HiltViewModel
@@ -57,9 +57,9 @@ class MainViewModel @Inject constructor(
         }
 
     }
-    fun deleteCalf(id:String,calfTag:String) = viewModelScope.launch{
-        deleteCalfUseCase.execute(DeleteCalfParams(id,calfTag)).collect{ response ->
-            state.value = state.value.copy(calfDeleted = response)
+    fun deleteCalf(id:String) = viewModelScope.launch{
+        deleteCalfUseCase.execute(id).collect{ response ->
+
         }
 
 

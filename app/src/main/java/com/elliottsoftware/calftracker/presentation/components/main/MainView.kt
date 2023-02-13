@@ -212,7 +212,7 @@ fun MessageList(
             val dismissState = rememberDismissState(
                 confirmStateChange = {
                     if(it == DismissValue.DismissedToEnd || it == DismissValue.DismissedToStart){
-                       viewModel.deleteCalf(calf.id!!,calf.calftag!!)
+                       viewModel.deleteCalf(calf.id!!)
                         //deleteCalfMethod(calf.id!!)
 
                     }
