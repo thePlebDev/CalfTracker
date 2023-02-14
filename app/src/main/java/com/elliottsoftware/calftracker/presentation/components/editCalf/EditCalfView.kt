@@ -59,6 +59,9 @@ fun ScaffoldView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit) {
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
     val state = viewModel.uiState.value
+
+
+
     if (state.loggedUserOut) {
         onNavigate(R.id.action_editCalfFragment_to_loginFragment)
     }
@@ -66,7 +69,11 @@ fun ScaffoldView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit) {
         scaffoldState = scaffoldState,
         drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
         floatingActionButton = {
-            FloatingButton(viewModel)
+            if(viewModel.uiState.value.calfUpdated == Response.Loading){
+                LoadingFloatingButton()
+            }else{
+                FloatingButton(viewModel)
+            }
         },
         topBar = {
             TopAppBar(
@@ -137,9 +144,6 @@ fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNav
             { value -> viewModel.updateBirthWeight(value) })
 
 
-
-
-
         CalendarDock(viewModel.uiState.value.birthDate!!,
             selectedAction = { date -> viewModel.updateDate(date)},
             modifier = Modifier.fillMaxWidth()
@@ -152,7 +156,7 @@ fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNav
 
         
         when(val response = viewModel.uiState.value.calfUpdated){
-            is Response.Loading -> LinearProgressIndicator()
+            is Response.Loading ->{}
             is Response.Success ->{
                 if(response.data){
                     viewModel.updateCalfUpdatedStateToFalse()
@@ -165,7 +169,10 @@ fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNav
 
     }
 
+
 }
+
+
 
 @Composable
 fun SimpleText(
@@ -276,23 +283,7 @@ fun Checkboxes(
 }
 
 
-@Composable
-fun FloatingButton(viewModel:EditCalfViewModel){
-    FloatingActionButton(
-        onClick = {
-             viewModel.validateText()
 
-                  },
-        backgroundColor = MaterialTheme.colors.secondary,
-        content = {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_add),
-                contentDescription = null,
-                tint = MaterialTheme.colors.onSecondary
-            )
-        }
-    )
-}
 
 
 
@@ -321,7 +312,9 @@ fun CalendarDock(dateBorn: Date,selectedAction:(LocalDate)->Unit,modifier: Modif
     )
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp).clickable { calendarState.show() }
+        modifier = Modifier
+            .padding(horizontal = 8.dp, vertical = 8.dp)
+            .clickable { calendarState.show() }
     ) {
         OutlinedTextField(
             //state
@@ -343,6 +336,42 @@ fun CalendarDock(dateBorn: Date,selectedAction:(LocalDate)->Unit,modifier: Modif
 
 }
 
+/********BUTTONS*********/
+@Composable
+fun FloatingButton(viewModel:EditCalfViewModel){
+    FloatingActionButton(
+        onClick = {
+            viewModel.validateText()
+
+        },
+        backgroundColor = MaterialTheme.colors.secondary,
+        content = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_add),
+                contentDescription = null,
+                tint = MaterialTheme.colors.onSecondary
+            )
+
+        }
+    )
+}
+
+@Composable
+fun LoadingFloatingButton(){
+    FloatingActionButton(
+        onClick = {
+
+
+        },
+        backgroundColor = MaterialTheme.colors.secondary,
+        content = {
+
+            CircularProgressIndicator(
+                color= MaterialTheme.colors.onSecondary
+            )
+        }
+    )
+}
 
 
 

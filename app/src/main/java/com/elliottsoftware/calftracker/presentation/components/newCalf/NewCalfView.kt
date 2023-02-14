@@ -72,9 +72,16 @@ fun ScaffoldView(viewModel: NewCalfViewModel = viewModel(),onNavigate:(Int)->Uni
     Scaffold(
         scaffoldState = scaffoldState,
         drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
-        floatingActionButton = { FloatingButton(navigate = {
-            viewModel.submitCalf()
-        }) },
+        floatingActionButton = {
+
+            if(viewModel.state.value.calfSaved == Response.Loading){
+                LoadingFloatingButton()
+            }else{
+                FloatingButton(navigate = {
+                    viewModel.submitCalf()
+                })
+            }
+                               },
         topBar = {
             TopAppBar(
                 title = { Text("Calf Tracker") },
@@ -171,7 +178,7 @@ fun MainBodyView(viewModel: NewCalfViewModel,onNavigate:(Int)->Unit){
 
 
         when(val response = viewModel.state.value.calfSaved){
-            is Response.Loading -> CircularProgressIndicator()
+            is Response.Loading -> {}
             is Response.Success ->{
                 if(response.data){
                     //THIS IS WHERE WE DO THE NAVIGATION
@@ -331,5 +338,18 @@ fun CalendarDock(viewModel: NewCalfViewModel, ){
             )
     }
 
+}
+/*********BUTTONS**************/
+@Composable
+fun LoadingFloatingButton(){
+    FloatingActionButton(
+        onClick = {},
+        backgroundColor = MaterialTheme.colors.secondary,
+        content = {
 
+            CircularProgressIndicator(
+                color= MaterialTheme.colors.onSecondary
+            )
+        }
+    )
 }
