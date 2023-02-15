@@ -2,7 +2,6 @@ package com.elliottsoftware.calftracker.presentation.components.newCalf
 
 import android.annotation.SuppressLint
 import android.os.Build
-import android.util.Range
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -16,39 +15,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.filled.Error
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.findNavController
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
-import com.elliottsoftware.calftracker.presentation.components.forgotPassword.ForgotPasswordView
-import com.elliottsoftware.calftracker.presentation.components.login.LinearLoadingBar
 import com.elliottsoftware.calftracker.presentation.components.main.*
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
 import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
-import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
 import com.maxkeppeker.sheets.core.models.base.rememberSheetState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
 import com.maxkeppeler.sheets.calendar.models.CalendarSelection
-import com.maxkeppeler.sheets.calendar.models.CalendarStyle
+import kotlinx.coroutines.CoroutineScope
 
 
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.time.LocalDate
-import java.time.ZoneId
-import java.util.*
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -88,7 +78,10 @@ fun ScaffoldView(viewModel: NewCalfViewModel = viewModel(),onNavigate:(Int)->Uni
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            scope.launch { scaffoldState.drawerState.open() }
+                            scope.launch {
+                                scaffoldState.drawerState.open()
+
+                            }
                         }
                     ) {
                         Icon(Icons.Filled.Menu, contentDescription = "Toggle navigation drawer")
@@ -120,14 +113,20 @@ fun ScaffoldView(viewModel: NewCalfViewModel = viewModel(),onNavigate:(Int)->Uni
 
         ) {
 
-        MainBodyView(viewModel,onNavigate)
+        MainBodyView(viewModel,onNavigate,scaffoldState,scope)
 
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MainBodyView(viewModel: NewCalfViewModel,onNavigate:(Int)->Unit){
+fun MainBodyView(
+    viewModel: NewCalfViewModel,
+    onNavigate: (Int) -> Unit,
+    scaffoldState: ScaffoldState,
+    scope: CoroutineScope
+){
+    val snackbarHostState = remember { SnackbarHostState() }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -186,7 +185,15 @@ fun MainBodyView(viewModel: NewCalfViewModel,onNavigate:(Int)->Unit){
                 }
             }
             is Response.Failure ->{
-                Text("ERROR PLEASE TRY AGAIN")
+
+                LaunchedEffect(scaffoldState.snackbarHostState) {
+
+                    scaffoldState.snackbarHostState.showSnackbar(
+                        message = "Error! Please try again",
+                        actionLabel = "Close"
+                    )
+                }
+
             }
         }
 
