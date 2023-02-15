@@ -81,7 +81,7 @@ class DatabaseRepositoryImpl(
 
 
             val query = db.collection("users")
-                .document(auth.currentUser?.email!!).collection("calves")
+                .document(auth.currentUser?.email!!).collection("calves").orderBy("date")
 
            val  docRef = query.addSnapshotListener { snapshot, e ->
                //error handling for snapshot listeners
@@ -110,7 +110,7 @@ class DatabaseRepositoryImpl(
                         trySend(Response.Failure(Exception("FAILED")))
                     }else{
                         Timber.d(data.toString())
-                        trySend(Response.Success(data))
+                        trySend(Response.Success(data.reversed()))
                     }
 
                 } else {
