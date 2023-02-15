@@ -182,7 +182,7 @@ class DatabaseRepositoryImpl(
     override suspend fun getCalvesByTagNumber(tagNumber: String)= callbackFlow {
         trySend(Response.Loading)
         val docRef = db.collection("users")
-            .document(auth.currentUser?.email!!).collection("calves")
+            .document(auth.currentUser?.email!!).collection("calves").orderBy("date")
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
 
@@ -199,7 +199,7 @@ class DatabaseRepositoryImpl(
 
                     val filteredCalfList = data.filter { it.calftag!!.contains(tagNumber, ignoreCase = true) }
 
-                    trySend(Response.Success(filteredCalfList))
+                    trySend(Response.Success(filteredCalfList.reversed()))
                 } else {
                     Timber.e("getCalvesByTagNumber data is null")
 
