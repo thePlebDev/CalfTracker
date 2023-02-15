@@ -112,13 +112,13 @@ fun ScaffoldView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit) {
         },
 
         ) { padding ->
-        EditCalfView(viewModel,padding, onNavigate)
+        EditCalfView(viewModel,padding, onNavigate,scaffoldState)
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNavigate: (Int) -> Unit){
+fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNavigate: (Int) -> Unit,scaffoldState: ScaffoldState,){
 
 
 
@@ -164,7 +164,15 @@ fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNav
 
                 }
             }
-            is Response.Failure -> {Text("FAILURE")}
+            is Response.Failure -> {
+                LaunchedEffect(scaffoldState.snackbarHostState) {
+
+                    scaffoldState.snackbarHostState.showSnackbar(
+                        message = "Error! Please try again",
+                        actionLabel = "Close"
+                    )
+                }
+            }
         }
 
     }
