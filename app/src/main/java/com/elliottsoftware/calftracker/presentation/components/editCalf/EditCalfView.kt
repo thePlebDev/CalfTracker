@@ -4,8 +4,9 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Range
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -13,6 +14,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -122,7 +124,10 @@ fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNav
 
 
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(paddingValues)) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(paddingValues).verticalScroll(rememberScrollState())
+    ) {
         SimpleText(state = viewModel.uiState.value.calfTagNumber,
             "Calf Tag",viewModel.uiState.value.testTextError,
             { value -> viewModel.updateCalfTag(value) })
@@ -134,10 +139,14 @@ fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNav
         SimpleText(state = viewModel.uiState.value.cCIANUmber,
             "CCIA number",errorMessage = null,
             { value -> viewModel.updateCCIANumber(value) })
+        /******THIS IS WHERE THE VACCINATIONS WILL GO*****/
+        VaccinationCheck()
 
         SimpleText(state = viewModel.uiState.value.description,
             "Description",errorMessage = null,
             { value -> viewModel.updateDescription(value) })
+
+
 
         NumberTextInput(state = viewModel.uiState.value.birthWeight,
             "Birth Weight",
@@ -181,6 +190,7 @@ fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNav
 }
 
 
+/************INPUTS**************/
 
 @Composable
 fun SimpleText(
@@ -290,6 +300,98 @@ fun Checkboxes(
 
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun VaccinationCheck(){
+    var vaccineText by remember { mutableStateOf("") }
+    var dateText by remember { mutableStateOf(Date().toString()) }
+    val vaccineList = remember { mutableStateListOf<String>()}
+
+    val convertedDate = Date().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    val selectedDate = remember { mutableStateOf<LocalDate?>(convertedDate) }
+    val calendarState = rememberSheetState()
+
+    CalendarDialog(
+        state = calendarState,
+        config = CalendarConfig(
+            monthSelection = true,
+            yearSelection = true
+        ),
+        selection = CalendarSelection.Date(selectedDate = selectedDate.value){ newDate ->
+
+            selectedDate.value = newDate
+            dateText = newDate.toString()
+
+        }
+    )
+    Column(){
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ) {
+            //I NEED A TEXT INPUT AND A DATE INPUT
+            OutlinedTextField(
+                modifier = Modifier.weight(1.5f),
+                singleLine = true,
+                value = vaccineText,
+                onValueChange = { vaccineText = it },
+                textStyle = TextStyle(fontSize = 20.sp),
+                placeholder = {
+                    Text(text = "Vaccination", fontSize = 20.sp)
+                }
+
+            )
+            OutlinedTextField(
+                modifier = Modifier.clickable { calendarState.show() }.weight(1f),
+                enabled = false,
+                value = selectedDate.value.toString(),
+                onValueChange = { dateText = it },
+                textStyle = TextStyle(fontSize = 20.sp),
+                placeholder = {
+                    Text(text = dateText, fontSize = 20.sp)
+                }
+
+            )
+        }
+        //INSIDE THE COLUMN
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ){
+            Spacer(Modifier.weight(1.5f))
+            Button(
+                enabled = vaccineText.length >1,
+                onClick = {
+                          vaccineList.add("$vaccineText $dateText")
+                },
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(text = "Vaccinate")
+            }
+        }
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal =8.dp)
+
+        ){
+            for(vaccine in vaccineList){
+                Box(
+                    modifier = Modifier.fillMaxWidth().padding(vertical =8.dp).border(BorderStroke(2.dp, Color.LightGray),
+                        shape = RoundedCornerShape(8)
+                    )
+                ){
+                    Text(text = vaccine, fontSize = 20.sp,modifier = Modifier.padding(8.dp))
+                }
+            }
+
+
+        }
+
+    }
+
+}
 
 
 
