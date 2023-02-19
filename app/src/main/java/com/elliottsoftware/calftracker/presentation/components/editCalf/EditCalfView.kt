@@ -193,11 +193,15 @@ fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNav
                 }
             }
         }
+        val vaccineList = remember { mutableStateListOf<String>() }
         VaccinationView(
             vaccineText = viewModel.uiState.value.vaccineText,
             updateVaccineText = {text -> viewModel.updateVaccineText(text) },
             dateText1 = viewModel.uiState.value.vaccineDate,
-            updateDateText = {date -> viewModel.updateDateText(date)}
+            updateDateText = {date -> viewModel.updateDateText(date)},
+            vaccineList = vaccineList,
+            addItemToVaccineList = {item -> vaccineList.add(item)},
+            removeItemFromVaccineList = {item -> vaccineList.remove(item)}
         )
 
     }

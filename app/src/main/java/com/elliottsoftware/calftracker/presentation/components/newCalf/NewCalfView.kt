@@ -119,13 +119,18 @@ fun ScaffoldView(viewModel: NewCalfViewModel = viewModel(),onNavigate:(Int)->Uni
 
         ) {
 
+        val vaccineList = remember { mutableStateListOf<String>() } //this should get danced to the MainBodyView
         //MainBodyView(viewModel,onNavigate,scaffoldState,scope)
+
 
         VaccinationView(
             vaccineText = viewModel.state.value.vaccineText,
             updateVaccineText = {text -> viewModel.updateVaccineText(text) },
             dateText1 = viewModel.state.value.vaccineDate,
-            updateDateText = {date -> viewModel.updateDateText(date)}
+            updateDateText = {date -> viewModel.updateDateText(date)},
+            vaccineList = vaccineList,
+            addItemToVaccineList = {item -> vaccineList.add(item)},
+            removeItemFromVaccineList = {item -> vaccineList.remove(item)}
         )
 
     }

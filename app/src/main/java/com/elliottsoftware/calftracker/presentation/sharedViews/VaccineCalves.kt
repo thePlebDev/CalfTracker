@@ -32,11 +32,14 @@ fun VaccinationView(
     vaccineText: String,
     updateVaccineText:(String)->Unit,
     dateText1:String,
-    updateDateText: (String) -> Unit
+    updateDateText: (String) -> Unit,
+    vaccineList: List<String>,
+    addItemToVaccineList:(String) -> Unit,
+    removeItemFromVaccineList: (String) -> Unit
 ){
 
 
-    val vaccineList = remember { mutableStateListOf<String>() }
+
 
     val convertedDate = Date().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     val selectedDate = remember { mutableStateOf<LocalDate?>(convertedDate) }
@@ -67,7 +70,8 @@ fun VaccinationView(
                 val text = "$vaccineText " + selectedDate.value
                 val check = vaccineList.indexOf(text)
                 if(check == -1){
-                    vaccineList.add(text)
+                    addItemToVaccineList(text)
+                    //vaccineList.add(text)
                 }
             },
             modifier = Modifier.fillMaxWidth()
@@ -76,7 +80,10 @@ fun VaccinationView(
 
         VaccineLazyColumn(
             vaccineList = vaccineList,
-            removeItemFromList ={item -> vaccineList.remove(item)},
+            removeItemFromList ={item ->
+                removeItemFromVaccineList(item)
+                //vaccineList.remove(item)
+                                },
             modifier = Modifier.fillMaxWidth()
         )
 
