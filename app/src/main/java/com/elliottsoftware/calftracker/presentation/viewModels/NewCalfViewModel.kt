@@ -35,12 +35,9 @@ data class NewCalfUIState(
     val vaccineText:String = "",
     val vaccineDate:String = Date().toString(),
     /***BELOW IS WHAT WILL COME FROM FIREBASE***/
-    val vaccineList:List<String>? = null
+    val vaccineList:MutableList<String> = mutableListOf()
 )
 
-//var vaccineText by remember { mutableStateOf("") }
-//var dateText1 by remember { mutableStateOf(Date().toString()) }
-//val vaccineList = remember { mutableStateListOf<String>() }
 
 @HiltViewModel
 class NewCalfViewModel @Inject constructor(
@@ -96,11 +93,6 @@ class NewCalfViewModel @Inject constructor(
 
     }
 
-    fun addVaccineList(vaccineList: List<String>?){
-
-        _uiState.value = _uiState.value.copy(vaccineList = vaccineList)
-
-    }
 
 
     //todo: THIS MIGHT BE BETTER IN A USE_CASE
