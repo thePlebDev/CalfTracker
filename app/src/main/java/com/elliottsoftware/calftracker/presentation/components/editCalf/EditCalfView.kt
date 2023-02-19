@@ -6,6 +6,8 @@ import android.util.Range
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -114,7 +116,10 @@ fun ScaffoldView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit) {
         },
 
         ) { padding ->
+
         EditCalfView(viewModel,padding, onNavigate,scaffoldState)
+
+
     }
 }
 
@@ -126,7 +131,9 @@ fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNav
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(paddingValues).verticalScroll(rememberScrollState())
+        modifier = Modifier
+            .padding(paddingValues)
+            .verticalScroll(rememberScrollState())
     ) {
         SimpleText(state = viewModel.uiState.value.calfTagNumber,
             "Calf Tag",viewModel.uiState.value.testTextError,
@@ -140,7 +147,7 @@ fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNav
             "CCIA number",errorMessage = null,
             { value -> viewModel.updateCCIANumber(value) })
         /******THIS IS WHERE THE VACCINATIONS WILL GO*****/
-        VaccinationCheck()
+        //VaccinationCheck()
 
         SimpleText(state = viewModel.uiState.value.description,
             "Description",errorMessage = null,
@@ -160,6 +167,7 @@ fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNav
 
 
         Checkboxes(state = viewModel.uiState.value.sex, {value -> viewModel.updateSex(value) })
+        VaccinationCheck()
 
 
 
@@ -300,6 +308,7 @@ fun Checkboxes(
 
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun VaccinationCheck(){
@@ -343,7 +352,9 @@ fun VaccinationCheck(){
 
             )
             OutlinedTextField(
-                modifier = Modifier.clickable { calendarState.show() }.weight(1f),
+                modifier = Modifier
+                    .clickable { calendarState.show() }
+                    .weight(1f),
                 enabled = false,
                 value = selectedDate.value.toString(),
                 onValueChange = { dateText = it },
@@ -364,27 +375,53 @@ fun VaccinationCheck(){
             Button(
                 enabled = vaccineText.length >1,
                 onClick = {
-                          vaccineList.add("$vaccineText $dateText")
+                    val text = "$vaccineText " + selectedDate.value
+                    val check = vaccineList.indexOf(text)
+                    if(check == -1){
+                        vaccineList.add(text)
+                    }
+
                 },
                 modifier = Modifier.weight(1f)
             ) {
                 Text(text = "Vaccinate")
             }
         }
-        Column(modifier = Modifier
+        LazyColumn(modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal =8.dp)
+            .padding(horizontal = 8.dp)
+            .height(150.dp)
 
         ){
-            for(vaccine in vaccineList){
-                Box(
-                    modifier = Modifier.fillMaxWidth().padding(vertical =8.dp).border(BorderStroke(2.dp, Color.LightGray),
-                        shape = RoundedCornerShape(8)
-                    )
-                ){
-                    Text(text = vaccine, fontSize = 20.sp,modifier = Modifier.padding(8.dp))
+            itemsIndexed(
+                items = vaccineList,
+                key ={index:Int,item:String ->item.hashCode() + index}
+            ){ index:Int, item:String ->
+                /***********SETTING UP SWIPE TO DISMISS****************/
+                val currentVaccine by rememberUpdatedState(item)//references the current vaccine
+                val dismissState = rememberDismissState(
+                    confirmStateChange = {
+
+                        vaccineList.remove(item)
+                        true
+                    }
+                )
+                SwipeToDismiss(state = dismissState, background ={} ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .border(
+                                BorderStroke(2.dp, Color.LightGray),
+                                shape = RoundedCornerShape(8)
+                            )
+                    ){
+                        Text(text = item, fontSize = 20.sp,modifier = Modifier.padding(8.dp))
+                    }
+
                 }
             }
+
 
 
         }
