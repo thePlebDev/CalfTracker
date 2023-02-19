@@ -34,8 +34,8 @@ class LoginViewModel @Inject constructor(
     private val checkUserLoggedIn: CheckUserLoggedInUseCase,
     private val loginUseCase: LoginUseCase
 ):ViewModel() {
-     var state:MutableState<LoginUIState> = mutableStateOf(LoginUIState())
-        private set
+     private var _uiState:MutableState<LoginUIState> = mutableStateOf(LoginUIState())
+     val state = _uiState
 
     init {
 
@@ -45,40 +45,40 @@ class LoginViewModel @Inject constructor(
 
     private fun loginUser(email: String,password:String)= viewModelScope.launch{
         loginUseCase.execute(LoginParams(email,password)).collect{ response ->
-            state.value = state.value.copy(loginStatus = response)
+            _uiState.value = _uiState.value.copy(loginStatus = response)
         }
     }
 
 
     fun updateEmail(email: String){
-        state.value = state.value.copy(email=email)
+        _uiState.value = _uiState.value.copy(email=email)
 
     }
     fun updatePassword(password:String){
-        state.value = state.value.copy(password = password)
+        _uiState.value = _uiState.value.copy(password = password)
     }
 
     private fun checkLogInStatus() = viewModelScope.launch{
         val auth = checkUserLoggedIn.execute(Unit)
 
-        state.value = state.value.copy(isUserLoggedIn = auth)
+        _uiState.value = _uiState.value.copy(isUserLoggedIn = auth)
 
     }
 
 
     fun passwordIconChecked(checked:Boolean){
-        state.value = state.value.copy(passwordIconChecked= checked)
+        _uiState.value = _uiState.value.copy(passwordIconChecked= checked)
 
     }
 
 
     fun submitButton(){
-        val verifyEmail = validateEmail(state.value.email)
-        val verifyPassword = validatePassword(state.value.password)
-        state.value = state.value.copy(emailError = verifyEmail, passwordError = verifyPassword)
+        val verifyEmail = validateEmail(_uiState.value.email)
+        val verifyPassword = validatePassword(_uiState.value.password)
+        _uiState.value = _uiState.value.copy(emailError = verifyEmail, passwordError = verifyPassword)
 
-        if(state.value.emailError == null && state.value.passwordError == null){
-            loginUser(state.value.email,state.value.password)
+        if(_uiState.value.emailError == null && _uiState.value.passwordError == null){
+            loginUser(_uiState.value.email,_uiState.value.password)
         }
     }
 

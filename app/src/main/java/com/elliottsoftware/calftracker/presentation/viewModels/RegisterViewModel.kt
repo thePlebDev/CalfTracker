@@ -1,5 +1,6 @@
 package com.elliottsoftware.calftracker.presentation.viewModels
 
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -36,24 +37,25 @@ class RegisterViewModel @Inject constructor(
     val createUserUseCase: CreateUserUseCase
 ):ViewModel() {
 
-    var state = mutableStateOf(RegisterUIState())
+    private var _uiState = mutableStateOf(RegisterUIState())
+    val state = _uiState
 
 
 
 
 
     fun updateUsername(username: String){
-        state.value = state.value.copy(username = username)
+        _uiState.value = _uiState.value.copy(username = username)
     }
     fun updatePassword(password: String){
-        state.value = state.value.copy(password = password)
+        _uiState.value = _uiState.value.copy(password = password)
     }
     fun updateEmail(email: String){
-        state.value = state.value.copy(email=email)
+        _uiState.value = _uiState.value.copy(email=email)
 
     }
     fun passwordIconChecked(checked:Boolean){
-        state.value = state.value.copy(passwordIconChecked= checked)
+        _uiState.value = _uiState.value.copy(passwordIconChecked= checked)
 
     }
 
@@ -62,7 +64,7 @@ class RegisterViewModel @Inject constructor(
          registerUserUseCase.execute(RegisterUserParams(email, password)).collect{response ->
             // signInWithFirebaseResponse = response
 
-             state.value = state.value.copy(signInWithFirebaseResponse = response)
+             _uiState.value = _uiState.value.copy(signInWithFirebaseResponse = response)
          }
 
     }
@@ -71,20 +73,20 @@ class RegisterViewModel @Inject constructor(
     //Creates the user inside the realtime database.
     fun createUserDatabase(email:String, password:String) = viewModelScope.launch{
         createUserUseCase.execute(CreateUserParams(email,password)).collect{response ->
-            state.value = state.value.copy(signInWithFirebaseResponse = response)
+            _uiState.value = _uiState.value.copy(signInWithFirebaseResponse = response)
         }
 
     }
 
     fun submitButton(){
-        val verifyEmail = validateEmail(state.value.email)
-        val verifyUsername = validateUsername(state.value.username)
-        val verifyPassword = validatePassword(state.value.password)
+        val verifyEmail = validateEmail(_uiState.value.email)
+        val verifyUsername = validateUsername(_uiState.value.username)
+        val verifyPassword = validatePassword(_uiState.value.password)
        // val verifyPassword = validatePassword(state.value.password)
-        state.value = state.value.copy(emailError = verifyEmail, usernameError = verifyUsername,
+        _uiState.value = _uiState.value.copy(emailError = verifyEmail, usernameError = verifyUsername,
             passwordError = verifyPassword)
         if(verifyUsername == null && verifyEmail == null && verifyPassword == null){
-            signUpUserAuthRepository(state.value.email,state.value.password)
+            signUpUserAuthRepository(_uiState.value.email,_uiState.value.password)
         }
     }
 
