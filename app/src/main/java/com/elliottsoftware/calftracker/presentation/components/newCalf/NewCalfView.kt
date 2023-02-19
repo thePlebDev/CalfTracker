@@ -3,7 +3,7 @@ package com.elliottsoftware.calftracker.presentation.components.newCalf
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -13,9 +13,11 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
@@ -28,8 +30,10 @@ import com.elliottsoftware.calftracker.presentation.components.main.*
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
 import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
+import com.elliottsoftware.calftracker.presentation.sharedViews.*
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
+import com.maxkeppeker.sheets.core.models.base.SheetState
 import com.maxkeppeker.sheets.core.models.base.rememberSheetState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
@@ -39,6 +43,8 @@ import kotlinx.coroutines.CoroutineScope
 
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.ZoneId
+import java.util.*
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -113,7 +119,14 @@ fun ScaffoldView(viewModel: NewCalfViewModel = viewModel(),onNavigate:(Int)->Uni
 
         ) {
 
-        MainBodyView(viewModel,onNavigate,scaffoldState,scope)
+        //MainBodyView(viewModel,onNavigate,scaffoldState,scope)
+
+        VaccinationView(
+            vaccineText = viewModel.state.value.vaccineText,
+            updateVaccineText = {text -> viewModel.updateVaccineText(text) },
+            dateText1 = viewModel.state.value.vaccineDate,
+            updateDateText = {date -> viewModel.updateDateText(date)}
+        )
 
     }
 }
@@ -346,6 +359,11 @@ fun CalendarDock(viewModel: NewCalfViewModel, ){
     }
 
 }
+
+/***********VACCINE UI***************/
+
+
+
 /*********BUTTONS**************/
 @Composable
 fun LoadingFloatingButton(){

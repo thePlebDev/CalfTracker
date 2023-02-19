@@ -34,6 +34,7 @@ import com.elliottsoftware.calftracker.presentation.components.main.FloatingButt
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
 import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
+import com.elliottsoftware.calftracker.presentation.sharedViews.VaccinationView
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
 import com.maxkeppeker.sheets.core.models.base.rememberSheetState
@@ -120,6 +121,7 @@ fun ScaffoldView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit) {
         EditCalfView(viewModel,padding, onNavigate,scaffoldState)
 
 
+
     }
 }
 
@@ -167,7 +169,7 @@ fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNav
 
 
         Checkboxes(state = viewModel.uiState.value.sex, {value -> viewModel.updateSex(value) })
-        VaccinationCheck()
+
 
 
 
@@ -191,6 +193,12 @@ fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNav
                 }
             }
         }
+        VaccinationView(
+            vaccineText = viewModel.uiState.value.vaccineText,
+            updateVaccineText = {text -> viewModel.updateVaccineText(text) },
+            dateText1 = viewModel.uiState.value.vaccineDate,
+            updateDateText = {date -> viewModel.updateDateText(date)}
+        )
 
     }
 
@@ -308,127 +316,6 @@ fun Checkboxes(
 
 }
 
-@OptIn(ExperimentalMaterialApi::class)
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun VaccinationCheck(){
-    var vaccineText by remember { mutableStateOf("") }
-    var dateText by remember { mutableStateOf(Date().toString()) }
-    val vaccineList = remember { mutableStateListOf<String>()}
-
-    val convertedDate = Date().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-    val selectedDate = remember { mutableStateOf<LocalDate?>(convertedDate) }
-    val calendarState = rememberSheetState()
-
-    CalendarDialog(
-        state = calendarState,
-        config = CalendarConfig(
-            monthSelection = true,
-            yearSelection = true
-        ),
-        selection = CalendarSelection.Date(selectedDate = selectedDate.value){ newDate ->
-
-            selectedDate.value = newDate
-            dateText = newDate.toString()
-
-        }
-    )
-    Column(){
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        ) {
-            //I NEED A TEXT INPUT AND A DATE INPUT
-            OutlinedTextField(
-                modifier = Modifier.weight(1.5f),
-                singleLine = true,
-                value = vaccineText,
-                onValueChange = { vaccineText = it },
-                textStyle = TextStyle(fontSize = 20.sp),
-                placeholder = {
-                    Text(text = "Vaccination", fontSize = 20.sp)
-                }
-
-            )
-            OutlinedTextField(
-                modifier = Modifier
-                    .clickable { calendarState.show() }
-                    .weight(1f),
-                enabled = false,
-                value = selectedDate.value.toString(),
-                onValueChange = { dateText = it },
-                textStyle = TextStyle(fontSize = 20.sp),
-                placeholder = {
-                    Text(text = dateText, fontSize = 20.sp)
-                }
-
-            )
-        }
-        //INSIDE THE COLUMN
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        ){
-            Spacer(Modifier.weight(1.5f))
-            Button(
-                enabled = vaccineText.length >1,
-                onClick = {
-                    val text = "$vaccineText " + selectedDate.value
-                    val check = vaccineList.indexOf(text)
-                    if(check == -1){
-                        vaccineList.add(text)
-                    }
-
-                },
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(text = "Vaccinate")
-            }
-        }
-        LazyColumn(modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp)
-            .height(150.dp)
-
-        ){
-            itemsIndexed(
-                items = vaccineList,
-                key ={index:Int,item:String ->item.hashCode() + index}
-            ){ index:Int, item:String ->
-                /***********SETTING UP SWIPE TO DISMISS****************/
-                val currentVaccine by rememberUpdatedState(item)//references the current vaccine
-                val dismissState = rememberDismissState(
-                    confirmStateChange = {
-
-                        vaccineList.remove(item)
-                        true
-                    }
-                )
-                SwipeToDismiss(state = dismissState, background ={} ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp)
-                            .border(
-                                BorderStroke(2.dp, Color.LightGray),
-                                shape = RoundedCornerShape(8)
-                            )
-                    ){
-                        Text(text = item, fontSize = 20.sp,modifier = Modifier.padding(8.dp))
-                    }
-
-                }
-            }
-
-
-
-        }
-
-    }
-
-}
 
 
 
