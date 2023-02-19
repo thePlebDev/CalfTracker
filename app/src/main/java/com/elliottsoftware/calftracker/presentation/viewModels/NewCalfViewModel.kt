@@ -3,7 +3,7 @@ package com.elliottsoftware.calftracker.presentation.viewModels
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.elliottsoftware.calftracker.data.repositories.DatabaseRepositoryImpl
@@ -29,8 +29,18 @@ data class NewCalfUIState(
     val sex:String="Bull",
     val birthDate:Date = Date(),
     val calfSaved:Response<Boolean> = Response.Success(false),
-    val loggedUserOut:Boolean = false
+    val loggedUserOut:Boolean = false,
+
+
+    val vaccineText:String = "",
+    val vaccineDate:String = Date().toString(),
+    /***BELOW IS WHAT WILL COME FROM FIREBASE***/
+    val vaccineList:List<String>? = null
 )
+
+//var vaccineText by remember { mutableStateOf("") }
+//var dateText1 by remember { mutableStateOf(Date().toString()) }
+//val vaccineList = remember { mutableStateListOf<String>() }
 
 @HiltViewModel
 class NewCalfViewModel @Inject constructor(
@@ -65,12 +75,30 @@ class NewCalfViewModel @Inject constructor(
     fun signUserOut() = viewModelScope.launch{
         _state.value = _state.value.copy(loggedUserOut = logoutUseCase.execute(Unit))
     }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun updateDate(date: LocalDate){
         //val localDate = LocalDate.now()
         val convertedDate= Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        Timber.tag("CALENDAR").d(convertedDate.toString())
+
         _state.value = _state.value.copy(birthDate = convertedDate)
+
+    }
+
+    /*****VACCINE STUFF*******/
+    fun updateVaccineText(text:String){
+        _state.value = _state.value.copy(vaccineText = text)
+    }
+
+    fun updateDateText(date: String){
+
+        _state.value = _state.value.copy(vaccineDate = date)
+
+    }
+
+    fun addVaccineList(vaccineList: List<String>?){
+
+        _state.value = _state.value.copy(vaccineList = vaccineList)
 
     }
 

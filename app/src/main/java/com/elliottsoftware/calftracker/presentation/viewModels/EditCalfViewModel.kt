@@ -36,7 +36,13 @@ data class EditCalfUiState(
     val birthDate:Date? = null,
     val firebaseId:String ="",
     val loggedUserOut:Boolean = false,
-    val calfUpdated:Response<Boolean> = Response.Success(false)
+    val calfUpdated:Response<Boolean> = Response.Success(false),
+
+
+    val vaccineText:String = "",
+    val vaccineDate:String = Date().toString(),
+    /***BELOW IS WHAT WILL COME FROM FIREBASE***/
+    val vaccineList:List<String>? = null
 )
 
 @HiltViewModel
@@ -129,5 +135,22 @@ class EditCalfViewModel @Inject constructor(
 fun updateCalfUpdatedStateToFalse(){
     _uiState.value = _uiState.value.copy(calfUpdated = Response.Success(false))
 }
+
+    /*****VACCINE STUFF*******/
+    fun updateVaccineText(text:String){
+        _uiState.value = _uiState.value.copy(vaccineText = text)
+    }
+
+    fun updateDateText(date: String){
+
+        _uiState.value = _uiState.value.copy(vaccineDate = date)
+
+    }
+
+    fun addVaccineList(vaccineList: List<String>?){
+
+        _uiState.value = _uiState.value.copy(vaccineList = vaccineList)
+
+    }
 
 }
