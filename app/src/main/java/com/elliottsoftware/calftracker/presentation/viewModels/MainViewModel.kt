@@ -3,6 +3,7 @@ package com.elliottsoftware.calftracker.presentation.viewModels
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 
 import androidx.lifecycle.ViewModel
@@ -36,8 +37,8 @@ class MainViewModel @Inject constructor(
    private val getCalfByTagNumberUseCase: GetCalfByTagNumberUseCase
 
 ):ViewModel() {
-    var state: MutableState<MainUIState> = mutableStateOf(MainUIState())
-    private set
+    private var _uiState: MutableState<MainUIState> = mutableStateOf(MainUIState())
+    val state = _uiState
     init{
         getCalves()
     }
@@ -52,7 +53,7 @@ class MainViewModel @Inject constructor(
      fun getCalves() = viewModelScope.launch(){
         getCalvesUseCase.execute(Unit).collect{response ->
 
-            state.value = state.value.copy(data = response)
+            _uiState.value = _uiState.value.copy(data = response)
 
         }
 
@@ -65,14 +66,14 @@ class MainViewModel @Inject constructor(
 
     }
     fun setDarkMode(){
-        state.value = state.value.copy(darkTheme = !state.value.darkTheme)
+        _uiState.value = _uiState.value.copy(darkTheme = !_uiState.value.darkTheme)
     }
 
 
 
     fun searchCalfListByTag(tagNumber:String) = viewModelScope.launch{
         getCalfByTagNumberUseCase.execute(tagNumber).collect{ response ->
-            state.value = state.value.copy(data = response)
+            _uiState.value = _uiState.value.copy(data = response)
         }
 
     }
@@ -82,7 +83,7 @@ class MainViewModel @Inject constructor(
         val heifers = calfList.count{it.sex == "Heifer"}
 
         val chipTextList:List<String> = listOf("TOTAL: $total ","BULLS: $bulls","HEIFERS: $heifers")
-        state.value = state.value.copy(chipText = chipTextList)
+        _uiState.value = _uiState.value.copy(chipText = chipTextList)
     }
 
 

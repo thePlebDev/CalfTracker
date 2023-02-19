@@ -48,32 +48,32 @@ class NewCalfViewModel @Inject constructor(
     private val logoutUseCase: LogoutUseCase // THIS IS CAUSING IT TO CRASH
 ):ViewModel() {
 
-    private val _state = mutableStateOf(NewCalfUIState())
-    val state = _state
+    private val _uiState = mutableStateOf(NewCalfUIState())
+    val state = _uiState
 
 
 
     fun updateCalfTag(tagNumber:String){
 
-        _state.value = _state.value.copy(calfTag = tagNumber)
+        _uiState.value = _uiState.value.copy(calfTag = tagNumber)
     }
     fun updateCowTagNumber(tagNumber: String){
-        _state.value = _state.value.copy(cowTagNumber = tagNumber)
+        _uiState.value = _uiState.value.copy(cowTagNumber = tagNumber)
     }
     fun updateCciaNumber(cciaNUmber: String){
-        _state.value = _state.value.copy(cciaNumber = cciaNUmber)
+        _uiState.value = _uiState.value.copy(cciaNumber = cciaNUmber)
     }
     fun updateDescription(description: String){
-        _state.value = _state.value.copy(description = description)
+        _uiState.value = _uiState.value.copy(description = description)
     }
     fun updateBirthWeight(birthWeight: String){
-        _state.value = _state.value.copy(birthWeight = birthWeight)
+        _uiState.value = _uiState.value.copy(birthWeight = birthWeight)
     }
     fun updateSex(sex:String){
-        _state.value = _state.value.copy(sex = sex)
+        _uiState.value = _uiState.value.copy(sex = sex)
     }
     fun signUserOut() = viewModelScope.launch{
-        _state.value = _state.value.copy(loggedUserOut = logoutUseCase.execute(Unit))
+        _uiState.value = _uiState.value.copy(loggedUserOut = logoutUseCase.execute(Unit))
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -81,33 +81,33 @@ class NewCalfViewModel @Inject constructor(
         //val localDate = LocalDate.now()
         val convertedDate= Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-        _state.value = _state.value.copy(birthDate = convertedDate)
+        _uiState.value = _uiState.value.copy(birthDate = convertedDate)
 
     }
 
     /*****VACCINE STUFF*******/
     fun updateVaccineText(text:String){
-        _state.value = _state.value.copy(vaccineText = text)
+        _uiState.value = _uiState.value.copy(vaccineText = text)
     }
 
     fun updateDateText(date: String){
 
-        _state.value = _state.value.copy(vaccineDate = date)
+        _uiState.value = _uiState.value.copy(vaccineDate = date)
 
     }
 
     fun addVaccineList(vaccineList: List<String>?){
 
-        _state.value = _state.value.copy(vaccineList = vaccineList)
+        _uiState.value = _uiState.value.copy(vaccineList = vaccineList)
 
     }
 
 
     //todo: THIS MIGHT BE BETTER IN A USE_CASE
     fun submitCalf() = viewModelScope.launch{
-        val state = _state.value
+        val state = _uiState.value
         if(state.calfTag.isBlank()){
-            _state.value = state.copy(calfTagError = "Calf tag can not be blank")
+            _uiState.value = state.copy(calfTagError = "Calf tag can not be blank")
         }else{
 
             val calf = FireBaseCalf(state.calfTag,
@@ -115,7 +115,7 @@ class NewCalfViewModel @Inject constructor(
                 state.cciaNumber,state.sex,state.description, state.birthDate,state.birthWeight
             )
             databaseRepository.createCalf(calf).collect{ response ->
-                _state.value = state.copy(calfSaved = response)
+                _uiState.value = state.copy(calfSaved = response)
             }
 
         }
