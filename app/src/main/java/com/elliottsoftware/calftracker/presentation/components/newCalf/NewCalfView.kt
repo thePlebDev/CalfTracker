@@ -13,11 +13,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
@@ -33,7 +29,6 @@ import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
 import com.elliottsoftware.calftracker.presentation.sharedViews.*
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
-import com.maxkeppeker.sheets.core.models.base.SheetState
 import com.maxkeppeker.sheets.core.models.base.rememberSheetState
 import com.maxkeppeler.sheets.calendar.CalendarDialog
 import com.maxkeppeler.sheets.calendar.models.CalendarConfig
@@ -43,8 +38,6 @@ import kotlinx.coroutines.CoroutineScope
 
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.ZoneId
-import java.util.*
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -117,21 +110,16 @@ fun ScaffoldView(viewModel: NewCalfViewModel = viewModel(),onNavigate:(Int)->Uni
             )
         },
 
-        ) {
+        ) { padding ->
 
-        val vaccineList = remember { mutableStateListOf<String>() } //this should get danced to the MainBodyView
-        //MainBodyView(viewModel,onNavigate,scaffoldState,scope)
+         //this should get danced to the MainBodyView
 
 
-        VaccinationView(
-            vaccineText = viewModel.state.value.vaccineText,
-            updateVaccineText = {text -> viewModel.updateVaccineText(text) },
-            dateText1 = viewModel.state.value.vaccineDate,
-            updateDateText = {date -> viewModel.updateDateText(date)},
-            vaccineList = vaccineList,
-            addItemToVaccineList = {item -> vaccineList.add(item)},
-            removeItemFromVaccineList = {item -> vaccineList.remove(item)}
-        )
+            MainBodyView(viewModel,onNavigate,scaffoldState,scope,padding)
+
+
+
+
 
     }
 }
@@ -142,14 +130,16 @@ fun MainBodyView(
     viewModel: NewCalfViewModel,
     onNavigate: (Int) -> Unit,
     scaffoldState: ScaffoldState,
-    scope: CoroutineScope
+    scope: CoroutineScope,
+    padding: PaddingValues
 ){
     val snackbarHostState = remember { SnackbarHostState() }
+    val vaccineList = remember { mutableStateListOf<String>() }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp)
+            .padding(padding)
             .verticalScroll(rememberScrollState())
 
 
@@ -186,6 +176,16 @@ fun MainBodyView(
         /**CALANDAR STUFF**/
         CalendarDock(viewModel)
         Checkboxes(viewModel.state.value.sex, updateSex = {value -> viewModel.updateSex(value)})
+
+        VaccinationView(
+            vaccineText = viewModel.state.value.vaccineText,
+            updateVaccineText = {text -> viewModel.updateVaccineText(text) },
+            dateText1 = viewModel.state.value.vaccineDate,
+            updateDateText = {date -> viewModel.updateDateText(date)},
+            vaccineList = vaccineList,
+            addItemToVaccineList = {item -> vaccineList.add(item)},
+            removeItemFromVaccineList = {item -> vaccineList.remove(item)}
+        )
 
 
 
@@ -343,7 +343,9 @@ fun CalendarDock(viewModel: NewCalfViewModel, ){
     )
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp).clickable { calendarState.show() }
+        modifier = Modifier
+            .padding(horizontal = 8.dp, vertical = 8.dp)
+            .clickable { calendarState.show() }
     ) {
         OutlinedTextField(
             //state

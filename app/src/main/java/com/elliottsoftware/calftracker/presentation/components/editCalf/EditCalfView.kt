@@ -127,7 +127,12 @@ fun ScaffoldView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit) {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun EditCalfView(viewModel: EditCalfViewModel,paddingValues: PaddingValues,onNavigate: (Int) -> Unit,scaffoldState: ScaffoldState,){
+fun EditCalfView(
+    viewModel: EditCalfViewModel,
+    paddingValues: PaddingValues,
+    onNavigate: (Int) -> Unit,
+    scaffoldState: ScaffoldState
+){
 
 
 
