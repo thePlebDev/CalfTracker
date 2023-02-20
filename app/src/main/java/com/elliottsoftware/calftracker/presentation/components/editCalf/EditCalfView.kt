@@ -28,12 +28,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.findNavController
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
-import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
 
-import com.elliottsoftware.calftracker.presentation.components.main.FloatingButton
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
 import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
+import com.elliottsoftware.calftracker.presentation.sharedViews.BullHeiferRadioInput
+import com.elliottsoftware.calftracker.presentation.sharedViews.NumberInput
+import com.elliottsoftware.calftracker.presentation.sharedViews.SimpleTextInput
 import com.elliottsoftware.calftracker.presentation.sharedViews.VaccinationView
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
@@ -142,29 +143,41 @@ fun EditCalfView(
             .padding(paddingValues)
             .verticalScroll(rememberScrollState())
     ) {
-        SimpleText(state = viewModel.uiState.value.calfTagNumber,
-            "Calf Tag",viewModel.uiState.value.testTextError,
-            { value -> viewModel.updateCalfTag(value) })
+        SimpleTextInput(
+            state = viewModel.uiState.value.calfTagNumber,
+            placeHolderText = "Calf Tag",
+            errorMessage = viewModel.uiState.value.testTextError,
+            updateValue =  { value -> viewModel.updateCalfTag(value) }
+        )
 
-        SimpleText(state = viewModel.uiState.value.cowTagNumber,
-            "Cow Tag",errorMessage = null,
-            { value -> viewModel.updateCowTag(value) })
+        SimpleTextInput(
+            state = viewModel.uiState.value.cowTagNumber,
+            placeHolderText = "Cow Tag",
+            errorMessage = null,
+            updateValue = { value -> viewModel.updateCowTag(value) }
+        )
 
-        SimpleText(state = viewModel.uiState.value.cCIANUmber,
-            "CCIA number",errorMessage = null,
-            { value -> viewModel.updateCCIANumber(value) })
-        /******THIS IS WHERE THE VACCINATIONS WILL GO*****/
-        //VaccinationCheck()
+        SimpleTextInput(
+            state = viewModel.uiState.value.cCIANUmber,
+            placeHolderText = "CCIA number",
+            errorMessage = null,
+            updateValue = { value -> viewModel.updateCCIANumber(value) }
+        )
 
-        SimpleText(state = viewModel.uiState.value.description,
-            "Description",errorMessage = null,
-            { value -> viewModel.updateDescription(value) })
+        SimpleTextInput(
+            state = viewModel.uiState.value.description,
+            placeHolderText="Description",
+            errorMessage = null,
+            updateValue = { value -> viewModel.updateDescription(value) }
+        )
 
 
 
-        NumberTextInput(state = viewModel.uiState.value.birthWeight,
-            "Birth Weight",
-            { value -> viewModel.updateBirthWeight(value) })
+        NumberInput(
+            state = viewModel.uiState.value.birthWeight,
+            placeHolderText = "Birth Weight",
+            updateValue = { value -> viewModel.updateBirthWeight(value) }
+        )
 
 
         CalendarDock(viewModel.uiState.value.birthDate!!,
@@ -173,7 +186,10 @@ fun EditCalfView(
         )
 
 
-        Checkboxes(state = viewModel.uiState.value.sex, {value -> viewModel.updateSex(value) })
+        BullHeiferRadioInput(
+            state = viewModel.uiState.value.sex,
+            updateSex = {value -> viewModel.updateSex(value) }
+        )
 
 
 
@@ -211,117 +227,6 @@ fun EditCalfView(
 
     }
 
-
-}
-
-
-/************INPUTS**************/
-
-@Composable
-fun SimpleText(
-    state: String,
-    placeHolderText:String,
-    errorMessage: String? = null,
-    updateValue: (String) -> Unit
-
-){
-
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)
-    ) {
-        OutlinedTextField(
-            //state
-            value = state,
-            onValueChange = { updateValue(it) },
-            //style
-            singleLine = true,
-            placeholder = {
-                Text(text = placeHolderText, fontSize = 20.sp)
-            },
-            modifier = Modifier
-                .fillMaxWidth(),
-            textStyle = TextStyle(fontSize = 20.sp),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text
-            ),
-            //errors
-            isError = errorMessage!=null,
-            trailingIcon = {
-                if(errorMessage!=null){
-                    Icon(Icons.Filled.Error, "error has occurred", tint = MaterialTheme.colors.error)
-                }
-
-            }
-
-        )
-        if(errorMessage!=null){
-            Text(
-                text = errorMessage,
-                color = MaterialTheme.colors.error,
-                modifier = Modifier.align(Alignment.End)
-            )
-
-        }
-    }
-
-}
-
-@Composable
-fun NumberTextInput(
-    state: String,
-    placeHolderText:String,
-    updateValue: (String) -> Unit
-){
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)
-    ) {
-        OutlinedTextField(
-            //state
-            value = state,
-            onValueChange = { updateValue(it) },
-            //style
-            singleLine = true,
-            placeholder = {
-                Text(text = placeHolderText, fontSize = 20.sp)
-            },
-            modifier = Modifier
-                .fillMaxWidth(),
-            textStyle = TextStyle(fontSize = 20.sp),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number
-            ),
-
-        )
-    }
-}
-
-@Composable
-fun Checkboxes(
-    state:String,
-    updateSex: (String) -> Unit
-){
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
-    ) {
-        RadioButton(selected = state=="Bull", onClick = {updateSex("Bull") })
-        Text(
-            text = "Bull" ,
-            modifier = Modifier
-                .clickable(onClick = { })
-                .padding(start = 4.dp)
-        )
-
-        RadioButton(selected = state=="Heifer", onClick = { updateSex("Heifer")})
-        Text(
-            text = "Heifer",
-            modifier = Modifier
-                .clickable(onClick = { })
-                .padding(start = 4.dp)
-        )
-    }
 
 }
 
