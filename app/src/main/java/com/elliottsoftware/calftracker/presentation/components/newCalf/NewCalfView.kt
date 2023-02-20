@@ -145,37 +145,42 @@ fun MainBodyView(
 
     ) {
 
-        TextInput(
-            viewModel.state.value.calfTag,
-            "Calf tag number",
+        SimpleTextInput(
+            state= viewModel.state.value.calfTag,
+            placeHolderText = "Calf tag number",
             updateValue = { value -> viewModel.updateCalfTag(value) },
             errorMessage = viewModel.state.value.calfTagError
         )
-        TextInput(
+        SimpleTextInput(
             viewModel.state.value.cowTagNumber,
             "Cow tag number",
             updateValue = { value -> viewModel.updateCowTagNumber(value) }
         )
-        TextInput(
+        SimpleTextInput(
             viewModel.state.value.cciaNumber,
             "Ccia number",
             updateValue = { value -> viewModel.updateCciaNumber(value) }
         )
-        TextInput(
+        SimpleTextInput(
             viewModel.state.value.description,
             "Description",
             updateValue = { value -> viewModel.updateDescription(value) }
         )
-
 
         NumberInput(
             "Birth Weight",
             viewModel.state.value.birthWeight,
             updateValue = {value -> viewModel.updateBirthWeight(value)}
         )
+
         /**CALANDAR STUFF**/
         CalendarDock(viewModel)
-        Checkboxes(viewModel.state.value.sex, updateSex = {value -> viewModel.updateSex(value)})
+
+        BullHeiferRadioInput(
+            state = viewModel.state.value.sex,
+            updateSex = {value -> viewModel.updateSex(value) },
+            modifier = Modifier
+        )
 
         VaccinationView(
             vaccineText = viewModel.state.value.vaccineText,
@@ -186,12 +191,6 @@ fun MainBodyView(
             addItemToVaccineList = {item -> vaccineList.add(item)},
             removeItemFromVaccineList = {item -> vaccineList.remove(item)}
         )
-
-
-
-
-
-
 
 
         when(val response = viewModel.state.value.calfSaved){
@@ -221,105 +220,6 @@ fun MainBodyView(
 
 }
 
-@Composable
-fun TextInput(
-    state: String,
-    placeHolderText: String,
-    updateValue: (String) -> Unit,
-    errorMessage:String? = null
-
-    ){
- val icon = painterResource(id = R.drawable.ic_error_24)
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)) {
-        OutlinedTextField(
-            value = state,
-            isError = errorMessage != null,
-            trailingIcon = {
-                if (errorMessage != null)
-                    Icon(painter = icon, contentDescription = "Error")
-            },
-            onValueChange = { updateValue(it) },
-            singleLine = true,
-            placeholder = {
-                Text(text = placeHolderText, fontSize = 20.sp)
-            },
-
-            modifier = Modifier
-                .fillMaxWidth(),
-            textStyle = TextStyle(fontSize = 20.sp),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text
-            ),
-
-
-            )
-        if (errorMessage != null) {
-            Text(
-                text = errorMessage,
-                color = MaterialTheme.colors.error,
-                modifier = Modifier.align(Alignment.End)
-            )
-        }
-    }
-}
-@Composable
-fun NumberInput(
-    placeHolderText:String,
-    state:String,
-    updateValue: (String) -> Unit
-){
-
-
-    OutlinedTextField(value = state,
-
-        onValueChange = { updateValue(it)},
-        singleLine = true,
-        placeholder = {
-            Text(text = placeHolderText,fontSize = 20.sp)
-        },
-
-        modifier = Modifier
-            .padding(start = 10.dp, 10.dp, 10.dp, 0.dp)
-            .fillMaxWidth()
-
-        ,
-        textStyle = TextStyle(fontSize = 20.sp),
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number
-        ),
-
-
-        )
-
-}
-
-@Composable
-fun Checkboxes(
-    state:String,
-    updateSex: (String) -> Unit
-){
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
-    ) {
-        RadioButton(selected = state=="Bull", onClick = {updateSex("Bull") })
-        Text(
-            text = "Bull",
-            modifier = Modifier
-                .clickable(onClick = { })
-                .padding(start = 4.dp)
-        )
-
-        RadioButton(selected = state=="Heifer", onClick = { updateSex("Heifer")})
-        Text(
-            text = "Heifer",
-            modifier = Modifier
-                .clickable(onClick = { })
-                .padding(start = 4.dp)
-        )
-    }
-
-}
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -367,7 +267,6 @@ fun CalendarDock(viewModel: NewCalfViewModel, ){
 
 }
 
-/***********VACCINE UI***************/
 
 
 
