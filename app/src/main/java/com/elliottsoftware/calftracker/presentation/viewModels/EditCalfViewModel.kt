@@ -5,7 +5,9 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.elliottsoftware.calftracker.domain.models.Response
@@ -42,7 +44,7 @@ data class EditCalfUiState(
     val vaccineText:String = "",
     val vaccineDate:String = Date().toString(),
     /***BELOW IS WHAT WILL COME FROM FIREBASE***/
-    val vaccineList:List<String>? = null
+    val vaccineList: SnapshotStateList<String> = mutableStateListOf<String>()
 )
 
 @HiltViewModel
@@ -58,6 +60,12 @@ class EditCalfViewModel @Inject constructor(
 
     fun setCalf(calf:FireBaseCalf){
 
+        val updatedList = mutableStateListOf<String>()
+        calf.vaccinelist?.let{ calfVaccineList ->
+            for (vaccine in calfVaccineList){
+                updatedList.add(vaccine)
+            }
+        }
         _uiState.value = _uiState.value.copy(
             calfTagNumber = calf.calftag?:"",
             cowTagNumber = calf.cowtag?:"",
@@ -66,8 +74,11 @@ class EditCalfViewModel @Inject constructor(
             birthWeight = calf.birthweight?:"",
             sex = calf.sex?:"Bull",
             birthDate= calf.date,
-            firebaseId = calf.id?:""
+            firebaseId = calf.id?:"",
+            vaccineList = updatedList
+
         )
+
 
     }
 
@@ -106,6 +117,10 @@ class EditCalfViewModel @Inject constructor(
 
     private fun updateCalf()= viewModelScope.launch {
         val state = _uiState.value
+        val vaccineList:MutableList<String> = mutableListOf()
+        for(item in state.vaccineList){
+            vaccineList.add(item)
+        }
        val fireBaseCalf = FireBaseCalf(
            calftag = state.calfTagNumber,
            cowtag = state.cowTagNumber,
@@ -114,7 +129,9 @@ class EditCalfViewModel @Inject constructor(
            details = state.description,
            birthweight = state.birthWeight,
            date = state.birthDate,
-           id = state.firebaseId
+           id = state.firebaseId,
+           vaccinelist = vaccineList,
+
        )
         updateCalfUseCase.execute(fireBaseCalf).collect{ response ->
             _uiState.value = _uiState.value.copy(calfUpdated = response)
@@ -146,11 +163,15 @@ fun updateCalfUpdatedStateToFalse(){
         _uiState.value = _uiState.value.copy(vaccineDate = date)
 
     }
-
-    fun addVaccineList(vaccineList: List<String>?){
-
-        _uiState.value = _uiState.value.copy(vaccineList = vaccineList)
+    fun addItemToVaccineList(item:String){
+        _uiState.value.vaccineList.add(item)
 
     }
+    fun removeItemToVaccineList(item:String){
+        _uiState.value.vaccineList.remove(item)
+
+    }
+
+
 
 }

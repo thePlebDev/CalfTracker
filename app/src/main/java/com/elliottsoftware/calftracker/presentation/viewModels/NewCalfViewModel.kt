@@ -96,15 +96,21 @@ class NewCalfViewModel @Inject constructor(
 
 
     //todo: THIS MIGHT BE BETTER IN A USE_CASE
-    fun submitCalf() = viewModelScope.launch{
+    fun submitCalf(vaccineList:List<String>) = viewModelScope.launch{
         val state = _uiState.value
         if(state.calfTag.isBlank()){
             _uiState.value = state.copy(calfTagError = "Calf tag can not be blank")
         }else{
 
-            val calf = FireBaseCalf(state.calfTag,
-                state.cowTagNumber,
-                state.cciaNumber,state.sex,state.description, state.birthDate,state.birthWeight
+            val calf = FireBaseCalf(
+                calftag = state.calfTag,
+                cowtag = state.cowTagNumber,
+                ccianumber = state.cciaNumber,
+                sex =state.sex,
+                details = state.description,
+                date = state.birthDate,
+                birthweight = state.birthWeight,
+                vaccinelist = vaccineList
             )
             databaseRepository.createCalf(calf).collect{ response ->
                 _uiState.value = state.copy(calfSaved = response)

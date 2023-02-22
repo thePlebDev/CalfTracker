@@ -68,6 +68,7 @@ fun ScaffoldView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit) {
 
 
 
+
     if (state.loggedUserOut) {
         onNavigate(R.id.action_editCalfFragment_to_loginFragment)
     }
@@ -132,7 +133,8 @@ fun EditCalfView(
     viewModel: EditCalfViewModel,
     paddingValues: PaddingValues,
     onNavigate: (Int) -> Unit,
-    scaffoldState: ScaffoldState
+    scaffoldState: ScaffoldState,
+
 ){
 
 
@@ -214,15 +216,23 @@ fun EditCalfView(
                 }
             }
         }
-        val vaccineList = remember { mutableStateListOf<String>() }
+
+        //this will only run if vaccineList is not null
+        /******************THIS RUNNING ON RECOMPOSITION IS CAUSING A PROBLEM***************************/
+//        // I think this needs to happen inside the viewModel
+//        viewModel.uiState.value.vaccineList?.let{ calfVaccineList ->
+//            for(vaccine in calfVaccineList){
+//                vaccineList.add(vaccine)
+//            }
+//        }
         VaccinationView(
             vaccineText = viewModel.uiState.value.vaccineText,
             updateVaccineText = {text -> viewModel.updateVaccineText(text) },
             dateText1 = viewModel.uiState.value.vaccineDate,
             updateDateText = {date -> viewModel.updateDateText(date)},
-            vaccineList = vaccineList,
-            addItemToVaccineList = {item -> vaccineList.add(item)},
-            removeItemFromVaccineList = {item -> vaccineList.remove(item)}
+            vaccineList = viewModel.uiState.value.vaccineList,
+            addItemToVaccineList = {item -> viewModel.addItemToVaccineList(item)},
+            removeItemFromVaccineList = {item -> viewModel.removeItemToVaccineList(item)}
         )
 
     }
