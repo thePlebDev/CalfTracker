@@ -26,6 +26,7 @@ import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.presentation.components.register.Fail
 import com.elliottsoftware.calftracker.presentation.components.register.Success
 import com.elliottsoftware.calftracker.presentation.components.weather.ScaffoldView
+import com.elliottsoftware.calftracker.presentation.sharedViews.BannerCard
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.LoginViewModel
 import timber.log.Timber
@@ -70,23 +71,13 @@ fun LoginView(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit)
 }
 
 
-@Composable
-fun BannerCard(banner: String,bannerDescription:String) {
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-        Text(banner,fontSize = 40.sp,
-            fontWeight = FontWeight.Bold,textAlign = TextAlign.Center,
-            modifier = Modifier.padding(start = 0.dp,16.dp,0.dp,0.dp)
-        )
-        Text(bannerDescription,fontSize = 18.sp, fontStyle = FontStyle.Italic,
-            textAlign = TextAlign.Center,)
-
-    }
-}
 
 @Composable
-fun EmailInput(loginViewModel: LoginViewModel){
+fun EmailInput(
+    loginViewModel: LoginViewModel
+){
     val state = loginViewModel.state.value
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {

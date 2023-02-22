@@ -23,6 +23,7 @@ import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.presentation.components.login.LinearLoadingBar
 import com.elliottsoftware.calftracker.presentation.components.register.RegisterView
+import com.elliottsoftware.calftracker.presentation.sharedViews.BannerCard
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import timber.log.Timber
 
@@ -64,22 +65,11 @@ fun ForgotPasswordView(viewModel: ForgotPasswordViewModel = viewModel()){
 }
 
 
+
 @Composable
-fun BannerCard(banner: String,bannerDescription:String) {
-
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
-        Text(banner,fontSize = 40.sp,
-            fontWeight = FontWeight.Bold,textAlign = TextAlign.Center,
-            modifier = Modifier.padding(start = 0.dp,16.dp,0.dp,0.dp)
-        )
-        Text(bannerDescription,fontSize = 18.sp, fontStyle = FontStyle.Italic,
-            textAlign = TextAlign.Center,)
-
-    }
-}
-@Composable
-fun EmailInput(viewModel: ForgotPasswordViewModel = viewModel()){
+fun EmailInput(
+    viewModel: ForgotPasswordViewModel = viewModel()
+){
 
     val email = viewModel.state.value.email
     val emailError = viewModel.state.value.emailError
