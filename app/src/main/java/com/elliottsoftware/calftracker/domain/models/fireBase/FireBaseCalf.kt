@@ -12,7 +12,7 @@ data class FireBaseCalf(var calftag: String? = null,
                         var date: Date? = null,
                         var birthweight:String? = null,
                         var id: String? = null,
-
+                        var vaccinelist:List<String>? = null
                         ) {
     // Null default values create a no-argument default constructor, which is needed
     // for deserialization from a DataSnapshot.

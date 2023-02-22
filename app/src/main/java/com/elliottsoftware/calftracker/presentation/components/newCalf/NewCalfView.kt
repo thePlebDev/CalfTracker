@@ -55,6 +55,7 @@ fun ScaffoldView(viewModel: NewCalfViewModel = viewModel(),onNavigate:(Int)->Uni
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
     val state = viewModel.state.value
+    val vaccineList = remember { mutableStateListOf<String>() }
     if(state.loggedUserOut){
         onNavigate(R.id.action_newCalfFragment_to_loginFragment)
     }
@@ -67,7 +68,7 @@ fun ScaffoldView(viewModel: NewCalfViewModel = viewModel(),onNavigate:(Int)->Uni
                 LoadingFloatingButton()
             }else{
                 FloatingButton(navigate = {
-                    viewModel.submitCalf()
+                    viewModel.submitCalf(vaccineList)
                 })
             }
                                },
@@ -115,7 +116,7 @@ fun ScaffoldView(viewModel: NewCalfViewModel = viewModel(),onNavigate:(Int)->Uni
          //this should get danced to the MainBodyView
 
 
-            MainBodyView(viewModel,onNavigate,scaffoldState,scope,padding)
+            MainBodyView(viewModel,onNavigate,scaffoldState,padding,vaccineList)
 
 
 
@@ -130,11 +131,12 @@ fun MainBodyView(
     viewModel: NewCalfViewModel,
     onNavigate: (Int) -> Unit,
     scaffoldState: ScaffoldState,
-    scope: CoroutineScope,
-    padding: PaddingValues
+    padding: PaddingValues,
+    vaccineList: MutableList<String>,
+
 ){
     val snackbarHostState = remember { SnackbarHostState() }
-    val vaccineList = remember { mutableStateListOf<String>() }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
