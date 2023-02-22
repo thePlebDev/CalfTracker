@@ -12,9 +12,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elliottsoftware.calftracker.R
+import com.elliottsoftware.calftracker.presentation.viewModels.RegisterViewModel
 
 
 /**
@@ -142,6 +145,58 @@ fun BullHeiferRadioInput(
                 .clickable(onClick = { })
                 .padding(start = 4.dp)
         )
+    }
+
+}
+
+/**
+ * Two radio buttons in a [Row][androidx.compose.foundation.layout.Row] with values of Bull and Heifer
+ * @param passwordIconPressed Determines which Icon to show to the user
+ * @param password The value of the password
+ * @param passwordErrorMessage  The message to be shown to the user if the password fails the predetermined values
+ * @param updatePassword callback method used to update the password value entered by the user
+ * @param updatePasswordIconPressed callback method used to update if the user has clicked the icon
+ */
+@Composable
+fun PasswordInput(
+                  passwordIconPressed:Boolean,
+                  password:String,
+                  passwordErrorMessage:String?,
+                  updatePassword:(String)-> Unit,
+                  updatePasswordIconPressed:(Boolean)->Unit
+){
+    val icon = if(passwordIconPressed)
+        painterResource(id = R.drawable.design_ic_visibility)
+    else
+        painterResource(id = R.drawable.design_ic_visibility_off)
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        OutlinedTextField(value = password,
+            onValueChange = {updatePassword(it)},
+            placeholder = { Text(text ="Password", fontSize = 26.sp) },
+            modifier = Modifier.padding(start = 0.dp, 10.dp, 0.dp, 0.dp),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Password
+            ),
+            isError = passwordErrorMessage != null,
+            trailingIcon = {
+                IconButton(onClick = {
+                    updatePasswordIconPressed(!passwordIconPressed)
+                }) {
+                    Icon(painter = icon, contentDescription = "Visibility Icon")
+                }
+            },
+            visualTransformation = if (passwordIconPressed) VisualTransformation.None
+            else PasswordVisualTransformation(),
+            textStyle = TextStyle(fontSize = 26.sp)
+        )
+        if (passwordErrorMessage != null) {
+            Text(
+                text = passwordErrorMessage,
+                color = MaterialTheme.colors.error,
+                modifier = Modifier.align(Alignment.End)
+            )
+        }
     }
 
 }

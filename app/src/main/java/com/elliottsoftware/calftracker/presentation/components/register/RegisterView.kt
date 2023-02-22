@@ -20,17 +20,19 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.elliottsoftware.calftracker.presentation.components.login.BannerCard
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.SecondaryResponse
 import com.elliottsoftware.calftracker.presentation.components.login.LinearLoadingBar
 import com.elliottsoftware.calftracker.presentation.components.login.LoginView
+import com.elliottsoftware.calftracker.presentation.sharedViews.BannerCard
+import com.elliottsoftware.calftracker.presentation.sharedViews.PasswordInput
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.LoginViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.RegisterViewModel
 import com.elliottsoftware.calftracker.util.Actions
+import timber.log.Timber
 
 @Composable
 fun RegisterViews(viewModel: RegisterViewModel = viewModel(),onNavigate:(Int) -> Unit){
@@ -45,7 +47,14 @@ fun RegisterView(viewModel: RegisterViewModel = viewModel(),onNavigate:(Int) -> 
         BannerCard("Calf Tracker", "Powered by Elliott Software")
         UsernameInput(viewModel)
         EmailInput(viewModel)
-        PasswordInput(viewModel)
+        PasswordInput(
+            passwordIconPressed = viewModel.state.value.passwordIconChecked,
+            password = viewModel.state.value.password,
+            passwordErrorMessage = viewModel.state.value.passwordError,
+            updatePassword = {password -> viewModel.updatePassword(password) },
+            updatePasswordIconPressed = {pressed -> viewModel.passwordIconChecked(pressed)}
+
+        )
         SubmitButton(viewModel)
 
         when(val response = viewModel.state.value.signInWithFirebaseResponse){
@@ -68,7 +77,7 @@ fun RegisterView(viewModel: RegisterViewModel = viewModel(),onNavigate:(Int) -> 
             is Response.Failure -> {
                 //should probably show a snackbar
                 Fail()
-                Log.d("Login Error",response.e.message.toString())
+                Timber.tag("Login Error").d(response.e.message.toString())
             }
             // else -> {}
         }
@@ -78,6 +87,7 @@ fun RegisterView(viewModel: RegisterViewModel = viewModel(),onNavigate:(Int) -> 
     }
 }
 
+/********THIS SHOULD BE REFACTORED OUT ***********/
 @Composable
 fun UsernameInput(viewModel: RegisterViewModel){
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -105,6 +115,7 @@ fun UsernameInput(viewModel: RegisterViewModel){
 
     }
 }
+/********THIS SHOULD BE REFACTORED OUT ***********/
 @Composable
 fun EmailInput(viewModel: RegisterViewModel){
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -132,46 +143,48 @@ fun EmailInput(viewModel: RegisterViewModel){
     }
 }
 
-@Composable
-fun PasswordInput(viewModel: RegisterViewModel){
-    val state = viewModel.state.value
+//@Composable
+//fun PasswordInput(viewModel: RegisterViewModel){
+//    val state = viewModel.state.value
+//
+//    val icon = if(state.passwordIconChecked)
+//        painterResource(id = R.drawable.design_ic_visibility)
+//    else
+//        painterResource(id = R.drawable.design_ic_visibility_off)
+//
+//    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+//        OutlinedTextField(value = state.password,
+//            onValueChange = {viewModel.updatePassword(it)},
+//            placeholder = { Text(text ="Password", fontSize = 26.sp) },
+//            modifier = Modifier.padding(start = 0.dp, 10.dp, 0.dp, 0.dp),
+//            keyboardOptions = KeyboardOptions(
+//                keyboardType = KeyboardType.Password
+//            ),
+//            isError = state.passwordError != null,
+//            trailingIcon = {
+//                IconButton(onClick = {
+//                    viewModel.passwordIconChecked(!state.passwordIconChecked)
+//                }) {
+//                    Icon(painter = icon, contentDescription = "Visibility Icon")
+//                }
+//            },
+//            visualTransformation = if (state.passwordIconChecked) VisualTransformation.None
+//            else PasswordVisualTransformation(),
+//            textStyle = TextStyle(fontSize = 26.sp)
+//        )
+//        if (state.passwordError != null) {
+//            Text(
+//                text = state.passwordError,
+//                color = MaterialTheme.colors.error,
+//                modifier = Modifier.align(Alignment.End)
+//            )
+//        }
+//    }
+//
+//}
 
-    val icon = if(state.passwordIconChecked)
-        painterResource(id = R.drawable.design_ic_visibility)
-    else
-        painterResource(id = R.drawable.design_ic_visibility_off)
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        OutlinedTextField(value = state.password,
-            onValueChange = {viewModel.updatePassword(it)},
-            placeholder = { Text(text ="Password", fontSize = 26.sp) },
-            modifier = Modifier.padding(start = 0.dp, 10.dp, 0.dp, 0.dp),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password
-            ),
-            isError = state.passwordError != null,
-            trailingIcon = {
-                IconButton(onClick = {
-                    viewModel.passwordIconChecked(!state.passwordIconChecked)
-                }) {
-                    Icon(painter = icon, contentDescription = "Visibility Icon")
-                }
-            },
-            visualTransformation = if (state.passwordIconChecked) VisualTransformation.None
-            else PasswordVisualTransformation(),
-            textStyle = TextStyle(fontSize = 26.sp)
-        )
-        if (state.passwordError != null) {
-            Text(
-                text = state.passwordError,
-                color = MaterialTheme.colors.error,
-                modifier = Modifier.align(Alignment.End)
-            )
-        }
-    }
-
-}
-
+/********THIS SHOULD BE REFACTORED OUT ***********/
 @Composable
 fun SubmitButton(viewModel: RegisterViewModel){
     Button(onClick = {viewModel.submitButton()},

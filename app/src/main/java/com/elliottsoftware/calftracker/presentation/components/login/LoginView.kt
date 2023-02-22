@@ -75,7 +75,9 @@ fun LoginView(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit)
 
 
 @Composable
-fun EmailInput(loginViewModel: LoginViewModel){
+fun EmailInput(
+    loginViewModel: LoginViewModel
+){
     val state = loginViewModel.state.value
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
