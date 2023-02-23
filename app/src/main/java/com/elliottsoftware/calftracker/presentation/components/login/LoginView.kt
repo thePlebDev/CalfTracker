@@ -27,6 +27,8 @@ import com.elliottsoftware.calftracker.presentation.components.register.Fail
 import com.elliottsoftware.calftracker.presentation.components.register.Success
 import com.elliottsoftware.calftracker.presentation.components.weather.ScaffoldView
 import com.elliottsoftware.calftracker.presentation.sharedViews.BannerCard
+import com.elliottsoftware.calftracker.presentation.sharedViews.PasswordInput
+import com.elliottsoftware.calftracker.presentation.sharedViews.RegisterInput
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.LoginViewModel
 import timber.log.Timber
@@ -45,9 +47,26 @@ fun LoginView(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit)
     }else{
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             BannerCard("Calf Tracker", "Powered by Elliott Software")
-            EmailInput(viewModel)
-            PasswordInput(viewModel)
-            SubmitButton(viewModel,onNavigate)
+
+            RegisterInput(
+                textState = viewModel.state.value.email,
+                updateTextState = {text -> viewModel.updateEmail(text)},
+                textStateError = viewModel.state.value.emailError,
+                keyboardType = KeyboardType.Email,
+                placeHolderText= "Email",
+                modifier = Modifier.padding(start = 0.dp,40.dp,0.dp,0.dp)
+            )
+            PasswordInput(
+                passwordIconPressed = viewModel.state.value.passwordIconChecked,
+                password = viewModel.state.value.password,
+                passwordErrorMessage = viewModel.state.value.passwordError,
+                updatePassword = {password -> viewModel.updatePassword(password) },
+                updatePasswordIconPressed = {pressed -> viewModel.passwordIconChecked(pressed)}
+
+            )
+            SubmitButton(
+                submit = {viewModel.submitButton()}
+            )
             SignUpForgotPassword(onNavigate)
             when(val response = viewModel.state.value.loginStatus){
                 is Response.Loading -> LinearLoadingBar()
@@ -75,79 +94,10 @@ fun LoginView(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit)
 
 
 @Composable
-fun EmailInput(
-    loginViewModel: LoginViewModel
+fun SubmitButton(
+    submit:()->Unit
 ){
-    val state = loginViewModel.state.value
-
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
-        OutlinedTextField(value = state.email,
-            onValueChange = {loginViewModel.updateEmail(it)},
-            singleLine = true,
-            placeholder = {
-                Text(text = "Email",fontSize = 26.sp)
-            },
-            modifier = Modifier.padding(start = 0.dp,40.dp,0.dp,0.dp)
-            ,
-            textStyle = TextStyle(fontSize = 26.sp),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email
-            )
-
-
-            )
-        if(state.emailError != null){
-            Text(text = state.emailError,color = MaterialTheme.colors.error, modifier = Modifier.align(
-                Alignment.End))
-        }
-
-    }
-
-}
-@Composable
-fun PasswordInput(viewModel: LoginViewModel){
-    val state = viewModel.state.value
-
-    val icon = if(state.passwordIconChecked)
-        painterResource(id = drawable.design_ic_visibility)
-    else
-        painterResource(id = drawable.design_ic_visibility_off)
-
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        OutlinedTextField(value = state.password,
-            onValueChange = {viewModel.updatePassword(it)},
-            placeholder = { Text(text = "Password", fontSize = 26.sp) },
-            modifier = Modifier.padding(start = 0.dp, 10.dp, 0.dp, 0.dp),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password
-            ),
-            isError = state.passwordError != null,
-            trailingIcon = {
-                IconButton(onClick = {
-                    viewModel.passwordIconChecked(!state.passwordIconChecked)
-                }) {
-                    Icon(painter = icon, contentDescription = "Visibility Icon")
-                }
-            },
-            visualTransformation = if (state.passwordIconChecked) VisualTransformation.None
-            else PasswordVisualTransformation(),
-            textStyle = TextStyle(fontSize = 26.sp)
-        )
-        if (state.passwordError != null) {
-            Text(
-                text = state.passwordError,
-                color = MaterialTheme.colors.error,
-                modifier = Modifier.align(Alignment.End)
-            )
-        }
-    }
-
-}
-
-@Composable
-fun SubmitButton(loginViewModel: LoginViewModel,onNavigate: (Int) -> Unit){
-    Button(onClick = {loginViewModel.submitButton()},
+    Button(onClick = {submit()},
         modifier = Modifier
             .height(80.dp)
             .width(280.dp)
