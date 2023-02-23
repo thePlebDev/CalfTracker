@@ -113,6 +113,7 @@ fun NumberInput(
 
 }
 
+
 /**
  * Two radio buttons in a [Row][androidx.compose.foundation.layout.Row] with values of Bull and Heifer
  * @param state The state of the text being typed.
@@ -199,4 +200,50 @@ fun PasswordInput(
         }
     }
 
+}
+
+/**
+ * Basic text input needed for gathering text input during a register. Also shows an error message
+ * @param textState The text input by the user
+ * @param updateTextState callback method called to update the textState
+ * @param textStateError  Error message shown to the user if error occurs with textState
+ * @param keyboardType The type of [Keyboard][androidx.compose.ui.text.input.KeyboardType] shown to the user
+ * @param placeHolderText Text shown to the user when the function is first composed
+ * @param modifier a optional [Modifier][androidx.compose.ui.Modifier] that determines the space between the inputs
+ */
+@Composable
+fun RegisterInput(
+    textState:String,
+    updateTextState:(String)->Unit,
+    textStateError:String?,
+    keyboardType: KeyboardType,
+    placeHolderText: String,
+    modifier: Modifier = Modifier
+
+){
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+
+        OutlinedTextField(value = textState,
+            onValueChange = { updateTextState(it)},
+            singleLine = true,
+            placeholder = {
+                Text(text = placeHolderText,fontSize = 26.sp)
+            }
+            ,
+            textStyle = TextStyle(fontSize = 26.sp),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = keyboardType
+            )
+
+
+        )
+        if(textStateError != null){
+            Text(text = textStateError,color = MaterialTheme.colors.error, modifier = Modifier.align(
+                Alignment.End))
+        }
+
+    }
 }
