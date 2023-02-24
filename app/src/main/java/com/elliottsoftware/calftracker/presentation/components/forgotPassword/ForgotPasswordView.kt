@@ -24,6 +24,7 @@ import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.presentation.components.login.LinearLoadingBar
 import com.elliottsoftware.calftracker.presentation.components.register.RegisterView
 import com.elliottsoftware.calftracker.presentation.sharedViews.BannerCard
+import com.elliottsoftware.calftracker.presentation.sharedViews.RegisterInput
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import timber.log.Timber
 
@@ -42,7 +43,15 @@ fun ForgotPasswordView(viewModel: ForgotPasswordViewModel = viewModel()){
     Scaffold(){
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxSize()){
             BannerCard("Calf Tracker", "Powered by Elliott Software")
-            EmailInput(viewModel)
+            //THIS IS AN EMAIL INPUT
+            RegisterInput(
+                textState = viewModel.state.value.email,
+                updateTextState = {text -> viewModel.updateEmail(text)},
+                textStateError = viewModel.state.value.emailError,
+                keyboardType = KeyboardType.Email,
+                placeHolderText= "Recovery Email",
+                modifier = Modifier.padding(start = 0.dp,10.dp,0.dp,0.dp)
+            )
             SubmitButton { viewModel.validateEmailText() }
             when(val response = viewModel.state.value.resetPassword){
                 is Response.Loading -> LinearLoadingBar()
@@ -65,51 +74,6 @@ fun ForgotPasswordView(viewModel: ForgotPasswordViewModel = viewModel()){
 }
 
 
-
-@Composable
-fun EmailInput(
-    viewModel: ForgotPasswordViewModel = viewModel()
-){
-
-    val email = viewModel.state.value.email
-    val emailError = viewModel.state.value.emailError
-
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-
-        OutlinedTextField(
-            //state
-            value = email,
-            onValueChange = {viewModel.updateEmail(it)},
-            //style
-            singleLine = true,
-            placeholder = {
-                Text(text ="Recovery Email",fontSize = 26.sp)
-            },
-            modifier = Modifier.padding(start = 0.dp,40.dp,0.dp,0.dp)
-            ,
-            textStyle = TextStyle(fontSize = 26.sp),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email
-            ),
-            //error
-            isError = emailError != null,
-            trailingIcon = {
-                if(emailError != null){
-                    Icon(Icons.Filled.Error, "error has occurred")
-                }
-
-            }
-        )
-        if(emailError != null){
-            Text(text = emailError,
-                color = MaterialTheme.colors.error,
-                modifier = Modifier.align(
-                Alignment.End))
-        }
-
-    }
-
-}
 @Composable
 fun SubmitButton(buttonFunc:()->Unit){
     Button(onClick = {buttonFunc()},
