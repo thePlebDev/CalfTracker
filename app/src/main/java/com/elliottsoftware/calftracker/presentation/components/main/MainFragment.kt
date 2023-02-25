@@ -1,4 +1,4 @@
-package com.elliottsoftware.calftracker.presentation.fragments
+package com.elliottsoftware.calftracker.presentation.components.main
 
 import android.annotation.SuppressLint
 import android.os.Build
@@ -20,7 +20,6 @@ import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
 
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import com.elliottsoftware.calftracker.util.findActivity
 
 

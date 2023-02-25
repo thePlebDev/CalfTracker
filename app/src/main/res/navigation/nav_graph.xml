@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.elliottsoftware.calftracker.presentation.fragments.LoginFragment"
+        android:name="com.elliottsoftware.calftracker.presentation.components.login.LoginFragment"
         android:label="fragment_login"
         tools:layout="@layout/fragment_login" >
         <action
@@ -24,7 +24,7 @@
     </fragment>
     <fragment
         android:id="@+id/mainFragment2"
-        android:name="com.elliottsoftware.calftracker.presentation.fragments.MainFragment"
+        android:name="com.elliottsoftware.calftracker.presentation.components.main.MainFragment"
         android:label="fragment_main"
         tools:layout="@layout/fragment_main" >
         <action
@@ -45,7 +45,7 @@
     </fragment>
     <fragment
         android:id="@+id/registerFragment2"
-        android:name="com.elliottsoftware.calftracker.presentation.fragments.RegisterFragment"
+        android:name="com.elliottsoftware.calftracker.presentation.components.register.RegisterFragment"
         android:label="fragment_register"
         tools:layout="@layout/fragment_register" >
         <action
@@ -54,12 +54,12 @@
     </fragment>
     <fragment
         android:id="@+id/forgotPasswordFragment"
-        android:name="com.elliottsoftware.calftracker.presentation.fragments.ForgotPasswordFragment"
+        android:name="com.elliottsoftware.calftracker.presentation.components.forgotPassword.ForgotPasswordFragment"
         android:label="fragment_forgot_password"
         tools:layout="@layout/fragment_forgot_password" />
     <fragment
         android:id="@+id/newCalfFragment"
-        android:name="com.elliottsoftware.calftracker.presentation.fragments.NewCalfFragment"
+        android:name="com.elliottsoftware.calftracker.presentation.components.newCalf.NewCalfFragment"
         android:label="fragment_new_calf"
         tools:layout="@layout/fragment_new_calf" >
         <action
@@ -73,7 +73,7 @@
     </fragment>
     <fragment
         android:id="@+id/editCalfFragment"
-        android:name="com.elliottsoftware.calftracker.presentation.fragments.EditCalfFragment"
+        android:name="com.elliottsoftware.calftracker.presentation.components.editCalf.EditCalfFragment"
         android:label="fragment_edit_calf"
         tools:layout="@layout/fragment_edit_calf" >
         <action
@@ -87,7 +87,7 @@
     </fragment>
     <fragment
         android:id="@+id/weatherFragment"
-        android:name="com.elliottsoftware.calftracker.presentation.fragments.WeatherFragment"
+        android:name="com.elliottsoftware.calftracker.presentation.components.weather.WeatherFragment"
         android:label="fragment_weather"
         tools:layout="@layout/fragment_weather" >
         <action

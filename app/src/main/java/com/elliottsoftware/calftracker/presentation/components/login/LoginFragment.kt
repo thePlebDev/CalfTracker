@@ -1,30 +1,14 @@
-package com.elliottsoftware.calftracker.presentation.fragments
+package com.elliottsoftware.calftracker.presentation.components.login
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.navigation.Navigation
 import androidx.navigation.findNavController
-import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentLoginBinding
-import com.elliottsoftware.calftracker.presentation.components.login.LoginView
-import com.elliottsoftware.calftracker.presentation.components.login.LoginViews
 import dagger.hilt.android.AndroidEntryPoint
 
 
