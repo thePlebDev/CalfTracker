@@ -465,74 +465,7 @@ fun ErrorButton(refreshMethod:()->Unit) {
     }
 }
 
-/**************SCAFFOLD*****************/
-@RequiresApi(Build.VERSION_CODES.N)
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
-@Composable
-fun ScaffoldViewTest(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Unit,sharedViewModel: EditCalfViewModel){
-    val scaffoldState = rememberScaffoldState()
-    val scope = rememberCoroutineScope()
 
-    Scaffold(
-
-        backgroundColor = MaterialTheme.colors.primary,
-        scaffoldState = scaffoldState,
-        drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
-        floatingActionButton = { FloatingButton(onNavigate) },
-        topBar = {
-            //THIS SHOULD BE PASSED IN
-            CustomTopBar(viewModel.state.value.chipText,{tagNumber -> viewModel.searchCalfListByTag(tagNumber)},scope,scaffoldState)
-        },
-        drawerContent = {
-            DrawerHeader()
-            DrawerBody(
-                items = listOf(
-                    MenuItem(
-                        id= "logout",
-                        title="Logout",
-                        contentDescription = "logout of account",
-                        icon = Icons.Default.Logout,
-                        onClick = {
-                            scope.launch {
-                                viewModel.signUserOut()
-                                onNavigate(R.id.action_mainFragment2_to_loginFragment)
-                                scaffoldState.drawerState.close()
-
-
-                            }
-                        }
-                    ),
-                    MenuItem(
-                        id= "weather",
-                        title="Weather",
-                        contentDescription = "Weather",
-                        icon = Icons.Default.Satellite,
-                        onClick = {
-                            scope.launch {
-                                scaffoldState.drawerState.close()
-                                onNavigate(R.id.action_mainFragment2_to_weatherFragment)
-
-                            }
-                        }
-                    ),
-
-
-                    )
-            )
-            //END OF THE DRAWER BODY
-            // ThemeToggle()
-        },
-
-        ) {
-
-
-        HomeView(viewModel,onNavigate,sharedViewModel,viewModel.state.value.data,
-            {chipText -> viewModel.setChipText(chipText)},
-            {viewModel.getCalves()}
-        )
-
-    }
-}
 
 
 

@@ -15,8 +15,10 @@ import com.elliottsoftware.calftracker.domain.useCases.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -34,7 +36,7 @@ class MainViewModel @Inject constructor(
    private val logoutUseCase: LogoutUseCase,
    private val getCalvesUseCase: GetCalvesUseCase,
    private val deleteCalfUseCase: DeleteCalfUseCase,
-   private val getCalfByTagNumberUseCase: GetCalfByTagNumberUseCase
+   private val getCalfByTagNumberUseCase: GetCalfByTagNumberUseCase,
 
 ):ViewModel() {
     private var _uiState: MutableState<MainUIState> = mutableStateOf(MainUIState())
@@ -77,6 +79,8 @@ class MainViewModel @Inject constructor(
         }
 
     }
+
+
     fun setChipText(calfList:List<FireBaseCalf>){
         val total = calfList.size
         val bulls = calfList.count{it.sex == "Bull"}

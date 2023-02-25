@@ -109,7 +109,7 @@ class DatabaseRepositoryImpl(
                         Timber.e(data.toString())
                         trySend(Response.Failure(Exception("FAILED")))
                     }else{
-                        Timber.d(data.toString())
+
                         trySend(Response.Success(data.reversed()))
                     }
 
@@ -179,7 +179,7 @@ class DatabaseRepositoryImpl(
 
 
 
-    override suspend fun getCalvesByTagNumber(tagNumber: String)= callbackFlow {
+    override suspend fun getCalvesByTagNumber(tagNumber:String)= callbackFlow {
         trySend(Response.Loading)
         val docRef = db.collection("users")
             .document(auth.currentUser?.email!!).collection("calves").orderBy("date")
@@ -198,7 +198,6 @@ class DatabaseRepositoryImpl(
                     }
 
                     val filteredCalfList = data.filter { it.calftag!!.contains(tagNumber, ignoreCase = true) }
-
                     trySend(Response.Success(filteredCalfList.reversed()))
                 } else {
                     Timber.e("getCalvesByTagNumber data is null")
