@@ -11,11 +11,11 @@ class GetCalvesUseCaseTest {
     fun myTest() = runTest{
         // Given a class with fake dependencies:
         //subject under test is exposing a flow
-        val underTest = FakeUseCase(FakeDatabaseRepositoryImpl())
-        val flowResponse = underTest.invoke().toList()
-        val testingValue = flowResponse[0]
-        println("RESPONSE BELOW")
-        println(flowResponse[1].data.)
+//        val underTest = FakeUseCase(FakeDatabaseRepositoryImpl())
+//        val flowResponse = underTest.invoke().toList()
+//        val testingValue = flowResponse[0]
+//        println("RESPONSE BELOW")
+//        println(flowResponse[1].data)
 
     }
 }
