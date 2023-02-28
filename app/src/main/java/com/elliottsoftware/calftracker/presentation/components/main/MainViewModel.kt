@@ -27,7 +27,7 @@ data class MainUIState(
     //val loggedUserOut:Boolean = false,
     val data:Response<List<FireBaseCalf>> = Response.Loading,
     val darkTheme:Boolean = false,
-    val chipText:List<String> = listOf("TOTAL: 0 ","BULLS: 0","HEIFERS: 0"),
+    val chipText:List<String> = listOf("TOTAL: 0 ","BULLS: 0","HEIFERS: 0","VACCINATED: 0"),
 
         )
 
@@ -85,8 +85,9 @@ class MainViewModel @Inject constructor(
         val total = calfList.size
         val bulls = calfList.count{it.sex == "Bull"}
         val heifers = calfList.count{it.sex == "Heifer"}
+        val vaccinated = calfList.count{it.vaccinelist != null && it.vaccinelist!!.isNotEmpty()}
 
-        val chipTextList:List<String> = listOf("TOTAL: $total ","BULLS: $bulls","HEIFERS: $heifers")
+        val chipTextList:List<String> = listOf("TOTAL: $total ","BULLS: $bulls","HEIFERS: $heifers","VACCINATED: $vaccinated")
         _uiState.value = _uiState.value.copy(chipText = chipTextList)
     }
 
