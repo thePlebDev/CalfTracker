@@ -28,6 +28,9 @@ data class MainUIState(
     val data:Response<List<FireBaseCalf>> = Response.Loading,
     val darkTheme:Boolean = false,
     val chipText:List<String> = listOf("TOTAL: 0 ","BULLS: 0","HEIFERS: 0","VACCINATED: 0"),
+    val showDeleteModal:Boolean = false,
+    val calfToBeDeletedTagNumber:String = "",
+    val calfToBeDeletedId:String = ""
 
         )
 
@@ -89,6 +92,14 @@ class MainViewModel @Inject constructor(
 
         val chipTextList:List<String> = listOf("TOTAL: $total ","BULLS: $bulls","HEIFERS: $heifers","VACCINATED: $vaccinated")
         _uiState.value = _uiState.value.copy(chipText = chipTextList)
+    }
+
+    fun setShowDeleteModal(value: Boolean){
+        _uiState.value = _uiState.value.copy(showDeleteModal = value)
+
+    }
+    fun setCalfDeleteTagNId(tagNumber:String,id:String){
+        _uiState.value = _uiState.value.copy(calfToBeDeletedTagNumber = tagNumber,calfToBeDeletedId = id)
     }
 
 
