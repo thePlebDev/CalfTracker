@@ -1,6 +1,7 @@
 package com.elliottsoftware.calftracker.presentation.components.main
 
 import android.annotation.SuppressLint
+import android.graphics.drawable.GradientDrawable
 import android.icu.text.DateFormat
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -8,7 +9,9 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
@@ -29,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -37,6 +41,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
@@ -48,9 +53,13 @@ import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
+import com.google.android.material.internal.ViewUtils.dpToPx
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.LocalDate
+import kotlin.math.roundToInt
 
 
 @RequiresApi(Build.VERSION_CODES.N)
@@ -134,10 +143,22 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
         ) {
 
 
-        HomeView(viewModel,onNavigate,sharedViewModel,viewModel.state.value.data,
-            {chipText -> viewModel.setChipText(chipText)},
-            {viewModel.getCalves()}
-        )
+//        HomeView(viewModel,onNavigate,sharedViewModel,viewModel.state.value.data,
+//            {chipText -> viewModel.setChipText(chipText)},
+//            {viewModel.getCalves()}
+//        )
+        val calf1 = FireBaseCalf(calftag = "33",id="1")
+        val calf2 = FireBaseCalf(calftag = "34",id="2")
+        val calf3 = FireBaseCalf(calftag = "35",id="3")
+        val calf4 = FireBaseCalf(calftag = "36",id="4")
+
+        val calfList = remember { mutableStateListOf<FireBaseCalf>(calf1,calf2,calf3,calf4) }
+
+        Column(){
+            CalfListTest(calfList,{calf -> calfList.remove(calf)})
+            //SwipeableSample()
+        }
+
 
     }
 }
@@ -267,7 +288,7 @@ fun MessageList(
                     .fillMaxWidth()
                     //    .background(MaterialTheme.colors.primary) /*******THIS IS WHAT IS COLORING THE CORNERS********/
                     .clickable {
-                       // sharedViewModel.setCalf(calf)
+                        // sharedViewModel.setCalf(calf)
                         setClickedCalf(calf)
                         onNavigate(R.id.action_mainFragment2_to_editCalfFragment)
                     }
@@ -466,7 +487,188 @@ fun ErrorButton(refreshMethod:()->Unit) {
 }
 
 
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun CalfListTest(
+    calfList: List<FireBaseCalf>,
+    removeItemFromList:(FireBaseCalf)->Unit
+) {
 
+    val conditionalThingy = true
+
+    Box(modifier = Modifier.fillMaxSize(),contentAlignment = Alignment.Center){
+        LazyColumn {
+            items(
+                calfList,
+                key = { it.id!! }
+            ){ calf ->
+                val dismissState = rememberDismissState(
+                    confirmStateChange = {
+                        if(it == DismissValue.DismissedToEnd || it == DismissValue.DismissedToStart){
+
+                            removeItemFromList(calf)
+
+                        }
+
+                        true
+                    }
+                )
+
+                // end of dismissed state
+                SwipeableSample()
+
+            }
+        }
+        //end of the lazy column
+        if(conditionalThingy){
+            Spacer(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(color = Color.Gray.copy(alpha = .7f))
+            )
+            ConfirmDelete(deleteCalfMethod = {})
+        }else{
+
+        }
+
+
+
+    }
+
+}
+
+
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+private fun SwipeableSample() {
+
+    val squareSize = 48.dp
+
+
+    val swipeableState = rememberSwipeableState(0)
+    val sizePx = with(LocalDensity.current) { squareSize.toPx() }
+    val anchors = mapOf(0f to 0, sizePx to 1) // Maps anchor points (in px) to states
+
+
+    Box(
+                modifier = Modifier
+            .fillMaxWidth()
+            .swipeable(
+                state = swipeableState,
+                anchors = mapOf(
+                    0f to 0,
+                   -130f to 1 // THIS IS THE LEFT SWIPE
+                ),
+                thresholds = { _, _ -> FractionalThreshold(0.3f) },
+                orientation = Orientation.Horizontal
+            )
+            .background(MaterialTheme.colors.primary)
+    ){
+        Card(
+            modifier =Modifier
+            .width(160.dp).height(110.dp)
+            .align(Alignment.CenterEnd)
+            .padding(horizontal = 15.dp, vertical = 8.dp),
+            elevation = 2.dp,
+            backgroundColor = Color.Red,
+            shape = RoundedCornerShape(corner = CornerSize(16.dp)),
+            /*******THIS CARD IS WHERE WE WANT TO ADD THE CLICK TO SHOW THE CONFIRM DELETE CALF********/
+
+
+        ){
+            Column(
+
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.Center
+
+            ){
+                Icon(Icons.Filled.Delete, "delete calf", tint = Color.Black,modifier = Modifier.size(80.dp))
+            }
+
+        }
+        Card(
+            modifier = Modifier
+                .offset { IntOffset(swipeableState.offset.value.roundToInt(), 0) }
+                .padding(horizontal = 8.dp, vertical = 8.dp)
+                .fillMaxWidth()
+                //    .background(MaterialTheme.colors.primary) /*******THIS IS WHAT IS COLORING THE CORNERS********/
+                .clickable {
+
+                }
+            ,
+            elevation = 2.dp,
+            backgroundColor = MaterialTheme.colors.secondary, /******THIS IS WHAT I CHANGED*******/
+            shape = RoundedCornerShape(corner = CornerSize(16.dp))
+        ){
+
+            Row(
+                modifier = Modifier.padding(24.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ){
+                Column(modifier = Modifier.weight(2f)){
+
+                    Text("CC4r",style=typography.h6,color=MaterialTheme.colors.onSecondary, textAlign = TextAlign.Start,maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text("it do be like that",style=typography.subtitle1,color=MaterialTheme.colors.onSecondary,maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+                Column(modifier = Modifier.weight(1f)){
+
+
+                    Text("MEAT",style=typography.subtitle1,color=MaterialTheme.colors.onSecondary,)
+                    Text("BULL",style=typography.subtitle1,color=MaterialTheme.colors.onSecondary,)
+                }
+
+            }
+
+
+        }
+    }
+
+}
+
+@Composable
+fun ConfirmDelete(deleteCalfMethod: () -> Unit) {
+    Card(
+        backgroundColor = MaterialTheme.colors.secondary,
+        modifier = Modifier.padding(vertical = 20.dp)
+            .border(width = 2.dp, color = Color.Red)
+    ) {
+        Column(modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth(),horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("Delete Calf CC4r", style = MaterialTheme.typography.h4)
+            Text("Are you sure you want to delete this calf ? ",
+                style = MaterialTheme.typography.subtitle1,
+                textAlign = TextAlign.Center
+            )
+            DeleteCalfButton(deleteCalfMethod = {}, cancelCalfDelete = {})
+        }
+    }
+
+}
+
+@Composable
+fun DeleteCalfButton(deleteCalfMethod:() -> Unit,cancelCalfDelete:() -> Unit) {
+    Row(horizontalArrangement  =  Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()){
+
+        Button(onClick = {
+            cancelCalfDelete()
+        }) {
+            Text(text = "Cancel",
+                style = MaterialTheme.typography.subtitle1,
+                textAlign = TextAlign.Center)
+        }
+
+        Button(onClick = {
+            deleteCalfMethod()
+        }) {
+            Text(text = "Confirm",
+                style = MaterialTheme.typography.subtitle1,
+                textAlign = TextAlign.Center)
+        }
+    }
+
+}
 
 
 
