@@ -143,21 +143,22 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
         ) {
 
 
-//        HomeView(viewModel,onNavigate,sharedViewModel,viewModel.state.value.data,
-//            {chipText -> viewModel.setChipText(chipText)},
-//            {viewModel.getCalves()}
-//        )
-        val calf1 = FireBaseCalf(calftag = "33",id="1")
-        val calf2 = FireBaseCalf(calftag = "34",id="2")
-        val calf3 = FireBaseCalf(calftag = "35",id="3")
-        val calf4 = FireBaseCalf(calftag = "36",id="4")
-
-        val calfList = remember { mutableStateListOf<FireBaseCalf>(calf1,calf2,calf3,calf4) }
-
-        Column(){
-            CalfListTest(calfList,{calf -> calfList.remove(calf)})
-            //SwipeableSample()
-        }
+        HomeView(viewModel,onNavigate,sharedViewModel,viewModel.state.value.data,
+            {chipText -> viewModel.setChipText(chipText)},
+            {viewModel.getCalves()}
+        )
+//        val calf1 = FireBaseCalf(calftag = "33",id="1")
+//        val calf2 = FireBaseCalf(calftag = "34",id="2")
+//        val calf3 = FireBaseCalf(calftag = "35",id="3")
+//        val calf4 = FireBaseCalf(calftag = "36",id="4")
+//
+//        val calfList = remember { mutableStateListOf<FireBaseCalf>(calf1,calf2,calf3,calf4) }
+//
+//        Column(){
+//            CalfListTest(calfList,{calf -> calfList.remove(calf)})
+//            //SwipeableSample()
+//
+//        }
 
 
     }
@@ -183,7 +184,7 @@ fun HomeView(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp)
+           // .padding(horizontal = 8.dp)
 
 
     ){
@@ -205,13 +206,19 @@ fun HomeView(
 
                         MessageList(state.data, onNavigate,
                             deleteCalfMethod= {calfId -> viewModel.deleteCalf(calfId)},
-                            setClickedCalf = {calf -> sharedViewModel.setCalf(calf)}
+                            setClickedCalf = {calf -> sharedViewModel.setCalf(calf)},
+                            showDeleteModal ={value -> viewModel.setShowDeleteModal(value)},
+                            showDeleteValue = viewModel.state.value.showDeleteModal,
+                            setCalfDeleteTagNId = {value1,value2 -> viewModel.setCalfDeleteTagNId(value1,value2)},
+                            TagNumberToBeDeleted = viewModel.state.value.calfToBeDeletedTagNumber,
+                            calfId = viewModel.state.value.calfToBeDeletedId
                             )
 
                 }
 
             }
             is Response.Failure -> ErrorResponse(refreshMethod = { errorRefreshMethod() })
+
 
         }
 
@@ -230,99 +237,55 @@ fun MessageList(
     calfList: List<FireBaseCalf>,
     onNavigate: (Int) -> Unit,
     deleteCalfMethod:(String) -> Unit,
-    setClickedCalf:(FireBaseCalf) -> Unit
+    setClickedCalf:(FireBaseCalf) -> Unit,
+    showDeleteModal:(Boolean) -> Unit,
+    showDeleteValue:Boolean,
+    setCalfDeleteTagNId:(String,String) ->Unit,
+    TagNumberToBeDeleted:String,
+    calfId:String,
 
     ) {
 
-    LazyColumn(modifier=Modifier.background(MaterialTheme.colors.primary)) {
+
+    Box(modifier = Modifier.fillMaxSize(),contentAlignment = Alignment.Center){
+        LazyColumn(modifier=Modifier.background(MaterialTheme.colors.primary)) {
 
 
-        items(calfList,key = { it.id!! }) { calf ->
-            val dismissState = rememberDismissState(
-                confirmStateChange = {
-                    if(it == DismissValue.DismissedToEnd || it == DismissValue.DismissedToStart){
+            items(calfList,key = { it.id!! }) { calf ->
 
-                        deleteCalfMethod(calf.id!!)
-
-                    }
-
-                    true
-                }
-            )
-            SwipeToDismiss(
-                state = dismissState,
-                background = {
-                    val color by animateColorAsState(
-                        when (dismissState.targetValue) {
-                            DismissValue.Default -> MaterialTheme.colors.primary
-                            else -> Color.Red
-                        }
-                    )
-                    val alignment = Alignment.CenterEnd
-                    val icon = Icons.Default.Delete
-
-                    val scale by animateFloatAsState(
-                        if (dismissState.targetValue == DismissValue.Default) 0.75f else 1f
-                    )
-
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .background(color)
-                            .padding(horizontal = Dp(20f)),
-                        contentAlignment = alignment
-                    ) {
-                        Icon(
-                            icon,
-                            contentDescription = "Delete Icon",
-                            modifier = Modifier.scale(scale)
-                        )
-                    }
-                }
-
-            //END OF BACKGROUND
-            ){
-            Card(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp, vertical = 8.dp)
-                    .fillMaxWidth()
-                    //    .background(MaterialTheme.colors.primary) /*******THIS IS WHAT IS COLORING THE CORNERS********/
-                    .clickable {
-                        // sharedViewModel.setCalf(calf)
-                        setClickedCalf(calf)
-                        onNavigate(R.id.action_mainFragment2_to_editCalfFragment)
-                    }
-                ,
-                elevation = 2.dp,
-                backgroundColor = MaterialTheme.colors.secondary, /******THIS IS WHAT I CHANGED*******/
-                shape = RoundedCornerShape(corner = CornerSize(16.dp))
-            ){
-
-                Row(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ){
-                    Column(modifier = Modifier.weight(2f)){
-
-                        Text(calf.calftag!!,style=typography.h6,color=MaterialTheme.colors.onSecondary, textAlign = TextAlign.Start,maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        Text(calf.details!!,style=typography.subtitle1,color=MaterialTheme.colors.onSecondary,maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    }
-                    Column(modifier = Modifier.weight(1f)){
-
-
-                        Text(DateFormat.getDateInstance().format(calf.date),style=typography.subtitle1,color=MaterialTheme.colors.onSecondary,)
-                        Text(calf.sex!!,style=typography.subtitle1,color=MaterialTheme.colors.onSecondary,)
-                    }
-                    
-                }
-
+                SwipeableSample(
+                    calf,
+                    showDeleteModal = {value -> showDeleteModal(value)},
+                    setCalfDeleteTagNId = {value1, value2 -> setCalfDeleteTagNId(value1,value2)}
+                )
 
             }
-        }
+
+        }//end of the lazy column
+        if(showDeleteValue){
+            Spacer(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(color = Color.Gray.copy(alpha = .7f))
+            )
+            ConfirmDelete(
+                deleteCalfMethod = {value -> deleteCalfMethod(value)},
+                cancelCalfDelete = {value -> showDeleteModal(value)},
+                tagNumber = TagNumberToBeDeleted,
+                id= calfId
+
+            )
+
+        }else{
 
         }
+
 
     }
+
+
+
+
 }
 
 @Composable
@@ -487,68 +450,19 @@ fun ErrorButton(refreshMethod:()->Unit) {
 }
 
 
+
+
+@RequiresApi(Build.VERSION_CODES.N)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun CalfListTest(
-    calfList: List<FireBaseCalf>,
-    removeItemFromList:(FireBaseCalf)->Unit
+private fun SwipeableSample(
+    calf:FireBaseCalf,
+    showDeleteModal:(Boolean) -> Unit,
+    setCalfDeleteTagNId:(String,String)->Unit
 ) {
-
-    val conditionalThingy = true
-
-    Box(modifier = Modifier.fillMaxSize(),contentAlignment = Alignment.Center){
-        LazyColumn {
-            items(
-                calfList,
-                key = { it.id!! }
-            ){ calf ->
-                val dismissState = rememberDismissState(
-                    confirmStateChange = {
-                        if(it == DismissValue.DismissedToEnd || it == DismissValue.DismissedToStart){
-
-                            removeItemFromList(calf)
-
-                        }
-
-                        true
-                    }
-                )
-
-                // end of dismissed state
-                SwipeableSample()
-
-            }
-        }
-        //end of the lazy column
-        if(conditionalThingy){
-            Spacer(
-                modifier = Modifier
-                    .matchParentSize()
-                    .background(color = Color.Gray.copy(alpha = .7f))
-            )
-            ConfirmDelete(deleteCalfMethod = {})
-        }else{
-
-        }
-
-
-
-    }
-
-}
-
-
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-private fun SwipeableSample() {
-
-    val squareSize = 48.dp
 
 
     val swipeableState = rememberSwipeableState(0)
-    val sizePx = with(LocalDensity.current) { squareSize.toPx() }
-    val anchors = mapOf(0f to 0, sizePx to 1) // Maps anchor points (in px) to states
 
 
     Box(
@@ -569,7 +483,10 @@ private fun SwipeableSample() {
             modifier =Modifier
             .width(160.dp).height(110.dp)
             .align(Alignment.CenterEnd)
-            .padding(horizontal = 15.dp, vertical = 8.dp),
+            .padding(horizontal = 15.dp, vertical = 8.dp)
+                .clickable {
+                    setCalfDeleteTagNId(calf.calftag!!,calf.id!!)
+                    showDeleteModal(true)  },
             elevation = 2.dp,
             backgroundColor = Color.Red,
             shape = RoundedCornerShape(corner = CornerSize(16.dp)),
@@ -592,13 +509,13 @@ private fun SwipeableSample() {
                 .offset { IntOffset(swipeableState.offset.value.roundToInt(), 0) }
                 .padding(horizontal = 8.dp, vertical = 8.dp)
                 .fillMaxWidth()
-                //    .background(MaterialTheme.colors.primary) /*******THIS IS WHAT IS COLORING THE CORNERS********/
                 .clickable {
+                           //THIS IS WHERE THE NAVIGATION WILL GO
 
                 }
             ,
             elevation = 2.dp,
-            backgroundColor = MaterialTheme.colors.secondary, /******THIS IS WHAT I CHANGED*******/
+            backgroundColor = MaterialTheme.colors.secondary,
             shape = RoundedCornerShape(corner = CornerSize(16.dp))
         ){
 
@@ -608,14 +525,14 @@ private fun SwipeableSample() {
             ){
                 Column(modifier = Modifier.weight(2f)){
 
-                    Text("CC4r",style=typography.h6,color=MaterialTheme.colors.onSecondary, textAlign = TextAlign.Start,maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text("it do be like that",style=typography.subtitle1,color=MaterialTheme.colors.onSecondary,maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(calf.calftag!!,style=typography.h6,color=MaterialTheme.colors.onSecondary, textAlign = TextAlign.Start,maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(calf.details!!,style=typography.subtitle1,color=MaterialTheme.colors.onSecondary,maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
                 Column(modifier = Modifier.weight(1f)){
 
 
-                    Text("MEAT",style=typography.subtitle1,color=MaterialTheme.colors.onSecondary,)
-                    Text("BULL",style=typography.subtitle1,color=MaterialTheme.colors.onSecondary,)
+                    Text(DateFormat.getDateInstance().format(calf.date),style=typography.subtitle1,color=MaterialTheme.colors.onSecondary,)
+                    Text(calf.sex!!,style=typography.subtitle1,color=MaterialTheme.colors.onSecondary)
                 }
 
             }
@@ -627,7 +544,13 @@ private fun SwipeableSample() {
 }
 
 @Composable
-fun ConfirmDelete(deleteCalfMethod: () -> Unit) {
+fun ConfirmDelete(
+    deleteCalfMethod: (String) -> Unit,
+    cancelCalfDelete: (Boolean) -> Unit,
+    tagNumber:String,
+    id:String
+) {
+
     Card(
         backgroundColor = MaterialTheme.colors.secondary,
         modifier = Modifier.padding(vertical = 20.dp)
@@ -636,23 +559,23 @@ fun ConfirmDelete(deleteCalfMethod: () -> Unit) {
         Column(modifier = Modifier
             .padding(16.dp)
             .fillMaxWidth(),horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("Delete Calf CC4r", style = MaterialTheme.typography.h4)
+            Text(tagNumber, style = MaterialTheme.typography.h4)
             Text("Are you sure you want to delete this calf ? ",
                 style = MaterialTheme.typography.subtitle1,
                 textAlign = TextAlign.Center
             )
-            DeleteCalfButton(deleteCalfMethod = {}, cancelCalfDelete = {})
+            DeleteCalfButton(deleteCalfMethod = {deleteCalfMethod(id)}, cancelCalfDelete = {value -> cancelCalfDelete(value)})
         }
     }
 
 }
 
 @Composable
-fun DeleteCalfButton(deleteCalfMethod:() -> Unit,cancelCalfDelete:() -> Unit) {
+fun DeleteCalfButton(deleteCalfMethod:() -> Unit,cancelCalfDelete:(Boolean) -> Unit) {
     Row(horizontalArrangement  =  Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()){
 
         Button(onClick = {
-            cancelCalfDelete()
+            cancelCalfDelete(false)
         }) {
             Text(text = "Cancel",
                 style = MaterialTheme.typography.subtitle1,
@@ -661,6 +584,7 @@ fun DeleteCalfButton(deleteCalfMethod:() -> Unit,cancelCalfDelete:() -> Unit) {
 
         Button(onClick = {
             deleteCalfMethod()
+            cancelCalfDelete(false)
         }) {
             Text(text = "Confirm",
                 style = MaterialTheme.typography.subtitle1,
