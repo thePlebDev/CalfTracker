@@ -204,7 +204,9 @@ fun HomeView(
 
 
 
-                        MessageList(state.data, onNavigate,
+                        MessageList(
+                            state.data,
+                            onNavigate,
                             deleteCalfMethod= {calfId -> viewModel.deleteCalf(calfId)},
                             setClickedCalf = {calf -> sharedViewModel.setCalf(calf)},
                             showDeleteModal ={value -> viewModel.setShowDeleteModal(value)},
@@ -256,7 +258,9 @@ fun MessageList(
                 SwipeableSample(
                     calf,
                     showDeleteModal = {value -> showDeleteModal(value)},
-                    setCalfDeleteTagNId = {value1, value2 -> setCalfDeleteTagNId(value1,value2)}
+                    setCalfDeleteTagNId = {value1, value2 -> setCalfDeleteTagNId(value1,value2)},
+                    setClickedCalf = {calf -> setClickedCalf(calf)},
+                    navigate={destination -> onNavigate(destination)}
                 )
 
             }
@@ -458,7 +462,9 @@ fun ErrorButton(refreshMethod:()->Unit) {
 private fun SwipeableSample(
     calf:FireBaseCalf,
     showDeleteModal:(Boolean) -> Unit,
-    setCalfDeleteTagNId:(String,String)->Unit
+    setCalfDeleteTagNId:(String,String)->Unit,
+    setClickedCalf:(FireBaseCalf) -> Unit,
+    navigate: (Int) -> Unit,
 ) {
 
 
@@ -511,6 +517,8 @@ private fun SwipeableSample(
                 .fillMaxWidth()
                 .clickable {
                            //THIS IS WHERE THE NAVIGATION WILL GO
+                    setClickedCalf(calf)
+                    navigate(R.id.action_mainFragment2_to_editCalfFragment)
 
                 }
             ,
