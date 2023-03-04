@@ -74,14 +74,10 @@ fun MainView(
     viewModel: MainViewModel = viewModel(),
     onNavigate: (Int) -> Unit,
     sharedViewModel: EditCalfViewModel,
-
-
 ){
     AppTheme(false){
         ScaffoldView(viewModel,onNavigate,sharedViewModel)
     }
-
-
 }
 
 
@@ -243,7 +239,7 @@ fun MessageList(
     ) {
 
 
-    Box(modifier = Modifier.fillMaxSize(),contentAlignment = Alignment.Center){
+    Box(modifier = Modifier.fillMaxSize(),contentAlignment = Alignment.TopCenter){
         LazyColumn(modifier=Modifier.background(MaterialTheme.colors.primary)) {
 
 
