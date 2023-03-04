@@ -6,13 +6,15 @@ import android.icu.text.DateFormat
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.core.animateIntOffsetAsState
+import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,7 +32,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -43,6 +48,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toOffset
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
@@ -147,18 +153,6 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
             {chipText -> viewModel.setChipText(chipText)},
             {viewModel.getCalves()}
         )
-//        val calf1 = FireBaseCalf(calftag = "33",id="1")
-//        val calf2 = FireBaseCalf(calftag = "34",id="2")
-//        val calf3 = FireBaseCalf(calftag = "35",id="3")
-//        val calf4 = FireBaseCalf(calftag = "36",id="4")
-//
-//        val calfList = remember { mutableStateListOf<FireBaseCalf>(calf1,calf2,calf3,calf4) }
-//
-//        Column(){
-//            CalfListTest(calfList,{calf -> calfList.remove(calf)})
-//            //SwipeableSample()
-//
-//        }
 
 
     }
@@ -470,7 +464,6 @@ private fun SwipeableSample(
 
     val swipeableState = rememberSwipeableState(0)
 
-
     Box(
                 modifier = Modifier
             .fillMaxWidth()
@@ -483,16 +476,19 @@ private fun SwipeableSample(
                 thresholds = { _, _ -> FractionalThreshold(0.3f) },
                 orientation = Orientation.Horizontal
             )
+
             .background(MaterialTheme.colors.primary)
     ){
         Card(
             modifier =Modifier
             .width(160.dp).height(110.dp)
             .align(Alignment.CenterEnd)
+
             .padding(horizontal = 15.dp, vertical = 8.dp)
                 .clickable {
                     setCalfDeleteTagNId(calf.calftag!!,calf.id!!)
-                    showDeleteModal(true)  },
+                    showDeleteModal(true)
+                           },
             elevation = 2.dp,
             backgroundColor = Color.Red,
             shape = RoundedCornerShape(corner = CornerSize(16.dp)),
