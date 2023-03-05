@@ -74,14 +74,10 @@ fun MainView(
     viewModel: MainViewModel = viewModel(),
     onNavigate: (Int) -> Unit,
     sharedViewModel: EditCalfViewModel,
-
-
 ){
     AppTheme(false){
         ScaffoldView(viewModel,onNavigate,sharedViewModel)
     }
-
-
 }
 
 
@@ -243,7 +239,7 @@ fun MessageList(
     ) {
 
 
-    Box(modifier = Modifier.fillMaxSize(),contentAlignment = Alignment.Center){
+    Box(modifier = Modifier.fillMaxSize(),contentAlignment = Alignment.TopCenter){
         LazyColumn(modifier=Modifier.background(MaterialTheme.colors.primary)) {
 
 
@@ -464,9 +460,11 @@ private fun SwipeableSample(
 
     val swipeableState = rememberSwipeableState(0)
 
+
     Box(
                 modifier = Modifier
             .fillMaxWidth()
+
             .swipeable(
                 state = swipeableState,
                 anchors = mapOf(
@@ -476,6 +474,7 @@ private fun SwipeableSample(
                 thresholds = { _, _ -> FractionalThreshold(0.3f) },
                 orientation = Orientation.Horizontal
             )
+
 
             .background(MaterialTheme.colors.primary)
     ){
