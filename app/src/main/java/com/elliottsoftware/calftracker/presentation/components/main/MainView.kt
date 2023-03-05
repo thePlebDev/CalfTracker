@@ -460,9 +460,11 @@ private fun SwipeableSample(
 
     val swipeableState = rememberSwipeableState(0)
 
+
     Box(
                 modifier = Modifier
             .fillMaxWidth()
+
             .swipeable(
                 state = swipeableState,
                 anchors = mapOf(
@@ -472,6 +474,7 @@ private fun SwipeableSample(
                 thresholds = { _, _ -> FractionalThreshold(0.3f) },
                 orientation = Orientation.Horizontal
             )
+
 
             .background(MaterialTheme.colors.primary)
     ){
