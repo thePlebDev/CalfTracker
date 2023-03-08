@@ -82,6 +82,7 @@ fun LoginView(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit)
                     Text( "Username or Password incorrect", color = MaterialTheme.colors.error)
                     Timber.tag("LoginError").d(response.e.message.toString())
                 }
+
             }
 
         }
@@ -121,7 +122,7 @@ fun SignUpForgotPassword(onNavigate: (Int) -> Unit){
             fontSize = 16.sp,
             modifier = Modifier
                 .clickable(enabled = true) {
-                    onNavigate(R.id.action_loginFragment_to_registerFragment2)
+                    onNavigate(R.id.action_loginFragment_to_subscriptionFragment)
                 })
 
     }
