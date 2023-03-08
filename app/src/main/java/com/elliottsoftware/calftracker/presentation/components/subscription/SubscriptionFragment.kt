@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.navigation.findNavController
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentSubscriptionBinding
 
@@ -43,7 +44,7 @@ class SubscriptionFragment : Fragment() {
             setContent {
                 // In Compose world
                 MaterialTheme {
-                    SubscriptionView()
+                    SubscriptionView(onNavigate = { dest -> findNavController().navigate(dest) })
                 }
             }
         }

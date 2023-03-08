@@ -3,6 +3,7 @@ package com.elliottsoftware.calftracker.presentation.components.subscription
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
@@ -11,25 +12,29 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.presentation.components.register.RegisterView
 import com.elliottsoftware.calftracker.presentation.sharedViews.BannerCard
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.RegisterViewModel
 
 @Composable
-fun SubscriptionView(){
+fun SubscriptionView( onNavigate: (Int) -> Unit = {}){
     AppTheme(false){
-        SubscriptionViews()
+        SubscriptionViews(onNavigate = {location -> onNavigate(location)})
     }
 }
 
 @Composable
-fun SubscriptionViews(subscriptionViewModel: SubscriptionViewModel = viewModel()){
+fun SubscriptionViews(subscriptionViewModel: SubscriptionViewModel = viewModel(),onNavigate: (Int) -> Unit = {}){
     Column(horizontalAlignment = Alignment.CenterHorizontally,modifier= Modifier
         .padding(8.dp)
         .fillMaxWidth()) {
@@ -53,7 +58,7 @@ fun SubscriptionViews(subscriptionViewModel: SubscriptionViewModel = viewModel()
         }
 
         DetailTextBox(isPremium = subscriptionViewModel.state.value.isPremium)
-        SubmitButton(submit={})
+        SubmitButton(submit={ location -> onNavigate(location)})
 
 
     }
@@ -120,15 +125,20 @@ fun PremiumCard(clicked:Boolean,setIsClicked:(Boolean)-> Unit,changeTextData:()-
 @Composable
 fun DetailTextBox(isPremium:Boolean){
     val billedText = if(isPremium) "Your Google account will be charged immediately after sign up" else "Your Google account will not be charged. You have selected the free tier"
-    val subText = if(isPremium) "Yes. You can disable this at anytime with just one tap inside the app store" else "No. You have selected the free tier"
+    val subText = if(isPremium) "Yes. You can manage your subscription through" else "No. You have selected the free tier"
     Column(modifier = Modifier.padding(15.dp), horizontalAlignment = Alignment.CenterHorizontally){
         Text("When will I be billed?",style = MaterialTheme.typography.h6)
         Column( horizontalAlignment = Alignment.Start){
             Text(billedText,color = Color.Gray.copy(alpha = .9f))
         }
         Text("Does my subscription auto renew?",style = MaterialTheme.typography.h6,modifier = Modifier.padding(top=15.dp))
-        Column( horizontalAlignment = Alignment.Start){
+        Column( horizontalAlignment = Alignment.CenterHorizontally){
+
             Text(subText,color = Color.Gray.copy(alpha = .9f))
+            if(isPremium){
+                HighlightedText()
+            }
+
         }
 
 
@@ -139,9 +149,9 @@ fun DetailTextBox(isPremium:Boolean){
 
 @Composable
 fun SubmitButton(
-    submit:()->Unit
+    submit: (Int) -> Unit = {}
 ){
-    Button(onClick = {submit()},
+    Button(onClick = {submit(R.id.action_subscriptionFragment_to_registerFragment2)},
         modifier = Modifier
             .height(80.dp)
             .width(280.dp)
@@ -150,3 +160,27 @@ fun SubmitButton(
         Text(text="Register",fontSize = 26.sp)
     }
 }
+
+@Composable
+fun HighlightedText(
+    modifier:Modifier = Modifier,
+    linkTextColor: Color = Color.Blue,
+    linkTextFontWeight: FontWeight = FontWeight.Medium,
+    linkTextDecoration: TextDecoration = TextDecoration.Underline,
+){
+    val uriHandler = LocalUriHandler.current
+    Text(
+        "Google Play’s Subscription Center",
+        modifier = modifier.clickable{
+            uriHandler.openUri("https://play.google.com/store/account/subscriptions")
+
+        },
+        color = linkTextColor,
+        textDecoration = linkTextDecoration,
+        fontWeight = linkTextFontWeight
+
+
+    )
+
+}
+
