@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 data class SubscriptionUiState(
-    val isPremium: Boolean = true,
-    val textData: List<String> = listOf("- Unlimited calf storage","- Request new features","- Offline usage","- Cloud database backup")
+    val isPremium: Boolean = false,
+    val textData: List<String> = listOf("Unlimited calf storage. Offline usage. Cloud database backup")
 )
 
 class SubscriptionViewModel: ViewModel() {
@@ -23,11 +23,11 @@ class SubscriptionViewModel: ViewModel() {
         _uiState.value = _uiState.value.copy(isPremium = value)
     }
     fun setTextDataFree(){
-        val textDataPremium = listOf("- 25 calf limit","- Offline usage","- Cloud database backup")
+        val textDataPremium = listOf("25 calf limit. Offline usage. Cloud database backup")
         _uiState.value = _uiState.value.copy(textData = textDataPremium)
     }
     fun setTextDataPremium(){
-        val textDataPremium = listOf("- Unlimited calf storage","- Request new features","- Offline usage","- Cloud database backup")
+        val textDataPremium = listOf("Unlimited calf storage. Offline usage. Cloud database backup")
         _uiState.value = _uiState.value.copy(textData = textDataPremium)
 
     }
