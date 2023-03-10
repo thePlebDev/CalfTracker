@@ -84,7 +84,7 @@ fun FreeCard(clicked:Boolean,setIsClicked:(Boolean)-> Unit,changeTextData:()->Un
                 horizontalAlignment = Alignment.Start
             ) {
                 Text("$00.00/month",modifier = Modifier.padding(bottom = 10.dp),style = MaterialTheme.typography.h6)
-                Text("- 25 calf limit")
+                Text("- 50 calf limit")
                 Text("- Offline usage")
                 Text("- Cloud backup")
 
