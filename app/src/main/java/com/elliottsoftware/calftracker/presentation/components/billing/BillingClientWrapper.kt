@@ -1,5 +1,6 @@
 package com.elliottsoftware.calftracker.presentation.components.billing
 
+import android.app.Activity
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
@@ -12,10 +13,17 @@ class BillingClientWrapper(
     context: Context
 ) : PurchasesUpdatedListener,ProductDetailsResponseListener {
 
+    // New Subscription ProductDetails
+    private val _productWithProductDetails =
+        MutableStateFlow<Map<String, ProductDetails>>(emptyMap())
+    val productWithProductDetails =
+        _productWithProductDetails.asStateFlow()
+
     // Current Purchases
     private val _purchases =
         MutableStateFlow<List<Purchase>>(listOf())
     val purchases = _purchases.asStateFlow()
+
 
     // Initialize the BillingClient.
     private val billingClient = BillingClient.newBuilder(context)
@@ -27,6 +35,19 @@ class BillingClientWrapper(
 
     override fun onPurchasesUpdated(p0: BillingResult, p1: MutableList<Purchase>?) {
         TODO("Not yet implemented")
+    }
+
+    // Launch Purchase flow
+    // THIS IS WHAT LAUNCHES THE GOOGLE PLAY PURCHASE SCREEN
+    fun launchBillingFlow(activity: Activity, params: BillingFlowParams) {
+        // BillingFlowParams object that contains the relevant ProductDetails object obtained from calling
+        // queryProductDetailsAsync().
+        if (!billingClient.isReady) {
+
+            Timber.tag("BILLINGR").e("launchBillingFlow: BillingClient is not ready")
+        }
+        billingClient.launchBillingFlow(activity, params)
+
     }
 
     /*******CALLED TO INITIALIZE EVERYTHING******/
@@ -62,7 +83,8 @@ class BillingClientWrapper(
 
             Timber.tag("BILLINGR").e("queryPurchases: BillingClient is not ready")
         }
-        // Query for existing subscription products that have been purchased.
+
+        // QUERY FOR EXISTING SUBSCRIPTION PRODUCTS THAT HAVE BEEN PURCHASED
         billingClient.queryPurchasesAsync(
             QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.SUBS).build()
         ) { billingResult, purchaseList ->
@@ -109,7 +131,30 @@ class BillingClientWrapper(
         private val LIST_OF_PRODUCTS = listOf(PREMIUM_SUB)
     }
 
-    override fun onProductDetailsResponse(p0: BillingResult, p1: MutableList<ProductDetails>) {
-        TODO("Not yet implemented")
+    override fun onProductDetailsResponse(
+        billingResult: BillingResult,
+        productDetailsList: MutableList<ProductDetails>
+    ) {
+        val responseCode = billingResult.responseCode
+        val debugMessage = billingResult.debugMessage
+        when (responseCode) {
+            BillingClient.BillingResponseCode.OK -> {
+                var newMap = emptyMap<String, ProductDetails>()
+                if (productDetailsList.isNullOrEmpty()) {
+
+                    Timber.tag("BILLINGR").e("onProductDetailsResponse: Found null or empty ProductDetails. Check to see if the Products you requested are correctly published in the Google Play Console")
+
+                } else {
+                    newMap = productDetailsList.associateBy {
+                        it.productId
+                    }
+                }
+                _productWithProductDetails.value = newMap
+            }
+            else -> {
+
+                Timber.tag("BILLINGR").i("onProductDetailsResponse: $responseCode $debugMessage")
+            }
+        }
     }
 }
