@@ -122,7 +122,7 @@ fun SignUpForgotPassword(onNavigate: (Int) -> Unit){
             fontSize = 16.sp,
             modifier = Modifier
                 .clickable(enabled = true) {
-                    onNavigate(R.id.action_loginFragment_to_subscriptionFragment)
+                    onNavigate(R.id.action_loginFragment_to_registerFragment2)
                 })
 
     }

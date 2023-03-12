@@ -88,7 +88,7 @@ fun RegisterView(viewModel: RegisterViewModel = viewModel(),onNavigate:(Int) -> 
                     viewModel.createUserDatabase(viewModel.state.value.email,viewModel.state.value.username)
                 }
                 if(response.data == Actions.SECOND){
-                    onNavigate(R.id.action_registerFragment2_to_mainFragment2)
+                    onNavigate(R.id.action_registerFragment2_to_subscriptionFragment)
                 }
                 if(response.data == Actions.RESTING){
 
