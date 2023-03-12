@@ -19,8 +19,8 @@
             android:id="@+id/action_loginFragment_to_forgotPasswordFragment"
             app:destination="@id/forgotPasswordFragment" />
         <action
-            android:id="@+id/action_loginFragment_to_subscriptionFragment"
-            app:destination="@id/subscriptionFragment" />
+            android:id="@+id/action_loginFragment_to_registerFragment2"
+            app:destination="@id/registerFragment2" />
     </fragment>
     <fragment
         android:id="@+id/mainFragment2"
@@ -49,8 +49,8 @@
         android:label="fragment_register"
         tools:layout="@layout/fragment_register" >
         <action
-            android:id="@+id/action_registerFragment2_to_mainFragment2"
-            app:destination="@id/mainFragment2" />
+            android:id="@+id/action_registerFragment2_to_subscriptionFragment"
+            app:destination="@id/subscriptionFragment" />
     </fragment>
     <fragment
         android:id="@+id/forgotPasswordFragment"
@@ -103,7 +103,7 @@
         android:label="fragment_subscription"
         tools:layout="@layout/fragment_subscription" >
         <action
-            android:id="@+id/action_subscriptionFragment_to_registerFragment2"
-            app:destination="@id/registerFragment2" />
+            android:id="@+id/action_subscriptionFragment_to_mainFragment2"
+            app:destination="@id/mainFragment2" />
     </fragment>
 </navigation>

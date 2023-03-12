@@ -84,7 +84,7 @@ fun FreeCard(clicked:Boolean,setIsClicked:(Boolean)-> Unit,changeTextData:()->Un
                 horizontalAlignment = Alignment.Start
             ) {
                 Text("$00.00/month",modifier = Modifier.padding(bottom = 10.dp),style = MaterialTheme.typography.h6)
-                Text("- 25 calf limit")
+                Text("- 50 calf limit")
                 Text("- Offline usage")
                 Text("- Cloud backup")
 
@@ -151,7 +151,7 @@ fun DetailTextBox(isPremium:Boolean){
 fun SubmitButton(
     submit: (Int) -> Unit = {}
 ){
-    Button(onClick = {submit(R.id.action_subscriptionFragment_to_registerFragment2)},
+    Button(onClick = {submit(R.id.action_subscriptionFragment_to_mainFragment2)},
         modifier = Modifier
             .height(80.dp)
             .width(280.dp)
