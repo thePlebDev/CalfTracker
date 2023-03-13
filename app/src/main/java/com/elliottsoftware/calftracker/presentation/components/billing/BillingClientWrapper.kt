@@ -24,6 +24,11 @@ class BillingClientWrapper(
         MutableStateFlow<List<Purchase>>(listOf())
     val purchases = _purchases.asStateFlow()
 
+    // Tracks new purchases acknowledgement state.
+    // Set to true when a purchase is acknowledged and false when not.
+    private val _isNewPurchaseAcknowledged = MutableStateFlow(value = false)
+    val isNewPurchaseAcknowledged = _isNewPurchaseAcknowledged.asStateFlow()
+
 
     // Initialize the BillingClient.
     private val billingClient = BillingClient.newBuilder(context)
@@ -33,9 +38,49 @@ class BillingClientWrapper(
 
 
 
-    override fun onPurchasesUpdated(p0: BillingResult, p1: MutableList<Purchase>?) {
-        TODO("Not yet implemented")
+    override fun onPurchasesUpdated(
+        billingResult: BillingResult, //contains the response code from the In-App billing API
+        purchases: List<Purchase>? // a list of objects representing in-app purchases
+    ) {
+        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK
+            && !purchases.isNullOrEmpty()
+        ) {
+            // Post new purchase List to _purchases
+            _purchases.value = purchases
+
+            // Then, handle the purchases
+            for (purchase in purchases) {
+                acknowledgePurchases(purchase)
+            }
+        } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
+            // Handle an error caused by a user cancelling the purchase flow.
+
+            Timber.tag("BILLINGR").e("User has cancelled")
+        } else {
+            // Handle any other error codes.
+        }
     }
+    private fun acknowledgePurchases(purchase: Purchase?) {
+       // _isNewPurchaseAcknowledged's value is set to true when the acknowledgement is successfully processed.
+        purchase?.let {
+            if (!it.isAcknowledged) {
+                val params = AcknowledgePurchaseParams.newBuilder()
+                    .setPurchaseToken(it.purchaseToken)
+                    .build()
+
+                billingClient.acknowledgePurchase(
+                    params
+                ) { billingResult ->
+                    if (billingResult.responseCode == BillingClient.BillingResponseCode.OK &&
+                        it.purchaseState == Purchase.PurchaseState.PURCHASED
+                    ) {
+                        _isNewPurchaseAcknowledged.value = true //
+                    }
+                }
+            }
+        }
+    }
+
 
     // Launch Purchase flow
     // THIS IS WHAT LAUNCHES THE GOOGLE PLAY PURCHASE SCREEN
@@ -156,5 +201,11 @@ class BillingClientWrapper(
                 Timber.tag("BILLINGR").i("onProductDetailsResponse: $responseCode $debugMessage")
             }
         }
+    }
+
+    fun terminateBillingConnection() {
+       
+        Timber.tag("BILLINGR").i("Terminating connection")
+        billingClient.endConnection()
     }
 }
