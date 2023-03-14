@@ -13,7 +13,7 @@ class BillingViewModel(application: Application): AndroidViewModel(application) 
     /************THIS REPOSITORY SETUP NEEDS TO BE LOOKED INTO***************/
 //    private var repo: SubscriptionDataRepository =
 //        SubscriptionDataRepository(billingClientWrapper = billingClient)
-    
+
     private val _billingConnectionState = MutableLiveData(false)
     val billingConnectionState: LiveData<Boolean> = _billingConnectionState
 
