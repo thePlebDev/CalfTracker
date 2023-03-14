@@ -29,6 +29,13 @@ class SubscriptionDataRepository(billingClientWrapper: BillingClientWrapper) {
                 PREMIUM_SUB
             )
         }.map { it[PREMIUM_SUB]!! }
+    // ProductDetails for the basic subscription.
+    val basicProductDetails: Flow<ProductDetails> =
+        billingClientWrapper.productWithProductDetails.filter {
+            it.containsKey(
+                "BASIC_SUB"
+            )
+        }.map { it["BASIC_SUB"]!! }
 
     // List of current purchases returned by the Google PLay Billing client library.
     val purchases: Flow<List<Purchase>> = billingClientWrapper.purchases
