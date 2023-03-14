@@ -204,7 +204,7 @@ class BillingClientWrapper(
     }
 
     fun terminateBillingConnection() {
-       
+
         Timber.tag("BILLINGR").i("Terminating connection")
         billingClient.endConnection()
     }
