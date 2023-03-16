@@ -99,6 +99,7 @@ class BillingClientWrapper(
     // Establish a connection to Google Play.
     fun startBillingConnection(billingConnectionState: MutableLiveData<Boolean>) {
 
+
         billingClient.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
@@ -108,6 +109,7 @@ class BillingClientWrapper(
                     queryProductDetails()
                     billingConnectionState.postValue(true)
                 } else {
+
 
                     Timber.tag("BILLINGR").e(billingResult.debugMessage)
                 }
@@ -203,6 +205,12 @@ class BillingClientWrapper(
         }
     }
 
+    /**
+     *
+     * billingClient object holds a binding to the in-app billing service and the manager to handle broadcast events,
+     * which will leak unless you dispose it correctly
+     *
+     * */
     fun terminateBillingConnection() {
 
         Timber.tag("BILLINGR").i("Terminating connection")

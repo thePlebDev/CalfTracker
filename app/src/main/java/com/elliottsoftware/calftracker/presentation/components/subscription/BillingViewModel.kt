@@ -37,29 +37,56 @@ class BillingViewModel(application: Application): AndroidViewModel(application) 
     init {
         billingClient.startBillingConnection(billingConnectionState = _billingConnectionState)
     }
+    // The userCurrentSubscriptionFlow object combines all the possible subscription flows into one
+// for emission.
+    private val userCurrentSubscriptionFlow = combine(
+        repo.hasRenewablePremium,
+        repo.hasPrepaidPremium
+    ){
+            hasRenewablePremium,
+            hasPrepaidPremium
+        ->
+        MainState(
+            hasRenewablePremium = hasRenewablePremium,
+            hasPrepaidPremium = hasPrepaidPremium
+        )
+
+    }
+    // Current purchases.
+    val currentPurchasesFlow = repo.purchases
     init {
         viewModelScope.launch {
+            /**
+             * I think this is for if the user has already paid.
+             * This can come later*/
             userCurrentSubscriptionFlow.collectLatest { collectedSubscriptions ->
                 when {
                     collectedSubscriptions.hasRenewableBasic == true &&
                             collectedSubscriptions.hasRenewablePremium == false -> {
+                        Timber.tag("BILLINGR").d("BASIC_RENEWABLE_PROFILE")
                         _destinationScreen.postValue(DestinationScreen.BASIC_RENEWABLE_PROFILE)
                     }
                     collectedSubscriptions.hasRenewablePremium == true &&
                             collectedSubscriptions.hasRenewableBasic == false -> {
+                        Timber.tag("BILLINGR").d("PREMIUM_RENEWABLE_PROFILE")
                         _destinationScreen.postValue(DestinationScreen.PREMIUM_RENEWABLE_PROFILE)
                     }
                     collectedSubscriptions.hasPrepaidBasic == true &&
                             collectedSubscriptions.hasPrepaidPremium == false -> {
+                        Timber.tag("BILLINGR").d("BASIC_PREPAID_PROFILE_SCREEN")
                         _destinationScreen.postValue(DestinationScreen.BASIC_PREPAID_PROFILE_SCREEN)
                     }
                     collectedSubscriptions.hasPrepaidPremium == true &&
                             collectedSubscriptions.hasPrepaidBasic == false -> {
+                        Timber.tag("BILLINGR").d("PREMIUM_PREPAID_PROFILE_SCREEN")
                         _destinationScreen.postValue(
                             DestinationScreen.PREMIUM_PREPAID_PROFILE_SCREEN
                         )
                     }
+                    /**
+                     * Brand new user with no subscriptions will trigger this conditional*/
                     else -> {
+                        Timber.tag("BILLINGR").d("SUBSCRIPTIONS_OPTIONS_SCREEN")
                         _destinationScreen.postValue(DestinationScreen.SUBSCRIPTIONS_OPTIONS_SCREEN)
                     }
                 }
@@ -81,24 +108,9 @@ class BillingViewModel(application: Application): AndroidViewModel(application) 
         }
     )
 
-    // The userCurrentSubscriptionFlow object combines all the possible subscription flows into one
-// for emission.
-    private val userCurrentSubscriptionFlow = combine(
-        repo.hasRenewablePremium,
-        repo.hasPrepaidPremium
-    ){
-        hasRenewablePremium,
-        hasPrepaidPremium
-            ->
-        MainState(
-            hasRenewablePremium = hasRenewablePremium,
-            hasPrepaidPremium = hasPrepaidPremium
-        )
 
-    }
 
-    // Current purchases.
-    val currentPurchasesFlow = repo.purchases
+
 
     /**
      * This method helps retrieve all offers and base plans a user is eligible for
