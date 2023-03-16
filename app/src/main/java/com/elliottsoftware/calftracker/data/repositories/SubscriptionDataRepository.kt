@@ -6,6 +6,7 @@ import com.elliottsoftware.calftracker.presentation.components.billing.BillingCl
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
+import timber.log.Timber
 
 class SubscriptionDataRepository(billingClientWrapper: BillingClientWrapper) {
 
@@ -25,6 +26,7 @@ class SubscriptionDataRepository(billingClientWrapper: BillingClientWrapper) {
     // ProductDetails for the premium subscription.
     val premiumProductDetails: Flow<ProductDetails> =
         billingClientWrapper.productWithProductDetails.filter {
+
             it.containsKey(
                 PREMIUM_SUB
             )

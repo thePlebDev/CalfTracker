@@ -105,7 +105,7 @@ class BillingClientWrapper(
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     Timber.tag("BILLINGR").d("Billing response OK")
                     // The BillingClient is ready. You can query purchases and product details here
-                    queryPurchases()
+                    queryPurchases() // used to query if the User has any previous purchases.
                     queryProductDetails()
                     billingConnectionState.postValue(true)
                 } else {
@@ -137,6 +137,7 @@ class BillingClientWrapper(
         ) { billingResult, purchaseList ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 if (!purchaseList.isNullOrEmpty()) {
+
                     _purchases.value = purchaseList
                 } else {
                     _purchases.value = emptyList()
@@ -155,6 +156,7 @@ class BillingClientWrapper(
         val productList = mutableListOf<QueryProductDetailsParams.Product>()
         for (product in LIST_OF_PRODUCTS) {
 
+
             productList.add(
                 QueryProductDetailsParams.Product.newBuilder() //This whole section is is just building a QueryProductDetailsParams.Product
                     .setProductId(product)
@@ -162,6 +164,8 @@ class BillingClientWrapper(
                     .build()
             )
         }
+
+
         params.setProductList(productList).let { productDetailsParams ->
 
             Timber.tag("BILLINGR").d("queryProductDetailsAsync")
@@ -173,7 +177,7 @@ class BillingClientWrapper(
 //
 //        // List of subscription product offerings
 //        private const val BASIC_SUB = "up_basic_sub"
-        private const val PREMIUM_SUB = "calf_tracker_premium_10"
+        private const val PREMIUM_SUB = "calf_tracker_premium_10"//THIS IS WHATEVER IS SET IN THE CONSOLE
 
         private val LIST_OF_PRODUCTS = listOf(PREMIUM_SUB)
     }
@@ -196,7 +200,10 @@ class BillingClientWrapper(
                         it.productId
                     }
                 }
+
                 _productWithProductDetails.value = newMap
+                Timber.tag("BILLINGR").d("_productWithProductDetails BELOW")
+                Timber.tag("BILLINGR").d(_productWithProductDetails.value.values.toString())
             }
             else -> {
 
