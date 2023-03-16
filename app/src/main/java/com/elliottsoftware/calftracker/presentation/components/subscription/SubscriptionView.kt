@@ -3,28 +3,26 @@ package com.elliottsoftware.calftracker.presentation.components.subscription
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
-import com.elliottsoftware.calftracker.presentation.components.register.RegisterView
 import com.elliottsoftware.calftracker.presentation.sharedViews.BannerCard
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
-import com.elliottsoftware.calftracker.presentation.viewModels.RegisterViewModel
 
 @Composable
 fun SubscriptionView( onNavigate: (Int) -> Unit = {}){
@@ -34,7 +32,23 @@ fun SubscriptionView( onNavigate: (Int) -> Unit = {}){
 }
 
 @Composable
-fun SubscriptionViews(subscriptionViewModel: SubscriptionViewModel = viewModel(),onNavigate: (Int) -> Unit = {}){
+fun SubscriptionViews(
+
+    subscriptionViewModel: SubscriptionViewModel = viewModel(),
+    onNavigate: (Int) -> Unit = {},
+    billingViewModel:BillingViewModel = viewModel()
+){
+    // State variable passed into Billing connection call and set to true when
+    // connections is established.
+    val isBillingConnected by billingViewModel.billingConnectionState.observeAsState()
+    val productsForSale by billingViewModel.productsForSaleFlows.collectAsState(
+        initial = MainState()
+    )
+    val currentPurchases by billingViewModel.currentPurchasesFlow.collectAsState(
+        initial = listOf()
+    )
+    val screen by billingViewModel.destinationScreen.observeAsState()
+
     Column(horizontalAlignment = Alignment.CenterHorizontally,modifier= Modifier
         .padding(8.dp)
         .fillMaxWidth()) {
@@ -59,11 +73,31 @@ fun SubscriptionViews(subscriptionViewModel: SubscriptionViewModel = viewModel()
 
         DetailTextBox(isPremium = subscriptionViewModel.state.value.isPremium)
         SubmitButton(submit={ location -> onNavigate(location)})
+        when(screen){
+            BillingViewModel.DestinationScreen.SUBSCRIPTIONS_OPTIONS_SCREEN ->{
+                BuyingText(productsForSale)
+
+            }
+
+            else -> {
+                Text(screen.toString())
+            }
+        }
 
 
     }
 
+
 }
+@Composable
+fun BuyingText(productsForSale: MainState) {
+    Column() {
+
+
+        Text("SUBSCRIPTIONS_OPTIONS_SCREEN")
+    }
+}
+
 
 @Composable
 fun FreeCard(clicked:Boolean,setIsClicked:(Boolean)-> Unit,changeTextData:()->Unit){
@@ -75,7 +109,7 @@ fun FreeCard(clicked:Boolean,setIsClicked:(Boolean)-> Unit,changeTextData:()->Un
                 .clickable {
                     changeTextData()
                     setIsClicked(false)
-                           },
+                },
             elevation = 5.dp,
             border = BorderStroke(4.dp, borderColor)
         ) {
@@ -104,7 +138,7 @@ fun PremiumCard(clicked:Boolean,setIsClicked:(Boolean)-> Unit,changeTextData:()-
                 .clickable {
                     changeTextData()
                     setIsClicked(true)
-                           },
+                },
             elevation = 5.dp,
             border = BorderStroke(4.dp, borderColor)
         ) {
