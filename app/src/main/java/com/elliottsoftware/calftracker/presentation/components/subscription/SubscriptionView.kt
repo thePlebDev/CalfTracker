@@ -23,6 +23,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.presentation.sharedViews.BannerCard
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
+import timber.log.Timber
 
 @Composable
 fun SubscriptionView( onNavigate: (Int) -> Unit = {}){
@@ -41,6 +42,7 @@ fun SubscriptionViews(
     // State variable passed into Billing connection call and set to true when
     // connections is established.
     val isBillingConnected by billingViewModel.billingConnectionState.observeAsState()
+
     val productsForSale by billingViewModel.productsForSaleFlows.collectAsState(
         initial = MainState()
     )
@@ -75,6 +77,7 @@ fun SubscriptionViews(
         SubmitButton(submit={ location -> onNavigate(location)})
         when(screen){
             BillingViewModel.DestinationScreen.SUBSCRIPTIONS_OPTIONS_SCREEN ->{
+
                 BuyingText(productsForSale)
 
             }
@@ -91,10 +94,13 @@ fun SubscriptionViews(
 }
 @Composable
 fun BuyingText(productsForSale: MainState) {
+
     Column() {
 
+        val text = productsForSale.premiumProductDetails
+        val another = text?.productId ?: "nothing"
 
-        Text("SUBSCRIPTIONS_OPTIONS_SCREEN")
+        Text(another)
     }
 }
 
