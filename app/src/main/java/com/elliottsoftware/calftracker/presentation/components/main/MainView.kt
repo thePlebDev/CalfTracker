@@ -117,6 +117,19 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
                                 onNavigate(R.id.action_mainFragment2_to_loginFragment)
                                 scaffoldState.drawerState.close()
 
+                            }
+                        }
+                    ),
+                    MenuItem(
+                        id= "subscription",
+                        title="Subscriptions",
+                        contentDescription = "subscription information",
+                        icon = Icons.Default.CurrencyExchange,
+                        onClick = {
+                            scope.launch {
+                                onNavigate(R.id.action_mainFragment2_to_subscriptionFragment)
+                                scaffoldState.drawerState.close()
+
 
                             }
                         }
