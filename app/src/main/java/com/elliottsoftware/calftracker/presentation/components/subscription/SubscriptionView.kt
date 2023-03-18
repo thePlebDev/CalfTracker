@@ -14,6 +14,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -21,9 +22,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
+import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.presentation.sharedViews.BannerCard
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
-import timber.log.Timber
+import com.elliottsoftware.calftracker.util.findActivity
 
 @Composable
 fun SubscriptionView( onNavigate: (Int) -> Unit = {}){
@@ -43,9 +45,9 @@ fun SubscriptionViews(
     // connections is established.
     val isBillingConnected by billingViewModel.billingConnectionState.observeAsState()
 
-    val productsForSale by billingViewModel.productsForSaleFlows.collectAsState(
-        initial = MainState()
-    )
+//    val productsForSale by billingViewModel.productsForSaleFlows.collectAsState(
+//        initial = MainState()
+//    )
     val currentPurchases by billingViewModel.currentPurchasesFlow.collectAsState(
         initial = listOf()
     )
@@ -78,7 +80,7 @@ fun SubscriptionViews(
         when(screen){
             BillingViewModel.DestinationScreen.SUBSCRIPTIONS_OPTIONS_SCREEN ->{
 
-                BuyingText(productsForSale)
+                BuyingText(billingViewModel.state.value,billingViewModel)
 
             }
 
@@ -93,14 +95,41 @@ fun SubscriptionViews(
 
 }
 @Composable
-fun BuyingText(productsForSale: MainState) {
+fun BuyingText(value: BillingUiState,billingViewModel: BillingViewModel) {
+    val context = LocalContext.current
+    val activity = context.findActivity()
+
 
     Column() {
 
-        val text = productsForSale.premiumProductDetails
-        val another = text?.productId ?: "nothing"
+        when(val response = value.subscriptionProduct){
+            is Response.Loading -> {
+                Button(onClick = {}){
+                    Text("Loading")
+                }
+            }
+            is Response.Success -> {
+                Button(onClick = {
+                    billingViewModel.buy(
+                        productDetails = response.data,
+                        currentPurchases = null,
+                        activity = activity,
+                        tag = "calf_tracker_premium"
+                    )
+                }
+                ){
+                    Text(response.data.name)
+                }
+            }
+            is Response.Failure ->{
+                Button(onClick = {}){
+                    Text("Fail")
+                }
+            }
 
-        Text(another)
+        }
+
+
     }
 }
 

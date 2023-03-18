@@ -173,13 +173,10 @@ class BillingClientWrapper(
         }
     }
     companion object {
-//        private const val TAG = "BillingClient"
-//
-//        // List of subscription product offerings
-//        private const val BASIC_SUB = "up_basic_sub"
-        private const val PREMIUM_SUB = "calf_tracker_premium_10"//THIS IS WHATEVER IS SET IN THE CONSOLE
 
+        private const val PREMIUM_SUB = "calf_tracker_premium_10"//THIS IS WHATEVER IS SET IN THE CONSOLE
         private val LIST_OF_PRODUCTS = listOf(PREMIUM_SUB)
+
     }
 
     override fun onProductDetailsResponse(
@@ -197,13 +194,13 @@ class BillingClientWrapper(
 
                 } else {
                     newMap = productDetailsList.associateBy {
-                        it.productId
+                        it.productId //This is going to be the key fo the map
                     }
                 }
 
                 _productWithProductDetails.value = newMap
-                Timber.tag("BILLINGR").d("_productWithProductDetails BELOW")
-                Timber.tag("BILLINGR").d(_productWithProductDetails.value.values.toString())
+//                Timber.tag("BILLINGR").d("_productWithProductDetails BELOW")
+//                Timber.tag("BILLINGR").d(_productWithProductDetails.value.values.toString())
             }
             else -> {
 
