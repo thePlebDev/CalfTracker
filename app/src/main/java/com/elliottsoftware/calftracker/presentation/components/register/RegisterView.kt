@@ -74,7 +74,7 @@ fun RegisterView(viewModel: RegisterViewModel = viewModel(),onNavigate:(Int) -> 
 
         )
         SubmitButton(
-            
+
             submit = {viewModel.submitButton()}
         )
 

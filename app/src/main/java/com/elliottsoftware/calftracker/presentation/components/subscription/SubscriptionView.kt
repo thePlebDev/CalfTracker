@@ -1,16 +1,19 @@
 package com.elliottsoftware.calftracker.presentation.components.subscription
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,9 +26,15 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
+import com.elliottsoftware.calftracker.presentation.components.main.FloatingButton
+import com.elliottsoftware.calftracker.presentation.components.newCalf.LoadingFloatingButton
+import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
+import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
+import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
 import com.elliottsoftware.calftracker.presentation.sharedViews.BannerCard
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.util.findActivity
+import kotlinx.coroutines.launch
 
 @Composable
 fun SubscriptionView( onNavigate: (Int) -> Unit = {}){
@@ -34,6 +43,7 @@ fun SubscriptionView( onNavigate: (Int) -> Unit = {}){
     }
 }
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun SubscriptionViews(
 
@@ -41,59 +51,59 @@ fun SubscriptionViews(
     onNavigate: (Int) -> Unit = {},
     billingViewModel:BillingViewModel = viewModel()
 ){
-    // State variable passed into Billing connection call and set to true when
-    // connections is established.
-    val isBillingConnected by billingViewModel.billingConnectionState.observeAsState()
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
+    Scaffold(
+        scaffoldState = scaffoldState,
+        drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
 
-//    val productsForSale by billingViewModel.productsForSaleFlows.collectAsState(
-//        initial = MainState()
-//    )
-    val currentPurchases by billingViewModel.currentPurchasesFlow.collectAsState(
-        initial = listOf()
-    )
-    val screen by billingViewModel.destinationScreen.observeAsState()
+        topBar = {
+            TopAppBar(
+                title = { Text("Calf Tracker") },
+                navigationIcon = {
+                    IconButton(
+                        onClick = {
+                            scope.launch {
+                                scaffoldState.drawerState.open()
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally,modifier= Modifier
-        .padding(8.dp)
-        .fillMaxWidth()) {
-        BannerCard("Calf Tracker", "Powered by Elliott Software")
-//        DetailTextBox(textData = subscriptionViewModel.state.value.textData)
-
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 20.dp), horizontalArrangement = Arrangement.SpaceEvenly){
-
-            FreeCard(
-                subscriptionViewModel.state.value.isPremium,
-                setIsClicked = {value ->subscriptionViewModel.setIsPremium(value)},
-                changeTextData= { subscriptionViewModel.setTextDataFree() }
+                            }
+                        }
+                    ) {
+                        Icon(Icons.Filled.Menu, contentDescription = "Toggle navigation drawer")
+                    }
+                }
             )
-            PremiumCard(
-                subscriptionViewModel.state.value.isPremium,
-                setIsClicked = {value ->subscriptionViewModel.setIsPremium(value)},
-                changeTextData= { subscriptionViewModel.setTextDataPremium() }
+        },
+        drawerContent = {
+            DrawerHeader()
+            DrawerBody(
+                items = listOf(
+                    MenuItem(
+                        id= "home",
+                        title="Home",
+                        contentDescription = "Home",
+                        icon = Icons.Default.Home,
+                        onClick = {
+                            scope.launch {
+                                scaffoldState.drawerState.close()
+                                onNavigate(R.id.action_subscriptionFragment_to_mainFragment22)
+
+                            }
+                        }
+                    )
+                )
             )
-        }
+        },
 
-        DetailTextBox(isPremium = subscriptionViewModel.state.value.isPremium)
-        SubmitButton(submit={ location -> onNavigate(location)})
-        when(screen){
-            BillingViewModel.DestinationScreen.SUBSCRIPTIONS_OPTIONS_SCREEN ->{
-
-                BuyingText(billingViewModel.state.value,billingViewModel)
-
-            }
-
-            else -> {
-                Text(screen.toString())
-            }
-        }
-
+        ) {
+        Text("HELLOW")
 
     }
 
 
 }
+
+
 @Composable
 fun BuyingText(value: BillingUiState,billingViewModel: BillingViewModel) {
     val context = LocalContext.current
