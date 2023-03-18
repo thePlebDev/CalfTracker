@@ -49,8 +49,8 @@
         android:label="fragment_register"
         tools:layout="@layout/fragment_register" >
         <action
-            android:id="@+id/action_registerFragment2_to_subscriptionFragment"
-            app:destination="@id/subscriptionFragment" />
+            android:id="@+id/action_registerFragment2_to_mainFragment2"
+            app:destination="@id/mainFragment2" />
     </fragment>
     <fragment
         android:id="@+id/forgotPasswordFragment"
@@ -97,13 +97,5 @@
             android:id="@+id/action_weatherFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/subscriptionFragment"
-        android:name="com.elliottsoftware.calftracker.presentation.components.subscription.SubscriptionFragment"
-        android:label="fragment_subscription"
-        tools:layout="@layout/fragment_subscription" >
-        <action
-            android:id="@+id/action_subscriptionFragment_to_mainFragment2"
-            app:destination="@id/mainFragment2" />
-    </fragment>
+
 </navigation>

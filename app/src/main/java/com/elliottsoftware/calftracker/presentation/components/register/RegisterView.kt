@@ -74,34 +74,34 @@ fun RegisterView(viewModel: RegisterViewModel = viewModel(),onNavigate:(Int) -> 
 
         )
         SubmitButton(
-            //viewModel.submitButton()
-            submit = {onNavigate(R.id.action_registerFragment2_to_subscriptionFragment)}
+            
+            submit = {viewModel.submitButton()}
         )
 
-//        when(val response = viewModel.state.value.signInWithFirebaseResponse){
-//            is Response.Loading -> LinearLoadingBar()
-//
-//            is Response.Success -> {
-//                //todo: I think we can change the response data to a more explicit enum
-//                if(response.data == Actions.FIRST){
-//                    //THIS IS WHERE WE WOULD DO THE NAVIGATION
-//                    LinearLoadingBar()
-//                    viewModel.createUserDatabase(viewModel.state.value.email,viewModel.state.value.username)
-//                }
-//                if(response.data == Actions.SECOND){
-//                    onNavigate(R.id.action_registerFragment2_to_subscriptionFragment)
-//                }
-//                if(response.data == Actions.RESTING){
-//
-//                }
-//            }
-//            is Response.Failure -> {
-//                //should probably show a snackbar
-//                Fail()
-//                Timber.tag("Login Error").d(response.e.message.toString())
-//            }
-//            // else -> {}
-//        }
+        when(val response = viewModel.state.value.signInWithFirebaseResponse){
+            is Response.Loading -> LinearLoadingBar()
+
+            is Response.Success -> {
+                //todo: I think we can change the response data to a more explicit enum
+                if(response.data == Actions.FIRST){
+                    //THIS IS WHERE WE WOULD DO THE NAVIGATION
+                    LinearLoadingBar()
+                    viewModel.createUserDatabase(viewModel.state.value.email,viewModel.state.value.username)
+                }
+                if(response.data == Actions.SECOND){
+                    onNavigate(R.id.action_registerFragment2_to_mainFragment2)
+                }
+                if(response.data == Actions.RESTING){
+
+                }
+            }
+            is Response.Failure -> {
+                //should probably show a snackbar
+                Fail()
+                Timber.tag("Login Error").d(response.e.message.toString())
+            }
+            // else -> {}
+        }
 
 
 
