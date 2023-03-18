@@ -2,6 +2,7 @@ package com.elliottsoftware.calftracker.presentation.components.subscription
 
 import android.app.Activity
 import android.app.Application
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,13 +11,23 @@ import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.elliottsoftware.calftracker.data.repositories.SubscriptionDataRepository
+import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.presentation.components.billing.BillingClientWrapper
+import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfUIState
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
+
+data class BillingUiState(
+    val subscriptionProduct: Response<ProductDetails> = Response.Loading
+)
+
 class BillingViewModel(application: Application): AndroidViewModel(application) {
+
+    private val _uiState = mutableStateOf(BillingUiState())
+    val state = _uiState
 
 
     var billingClient: BillingClientWrapper = BillingClientWrapper(application)
@@ -94,19 +105,23 @@ class BillingViewModel(application: Application): AndroidViewModel(application) 
 
         }
     }
-    val productsForSaleFlows = combine(
-        flow =repo.basicProductDetails,
-        flow2 = repo.premiumProductDetails,
-        transform = {
-                basicProductDetails,
-                premiumProductDetails
-            ->
-            MainState(
-                premiumProductDetails = premiumProductDetails,
-                basicProductDetails = basicProductDetails
+
+    /**
+     * We should be able to do a current collect that is found in all the other repository stuff
+     * */
+    init{
+        testingCollectingRepoInfo()
+    }
+
+    private fun testingCollectingRepoInfo() =viewModelScope.launch{
+        repo.premiumProductDetails.collect{ it
+            _uiState.value = _uiState.value.copy(
+                subscriptionProduct = Response.Success(it)
             )
+
         }
-    )
+    }
+
 
 
 

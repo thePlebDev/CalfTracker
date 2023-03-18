@@ -23,6 +23,8 @@ class SubscriptionDataRepository(billingClientWrapper: BillingClientWrapper) {
         }
     }
 
+    /**
+     * THIS SHOULD PROBABLY HAVE A TRY CATCH BLOCK*/
     // ProductDetails for the premium subscription.
     val premiumProductDetails: Flow<ProductDetails> =
         billingClientWrapper.productWithProductDetails.filter {
@@ -30,14 +32,12 @@ class SubscriptionDataRepository(billingClientWrapper: BillingClientWrapper) {
             it.containsKey(
                 PREMIUM_SUB
             )
-        }.map { it[PREMIUM_SUB]!! }
-    // ProductDetails for the basic subscription.
-    val basicProductDetails: Flow<ProductDetails> =
-        billingClientWrapper.productWithProductDetails.filter {
-            it.containsKey(
-                "BASIC_SUB"
-            )
-        }.map { it["BASIC_SUB"]!! }
+        }.map {
+            //THIS DOES SEEM TO BE DOING THE PROPER MAPPING
+            it[PREMIUM_SUB]!!
+        }
+
+
 
     // List of current purchases returned by the Google PLay Billing client library.
     val purchases: Flow<List<Purchase>> = billingClientWrapper.purchases
@@ -48,7 +48,7 @@ class SubscriptionDataRepository(billingClientWrapper: BillingClientWrapper) {
 
     companion object {
         // List of subscription product offerings
-        private const val PREMIUM_SUB = "up_premium_sub"
+        private const val PREMIUM_SUB = "calf_tracker_premium_10"
 
     }
 
