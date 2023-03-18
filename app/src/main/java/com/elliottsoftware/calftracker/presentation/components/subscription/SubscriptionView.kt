@@ -220,7 +220,7 @@ fun DetailTextBox(isPremium:Boolean){
 fun SubmitButton(
     submit: (Int) -> Unit = {}
 ){
-    Button(onClick = {submit(R.id.action_subscriptionFragment_to_mainFragment2)},
+    Button(onClick = {},
         modifier = Modifier
             .height(80.dp)
             .width(280.dp)
