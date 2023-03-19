@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.Composable
@@ -103,6 +104,11 @@ fun SubscriptionViews(
 
 }
 
+@Composable
+fun Pager(){
+
+
+}
 
 @Composable
 fun BuyingText(value: BillingUiState,billingViewModel: BillingViewModel) {

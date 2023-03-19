@@ -65,7 +65,8 @@ android {
         jvmTarget = '1.8'
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.3.0'
+        //kotlinCompilerExtensionVersion '1.3.0' this version works
+        kotlinCompilerExtensionVersion compose_compiler
     }
     packagingOptions {
         resources {
@@ -246,6 +247,11 @@ dependencies {
     implementation "com.maxkeppeler.sheets-compose-dialogs:core:1.0.2"
     // CALENDAR
     implementation "com.maxkeppeler.sheets-compose-dialogs:calendar:1.0.2"
+
+    implementation "com.google.accompanist:accompanist-pager:0.14.0"
+    implementation "com.google.accompanist:accompanist-pager-indicators:0.14.0"
+
+
 
 
 
