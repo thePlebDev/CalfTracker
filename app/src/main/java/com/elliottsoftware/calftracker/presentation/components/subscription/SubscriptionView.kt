@@ -1,29 +1,40 @@
 package com.elliottsoftware.calftracker.presentation.components.subscription
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.*
+import androidx.compose.runtime.*
 
-import androidx.compose.material.icons.filled.Logout
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
@@ -35,7 +46,10 @@ import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
 import com.elliottsoftware.calftracker.presentation.sharedViews.BannerCard
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.util.findActivity
+import com.google.accompanist.pager.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @Composable
 fun SubscriptionView( onNavigate: (Int) -> Unit = {}){
@@ -44,6 +58,7 @@ fun SubscriptionView( onNavigate: (Int) -> Unit = {}){
     }
 }
 
+@OptIn(ExperimentalPagerApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun SubscriptionViews(
@@ -57,7 +72,6 @@ fun SubscriptionViews(
     Scaffold(
         scaffoldState = scaffoldState,
         drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
-
         topBar = {
             TopAppBar(
                 title = { Text("Calf Tracker") },
@@ -80,36 +94,82 @@ fun SubscriptionViews(
             DrawerBody(
                 items = listOf(
                     MenuItem(
-                        id= "home",
-                        title="Home",
-                        contentDescription = "Home",
-                        icon = Icons.Default.Home,
+                        id= "logout",
+                        title="Logout",
+                        contentDescription = "Logout",
+                        icon = Icons.Default.Logout,
                         onClick = {
                             scope.launch {
+                               // viewModel.signUserOut()
                                 scaffoldState.drawerState.close()
-                                onNavigate(R.id.action_subscriptionFragment_to_mainFragment22)
+
 
                             }
                         }
                     )
                 )
             )
-        },
+        }
+    ){
+        //WE NEED A BOTTOM TEXT THAT WE TOUCH AND IT CHANGES VALUES
 
-        ) {
-        Text("HELLOW")
+        TabScreen(billingViewModel,billingViewModel.state.value)
+
+
 
     }
+
 
 
 }
 
 @Composable
-fun Pager(){
+fun TabScreen(viewModel: BillingViewModel,UIState:BillingUiState) {
+    var tabIndex by remember { mutableStateOf(0) }
 
+    val tabs = listOf("Home", "Premium", "Settings")
 
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        TabRow(selectedTabIndex = tabIndex,modifier=Modifier.fillMaxWidth()) {
+            tabs.forEachIndexed { index, title ->
+                Tab(text = { Text(title)},
+                    modifier= Modifier.align(Alignment.CenterHorizontally),
+                    selected = tabIndex == index,
+                    onClick = { tabIndex = index },
+                    icon = {
+                        when (index) {
+                            0 -> Icon(imageVector = Icons.Default.Home, contentDescription = null)
+                            1 -> Icon(imageVector = Icons.Default.CurrencyExchange, contentDescription = null)
+                            2 -> Icon(imageVector = Icons.Default.Settings, contentDescription = null)
+
+                        }
+                    }
+                )
+            }
+        }
+        when (tabIndex) {
+            0 -> BuyingText(UIState,viewModel)
+            1 -> Text("Premium")
+            2 -> Text("Settings")
+
+        }
+    }
 }
 
+
+
+
+
+
+
+
+
+
+/******BELOW IS ALL THE BUYING THINGS*******/
 @Composable
 fun BuyingText(value: BillingUiState,billingViewModel: BillingViewModel) {
     val context = LocalContext.current
