@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -29,8 +30,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -132,6 +137,7 @@ fun SubscriptionViews(
 fun TabScreen(viewModel: BillingViewModel,UIState:BillingUiState) {
     var tabIndex by remember { mutableStateOf(0) }
 
+
     val tabs = listOf("Home", "Premium", "Settings")
     val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
     // If `lifecycleOwner` changes, dispose and reset the effect
@@ -178,7 +184,7 @@ fun TabScreen(viewModel: BillingViewModel,UIState:BillingUiState) {
         }
         when (tabIndex) {
             0 -> BuyingText(UIState,viewModel)
-            1 -> Text("Premium")
+            1 -> Settings()
             2 -> Text("Settings")
 
         }
@@ -187,6 +193,36 @@ fun TabScreen(viewModel: BillingViewModel,UIState:BillingUiState) {
 
 
 
+@Composable
+fun Settings(){
+
+
+
+    val context = LocalContext.current
+   val packageName =  context.applicationContext.packageName
+     val PLAY_STORE_SUBSCRIPTION_DEEPLINK_URL = "https://play.google.com/store/account/subscriptions?product=%s&package=%s"
+    val url = String.format(PLAY_STORE_SUBSCRIPTION_DEEPLINK_URL,
+        "calf_tracker_premium_10", packageName);
+
+    Column() {
+        Button(onClick = {}){
+
+            Text("Manage Subscription")
+        }
+
+        MyButton(url)
+
+
+    }
+
+}
+@Composable
+fun MyButton(url:String) {
+    val uriHandler = LocalUriHandler.current
+    Button(onClick = { uriHandler.openUri(url) }){
+        Text("Subscriptions")
+    }
+}
 
 
 
@@ -198,10 +234,13 @@ fun TabScreen(viewModel: BillingViewModel,UIState:BillingUiState) {
 @Composable
 fun BuyingText(value: BillingUiState,billingViewModel: BillingViewModel) {
     val context = LocalContext.current
+
     val activity = context.findActivity()
 
 
+
     Column() {
+        SubscribedText(value)
 
         when(val response = value.subscriptionProduct){
             is Response.Loading -> {
@@ -262,6 +301,22 @@ fun BuyingText(value: BillingUiState,billingViewModel: BillingViewModel) {
 
 
     }
+}
+
+@Composable
+fun SubscribedText(value: BillingUiState){
+    when(val state = value.subscribed){
+        is Response.Loading -> {
+            Text("LOADING SUBSCRIBED STATE")
+        }
+        is Response.Success -> {
+            Text(state.data.toString() + "SUBSCRIBED STATE")
+        }
+        is Response.Failure -> {
+            Text("FAIL SUBSCRIBED STATE")
+        }
+    }
+
 }
 
 

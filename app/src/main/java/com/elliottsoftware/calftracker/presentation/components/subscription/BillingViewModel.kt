@@ -19,7 +19,8 @@ import timber.log.Timber
 
 data class BillingUiState(
     val subscriptionProduct: Response<ProductDetails> = Response.Loading,
-    val purchasedSubscriptions:Response<List<Purchase>> = Response.Loading
+    val purchasedSubscriptions:Response<List<Purchase>> = Response.Loading,
+    val subscribed:Response<Boolean> = Response.Loading
 )
 
 class BillingViewModel(application: Application): AndroidViewModel(application){
@@ -39,8 +40,8 @@ class BillingViewModel(application: Application): AndroidViewModel(application){
     /**
      * representing the various screens a user can be redirected to.
      */
-    private val _destinationScreen = MutableLiveData<DestinationScreen>()
-    val destinationScreen: LiveData<DestinationScreen> = _destinationScreen
+//    private val _destinationScreen = MutableLiveData<DestinationScreen>()
+//    val destinationScreen: LiveData<DestinationScreen> = _destinationScreen
 
 
     init {
@@ -68,38 +69,10 @@ class BillingViewModel(application: Application): AndroidViewModel(application){
              * I think this is for if the user has already paid.
              * This can come later*/
             userCurrentSubscriptionFlow.collectLatest { collectedSubscriptions ->
-                when {
-                    collectedSubscriptions.hasRenewableBasic == true &&
-                            collectedSubscriptions.hasRenewablePremium == false -> {
-                        Timber.tag("BILLINGR").d("BASIC_RENEWABLE_PROFILE")
-                        _destinationScreen.postValue(DestinationScreen.BASIC_RENEWABLE_PROFILE)
-                    }
-                    collectedSubscriptions.hasRenewablePremium == true &&
-                            collectedSubscriptions.hasRenewableBasic == false -> {
-                        Timber.tag("BILLINGR").d("PREMIUM_RENEWABLE_PROFILE")
-                        _destinationScreen.postValue(DestinationScreen.PREMIUM_RENEWABLE_PROFILE)
-                    }
-                    collectedSubscriptions.hasPrepaidBasic == true &&
-                            collectedSubscriptions.hasPrepaidPremium == false -> {
-                        Timber.tag("BILLINGR").d("BASIC_PREPAID_PROFILE_SCREEN")
-                        _destinationScreen.postValue(DestinationScreen.BASIC_PREPAID_PROFILE_SCREEN)
-                    }
-                    collectedSubscriptions.hasPrepaidPremium == true &&
-                            collectedSubscriptions.hasPrepaidBasic == false -> {
-                        Timber.tag("BILLINGR").d("PREMIUM_PREPAID_PROFILE_SCREEN")
-                        _destinationScreen.postValue(
-                            DestinationScreen.PREMIUM_PREPAID_PROFILE_SCREEN
-                        )
-                    }
-                    /**
-                     * Brand new user with no subscriptions will trigger this conditional*/
-                    else -> {
-                        Timber.tag("BILLINGR").d("SUBSCRIPTIONS_OPTIONS_SCREEN")
-                        _destinationScreen.postValue(DestinationScreen.SUBSCRIPTIONS_OPTIONS_SCREEN)
-                    }
-                }
+                Timber.tag("BILLINGR").d("userCurrentSubscriptionFlow.collectLatest")
+                Timber.tag("BILLINGR").d(collectedSubscriptions.hasRenewablePremium?.toString() ?: "Nothing on hasRenewablePremium")
+                Timber.tag("BILLINGR").d(collectedSubscriptions.hasPrepaidPremium?.toString() ?: "Nothing on hasPrepaidPremium")
             }
-
         }
     }
 
@@ -124,6 +97,7 @@ class BillingViewModel(application: Application): AndroidViewModel(application){
     private suspend fun getPurchases(){
         // Current purchases.
          repo.purchases.collect{ purchases ->
+             val value = purchases.any { purchase: Purchase -> purchase.isAutoRenewing}
              _uiState.value = _uiState.value.copy(
                  purchasedSubscriptions = Response.Success(purchases)
              )
@@ -131,11 +105,21 @@ class BillingViewModel(application: Application): AndroidViewModel(application){
 
     }
 
+    /**
+     * THIS IS GETTING RUN ON THE onResume() LIFECYCLE CALL
+     */
      fun refreshPurchases(){
-         Timber.tag("BILLINGR").d("refreshPurchases()")
+
         viewModelScope.launch {
             billingClient.queryPurchases()
+            userCurrentSubscriptionFlow.collectLatest { collectedSubscriptions ->
+                val value = collectedSubscriptions.hasRenewablePremium
+                _uiState.value = _uiState.value.copy(
+                    subscribed = Response.Success(value ?: false)
+                )
+            }
         }
+
     }
 
 

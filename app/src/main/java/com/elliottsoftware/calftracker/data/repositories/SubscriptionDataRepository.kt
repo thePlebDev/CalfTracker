@@ -13,6 +13,7 @@ class SubscriptionDataRepository(billingClientWrapper: BillingClientWrapper) {
 
 
     // Set to true when a returned purchase is an auto-renewing basic subscription.
+    //hasRenewablePremium IS HOW WE WILL DETERMINE IF THERE IS A SUBSCRIPTION OR NOT
     val hasRenewablePremium: Flow<Boolean> = billingClientWrapper.purchases.map { value: List<Purchase> ->
         value.any { purchase: Purchase ->  purchase.products.contains(PREMIUM_SUB) && purchase.isAutoRenewing}
     }
