@@ -3,10 +3,7 @@ package com.elliottsoftware.calftracker.presentation.components.subscription
 import android.app.Activity
 import android.app.Application
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
@@ -21,10 +18,11 @@ import timber.log.Timber
 
 
 data class BillingUiState(
-    val subscriptionProduct: Response<ProductDetails> = Response.Loading
+    val subscriptionProduct: Response<ProductDetails> = Response.Loading,
+    val purchasedSubscriptions:Response<List<Purchase>> = Response.Loading
 )
 
-class BillingViewModel(application: Application): AndroidViewModel(application) {
+class BillingViewModel(application: Application): AndroidViewModel(application){
 
     private val _uiState = mutableStateOf(BillingUiState())
     val state = _uiState
@@ -63,8 +61,7 @@ class BillingViewModel(application: Application): AndroidViewModel(application) 
         )
 
     }
-    // Current purchases.
-    val currentPurchasesFlow = repo.purchases
+
     init {
         viewModelScope.launch {
             /**
@@ -111,6 +108,9 @@ class BillingViewModel(application: Application): AndroidViewModel(application) 
      * */
     init{
         testingCollectingRepoInfo()
+        viewModelScope.launch {
+            getPurchases()
+        }
     }
 
     private fun testingCollectingRepoInfo() =viewModelScope.launch{
@@ -119,6 +119,22 @@ class BillingViewModel(application: Application): AndroidViewModel(application) 
                 subscriptionProduct = Response.Success(it)
             )
 
+        }
+    }
+    private suspend fun getPurchases(){
+        // Current purchases.
+         repo.purchases.collect{ purchases ->
+             _uiState.value = _uiState.value.copy(
+                 purchasedSubscriptions = Response.Success(purchases)
+             )
+         }
+
+    }
+
+     fun refreshPurchases(){
+         Timber.tag("BILLINGR").d("refreshPurchases()")
+        viewModelScope.launch {
+            billingClient.queryPurchases()
         }
     }
 
@@ -294,6 +310,8 @@ class BillingViewModel(application: Application): AndroidViewModel(application) 
     override fun onCleared() {
         billingClient.terminateBillingConnection()
     }
+
+
 
 
     /**

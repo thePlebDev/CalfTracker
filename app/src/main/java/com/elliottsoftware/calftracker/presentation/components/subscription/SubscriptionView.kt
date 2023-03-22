@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.text.font.FontWeight
@@ -35,7 +36,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.android.billingclient.api.Purchase
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.presentation.components.main.FloatingButton
@@ -128,6 +133,26 @@ fun TabScreen(viewModel: BillingViewModel,UIState:BillingUiState) {
     var tabIndex by remember { mutableStateOf(0) }
 
     val tabs = listOf("Home", "Premium", "Settings")
+    val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
+    // If `lifecycleOwner` changes, dispose and reset the effect
+    DisposableEffect(lifecycleOwner) {
+        // Create an observer that triggers our remembered callbacks
+        // for sending analytics events
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+//                Timber.tag("anotherOne").d("WE ARE RESUMING")
+                viewModel.refreshPurchases()
+            }
+        }
+
+        // Add the observer to the lifecycle
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        // When the effect leaves the Composition, remove the observer
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -202,8 +227,38 @@ fun BuyingText(value: BillingUiState,billingViewModel: BillingViewModel) {
                     Text("Fail")
                 }
             }
+        }
+
+        when(val response = value.purchasedSubscriptions){
+            is Response.Loading -> {
+                Button(onClick = {}){
+                    Text("Loading purchasedSubscriptions")
+                }
+            }
+            is Response.Success -> {
+                Button(onClick = {}
+                ){
+                    if(response.data.isNotEmpty()){
+                        Column(){
+                            Text((response.data[0].purchaseState == Purchase.PurchaseState.PURCHASED).toString())
+                            Text((response.data[0].purchaseState == Purchase.PurchaseState.PENDING).toString())
+                            Text((response.data[0].purchaseState == Purchase.PurchaseState.UNSPECIFIED_STATE).toString())
+                        }
+
+                    }else{
+                        Text("Purchase Empty")
+                    }
+
+                }
+            }
+            is Response.Failure ->{
+                Button(onClick = {}){
+                    Text("Fail purchasedSubscriptions")
+                }
+            }
 
         }
+
 
 
     }

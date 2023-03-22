@@ -37,6 +37,7 @@ class SubscriptionFragment : Fragment() {
     ): View? {
         _binding = FragmentSubscriptionBinding.inflate(inflater, container, false)
         val view = binding.root
+       // lifecycle.addObserver(viewModel)// we should do this with the BillingViewModel
         binding.composeView.apply {
             // Dispose of the Composition when the view's LifecycleOwner
             // is destroyed
@@ -50,6 +51,7 @@ class SubscriptionFragment : Fragment() {
         }
         return view
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

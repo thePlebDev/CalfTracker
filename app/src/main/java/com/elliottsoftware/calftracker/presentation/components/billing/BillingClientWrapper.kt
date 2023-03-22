@@ -42,9 +42,11 @@ class BillingClientWrapper(
         billingResult: BillingResult, //contains the response code from the In-App billing API
         purchases: List<Purchase>? // a list of objects representing in-app purchases
     ) {
+
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK
             && !purchases.isNullOrEmpty()
         ) {
+
             // Post new purchase List to _purchases
             _purchases.value = purchases
 
@@ -75,6 +77,17 @@ class BillingClientWrapper(
                         it.purchaseState == Purchase.PurchaseState.PURCHASED
                     ) {
                         _isNewPurchaseAcknowledged.value = true //
+                        Timber.tag("BILLINGR").e("PURCHASED")
+                    }
+                    if (billingResult.responseCode == BillingClient.BillingResponseCode.OK &&
+                        it.purchaseState == Purchase.PurchaseState.PENDING
+                    ) {
+                        Timber.tag("BILLINGR").e("PENDING")
+                    }
+                    if (billingResult.responseCode == BillingClient.BillingResponseCode.OK &&
+                        it.purchaseState == Purchase.PurchaseState.UNSPECIFIED_STATE
+                    ) {
+                        Timber.tag("BILLINGR").e("UNSPECIFIED_STATE")
                     }
                 }
             }
@@ -137,6 +150,9 @@ class BillingClientWrapper(
         ) { billingResult, purchaseList ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 if (!purchaseList.isNullOrEmpty()) {
+                    Timber.tag("BILLINGR").d("IS AUTORENEWING BELOW")
+                    Timber.tag("BILLINGR").d((purchaseList[0].isAutoRenewing).toString())
+
 
                     _purchases.value = purchaseList
                 } else {
@@ -199,8 +215,6 @@ class BillingClientWrapper(
                 }
 
                 _productWithProductDetails.value = newMap
-//                Timber.tag("BILLINGR").d("_productWithProductDetails BELOW")
-//                Timber.tag("BILLINGR").d(_productWithProductDetails.value.values.toString())
             }
             else -> {
 
