@@ -150,10 +150,6 @@ class BillingClientWrapper(
         ) { billingResult, purchaseList ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 if (!purchaseList.isNullOrEmpty()) {
-                    Timber.tag("BILLINGR").d("IS AUTORENEWING BELOW")
-                    Timber.tag("BILLINGR").d((purchaseList[0].isAutoRenewing).toString())
-
-
                     _purchases.value = purchaseList
                 } else {
                     _purchases.value = emptyList()

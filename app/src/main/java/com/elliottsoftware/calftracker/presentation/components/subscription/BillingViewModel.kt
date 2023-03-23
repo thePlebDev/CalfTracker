@@ -112,10 +112,10 @@ class BillingViewModel(application: Application): AndroidViewModel(application){
 
         viewModelScope.launch {
             billingClient.queryPurchases()
-            userCurrentSubscriptionFlow.collectLatest { collectedSubscriptions ->
-                val value = collectedSubscriptions.hasRenewablePremium
+            repo.hasRenewablePremium.collect { collectedSubscriptions ->
+                //val value = collectedSubscriptions.hasRenewablePremium
                 _uiState.value = _uiState.value.copy(
-                    subscribed = Response.Success(value ?: false)
+                    subscribed = Response.Success(collectedSubscriptions)
                 )
             }
         }
