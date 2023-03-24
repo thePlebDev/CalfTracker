@@ -1,6 +1,7 @@
 package com.elliottsoftware.calftracker.presentation.components.subscription
 
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.MainUIState
@@ -16,7 +17,7 @@ data class SubscriptionUiState(
 class SubscriptionViewModel: ViewModel() {
 
     private var _uiState: MutableState<SubscriptionUiState> = mutableStateOf(SubscriptionUiState())
-    val state = _uiState
+    val state: State<SubscriptionUiState> = _uiState
 
 
     fun setIsPremium(value:Boolean){

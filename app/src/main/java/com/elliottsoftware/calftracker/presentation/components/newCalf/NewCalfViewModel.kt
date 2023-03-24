@@ -46,7 +46,7 @@ class NewCalfViewModel @Inject constructor(
 ):ViewModel() {
 
     private val _uiState = mutableStateOf(NewCalfUIState())
-    val state = _uiState
+    val state:State<NewCalfUIState> = _uiState
 
 
 

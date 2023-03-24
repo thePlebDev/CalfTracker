@@ -1,6 +1,7 @@
 package com.elliottsoftware.calftracker.presentation.viewModels
 
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -35,7 +36,7 @@ class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase
 ):ViewModel() {
      private var _uiState:MutableState<LoginUIState> = mutableStateOf(LoginUIState())
-     val state = _uiState
+     val state: State<LoginUIState> = _uiState
 
     init {
 

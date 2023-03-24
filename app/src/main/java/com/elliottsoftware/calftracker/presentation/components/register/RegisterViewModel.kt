@@ -38,7 +38,7 @@ class RegisterViewModel @Inject constructor(
 ):ViewModel() {
 
     private var _uiState = mutableStateOf(RegisterUIState())
-    val state = _uiState
+    val state:State<RegisterUIState> = _uiState
 
 
 

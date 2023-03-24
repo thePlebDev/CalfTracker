@@ -43,7 +43,7 @@ class MainViewModel @Inject constructor(
 
 ):ViewModel() {
     private var _uiState: MutableState<MainUIState> = mutableStateOf(MainUIState())
-    val state = _uiState
+    val state:State<MainUIState> = _uiState
     init{
         getCalves()
     }
