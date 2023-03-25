@@ -146,7 +146,8 @@ fun TabScreen(viewModel: BillingViewModel,UIState:BillingUiState) {
         // for sending analytics events
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-//                Timber.tag("anotherOne").d("WE ARE RESUMING")
+
+                Timber.tag("LIFEEVENTCYCLE").d("WE ARE RESUMING")
                 viewModel.refreshPurchases()
             }
         }
@@ -296,6 +297,7 @@ fun BuyingText(value: BillingUiState,billingViewModel: BillingViewModel) {
                 }
             }
 
+
         }
 
 
@@ -315,6 +317,7 @@ fun SubscribedText(value: BillingUiState){
         is Response.Failure -> {
             Text("FAIL SUBSCRIBED STATE")
         }
+
     }
 
 }

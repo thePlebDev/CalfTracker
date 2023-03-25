@@ -29,7 +29,7 @@ class BillingViewModel(application: Application): AndroidViewModel(application){
     val state = _uiState
 
 
-    var billingClient: BillingClientWrapper = BillingClientWrapper(application)
+    private var billingClient: BillingClientWrapper = BillingClientWrapper(application)
     /************THIS REPOSITORY SETUP NEEDS TO BE LOOKED INTO***************/
     private var repo: SubscriptionDataRepository =
         SubscriptionDataRepository(billingClientWrapper = billingClient)
