@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.window.Popup
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
@@ -60,11 +61,18 @@ import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
 import com.google.android.material.internal.ViewUtils.dpToPx
+import com.skydoves.balloon.ArrowPositionRules
+import com.skydoves.balloon.Balloon
+import com.skydoves.balloon.BalloonAnimation
+import com.skydoves.balloon.BalloonSizeSpec
+import com.skydoves.balloon.compose.Balloon
+import com.skydoves.balloon.compose.rememberBalloonBuilder
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.time.LocalDate
+import java.util.*
 import kotlin.math.roundToInt
 
 
@@ -116,20 +124,6 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
                                 viewModel.signUserOut()
                                 onNavigate(R.id.action_mainFragment2_to_loginFragment)
                                 scaffoldState.drawerState.close()
-
-                            }
-                        }
-                    ),
-                    MenuItem(
-                        id= "subscription",
-                        title="Subscriptions",
-                        contentDescription = "subscription information",
-                        icon = Icons.Default.CurrencyExchange,
-                        onClick = {
-                            scope.launch {
-                                onNavigate(R.id.action_mainFragment2_to_subscriptionFragment)
-                                scaffoldState.drawerState.close()
-
 
                             }
                         }
@@ -208,7 +202,7 @@ fun HomeView(
 
 
                         MessageList(
-                            state.data,
+                            calfList = state.data,
                             onNavigate,
                             deleteCalfMethod= {calfId -> viewModel.deleteCalf(calfId)},
                             setClickedCalf = {calf -> sharedViewModel.setCalf(calf)},
@@ -230,12 +224,10 @@ fun HomeView(
 
     }
 
+
 }
 
 
-
-
-@OptIn(ExperimentalMaterialApi::class)
 @RequiresApi(Build.VERSION_CODES.N)
 @Composable
 fun MessageList(
@@ -471,18 +463,40 @@ private fun SwipeableSample(
 ) {
 
 
+    CalfCard(
+        calf,
+        showDeleteModal = {value -> showDeleteModal(value)},
+        setCalfDeleteTagNId = {value1, value2 -> setCalfDeleteTagNId(value1,value2)},
+        setClickedCalf = {calf -> setClickedCalf(calf)},
+        navigate={destination -> navigate(destination)}
+    )
+
+
+
+
+}
+
+
+@RequiresApi(Build.VERSION_CODES.N)
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun CalfCard(
+    calf:FireBaseCalf,
+    showDeleteModal:(Boolean) -> Unit,
+    setCalfDeleteTagNId:(String,String)->Unit,
+    setClickedCalf:(FireBaseCalf) -> Unit,
+    navigate: (Int) -> Unit,
+){
     val swipeableState = rememberSwipeableState(0)
-
-
     Box(
-                modifier = Modifier
+        modifier = Modifier
             .fillMaxWidth()
 
             .swipeable(
                 state = swipeableState,
                 anchors = mapOf(
                     0f to 0,
-                   -130f to 1 // THIS IS THE LEFT SWIPE
+                    -130f to 1 // THIS IS THE LEFT SWIPE
                 ),
                 thresholds = { _, _ -> FractionalThreshold(0.3f) },
                 orientation = Orientation.Horizontal
@@ -490,17 +504,19 @@ private fun SwipeableSample(
 
 
             .background(MaterialTheme.colors.primary)
+
     ){
+
         Card(
             modifier =Modifier
-            .width(160.dp).height(110.dp)
-            .align(Alignment.CenterEnd)
+                .width(160.dp).height(110.dp)
+                .align(Alignment.CenterEnd)
 
-            .padding(horizontal = 15.dp, vertical = 8.dp)
+                .padding(horizontal = 15.dp, vertical = 8.dp)
                 .clickable {
                     setCalfDeleteTagNId(calf.calftag!!,calf.id!!)
                     showDeleteModal(true)
-                           },
+                },
             elevation = 2.dp,
             backgroundColor = Color.Red,
             shape = RoundedCornerShape(corner = CornerSize(16.dp)),
@@ -524,7 +540,7 @@ private fun SwipeableSample(
                 .padding(horizontal = 8.dp, vertical = 8.dp)
                 .fillMaxWidth()
                 .clickable {
-                           //THIS IS WHERE THE NAVIGATION WILL GO
+                    //THIS IS WHERE THE NAVIGATION WILL GO
                     setClickedCalf(calf)
                     navigate(R.id.action_mainFragment2_to_editCalfFragment)
 
@@ -609,6 +625,8 @@ fun DeleteCalfButton(deleteCalfMethod:() -> Unit,cancelCalfDelete:(Boolean) -> U
     }
 
 }
+
+
 
 
 

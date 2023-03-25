@@ -252,6 +252,9 @@ dependencies {
     implementation "com.google.accompanist:accompanist-pager:0.27.1"
     implementation "com.google.accompanist:accompanist-pager-indicators:0.27.1"
 
+    //BALLOON
+    implementation "com.github.skydoves:balloon-compose:1.5.2"
+
 
 
 

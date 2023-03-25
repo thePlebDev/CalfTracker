@@ -46,7 +46,6 @@ class BillingClientWrapper(
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK
             && !purchases.isNullOrEmpty()
         ) {
-
             // Post new purchase List to _purchases
             _purchases.value = purchases
 
@@ -111,7 +110,6 @@ class BillingClientWrapper(
     /*******CALLED TO INITIALIZE EVERYTHING******/
     // Establish a connection to Google Play.
     fun startBillingConnection(billingConnectionState: MutableLiveData<Boolean>) {
-
 
         billingClient.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
