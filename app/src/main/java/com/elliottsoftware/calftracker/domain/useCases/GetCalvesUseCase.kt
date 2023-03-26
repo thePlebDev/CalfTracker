@@ -12,9 +12,6 @@ class GetCalvesUseCase @Inject constructor(
 ):UseCase<Unit,Flow<Response<List<FireBaseCalf>>>>() {
 
 
-
-
-
     override suspend fun execute(params: Unit): Flow<Response<List<FireBaseCalf>>> {
         return databaseRepository.getCalves()
     }
