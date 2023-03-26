@@ -11,6 +11,8 @@ data class LoginParams(
     val password:String,
 )
 
+/**
+ * A concrete implementation of [UseCase] that will request logging in via [AuthRepository]*/
 class LoginUseCase @Inject constructor(
     private val authRepositoryImpl: AuthRepository
 ):UseCase<LoginParams,Flow<Response<Boolean>>>() {

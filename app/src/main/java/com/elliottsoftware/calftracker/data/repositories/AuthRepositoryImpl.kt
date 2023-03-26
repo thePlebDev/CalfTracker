@@ -14,6 +14,9 @@ import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import javax.inject.Inject
 
+
+/**
+ * The data layer for any requests related to logging in a user */
 class AuthRepositoryImpl(
 
     private val auth: FirebaseAuth = Firebase.auth
@@ -35,6 +38,10 @@ class AuthRepositoryImpl(
         awaitClose()
     }
 
+    /**
+     * Given a user email and password, try to login the user
+     *
+     * @return a [Response] or [Response.Success] if successful, [Response.Failure] if otherwise*/
     //TODO: CHANGE THIS OVER FROM AWAIT TO CALLBACKFLOW
     override suspend fun loginUser(email: String, password: String)= flow {
         try {

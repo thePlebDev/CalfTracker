@@ -18,6 +18,7 @@ class FakeDatabaseRepositoryImpl:DatabaseRepository {
     private val emptyCalfList = listOf<FireBaseCalf>()
     private var shouldReturnNetworkError = false
     private val flow = MutableSharedFlow<Response<List<FireBaseCalf>>>()
+
     override suspend fun createUser(email: String, username: String): Flow<Response<Actions>> {
         TODO("Not yet implemented")
     }
