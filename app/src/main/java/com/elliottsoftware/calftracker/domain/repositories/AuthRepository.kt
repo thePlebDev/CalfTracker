@@ -2,6 +2,7 @@ package com.elliottsoftware.calftracker.domain.repositories
 
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.SecondaryResponse
+import com.elliottsoftware.calftracker.presentation.components.login.LoginResult
 import com.elliottsoftware.calftracker.util.Actions
 import kotlinx.coroutines.flow.Flow
 

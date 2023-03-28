@@ -3,6 +3,7 @@ package com.elliottsoftware.calftracker.data.repositories
 import android.util.Log
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.repositories.AuthRepository
+import com.elliottsoftware.calftracker.presentation.components.login.LoginResult
 import com.elliottsoftware.calftracker.util.Actions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -31,8 +32,8 @@ class AuthRepositoryImpl(
 
             auth.createUserWithEmailAndPassword(email,password).await() //await() integrates with the Google task API //DONE
             trySend(Response.Success(Actions.FIRST))
-        }catch (e:Exception){ //gets triggered on email already in use
-            Log.d("AuthRepositoryImpl",e.message.toString())
+        }catch (e:Exception) { //gets triggered on email already in use
+            Timber.tag("AuthRepositoryImpl").d(e.message.toString())
             trySend(Response.Failure(e))
         }
         awaitClose()
@@ -43,17 +44,26 @@ class AuthRepositoryImpl(
      *
      * @return a [Response] or [Response.Success] if successful, [Response.Failure] if otherwise*/
     //TODO: CHANGE THIS OVER FROM AWAIT TO CALLBACKFLOW
-    override suspend fun loginUser(email: String, password: String)= flow {
+    override suspend fun loginUser(email: String, password: String)= callbackFlow {
         try {
-            emit(Response.Loading)
-            auth.signInWithEmailAndPassword(email, password).await() //can throw FirebaseAuthInvalidUserException //DONE
-            emit(Response.Success(true))
-            Timber.tag("LoginSuccess").d(email)
+            //WE MIGHT EVEN NOT NEED THIS RESPONSE.LOADING, WE WILL HAVE TO SEE WHAT IS IMPLEMENTED ON THE VIEW
+            trySend(Response.Loading)
+            auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener{ task ->
+                    if (task.isSuccessful) {
+                        trySend(Response.Success(true))
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Timber.tag("LoginFailure").e(Exception("normal exception"))
+                        trySend(Response.Failure(Exception()))
+                    }
+                }
         }catch (e:Exception){
 
             Timber.tag("LoginFailure").e(e)
-            emit(Response.Failure(e))
+            trySend(Response.Failure(Exception()))
         }
+        awaitClose()
     }
 
     override  fun isUserSignedIn(): Boolean {
