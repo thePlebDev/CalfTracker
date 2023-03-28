@@ -8,10 +8,16 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.Navigation
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.useCases.*
+import com.elliottsoftware.calftracker.presentation.components.login.Credentials
+import com.elliottsoftware.calftracker.presentation.components.login.Email
+import com.elliottsoftware.calftracker.presentation.components.login.LoginViewState
+import com.elliottsoftware.calftracker.presentation.components.login.Password
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -38,14 +44,50 @@ class LoginViewModel @Inject constructor(
      private var _uiState:MutableState<LoginUIState> = mutableStateOf(LoginUIState())
      val state: State<LoginUIState> = _uiState
 
+    //TODO: WE NEED TO GET IT SO WE CAN JUST TYPE FIRST. THEN WORRY ABOUT THE VALIDATION STUFF
+    private val _viewState: MutableStateFlow<LoginViewState> =
+        MutableStateFlow(LoginViewState.Initial)
+    val viewState: StateFlow<LoginViewState> = _viewState
+
     init {
 
         checkLogInStatus()
     }
 
+    fun emailChanged(email: String) {
+        val currentCredentials = _viewState.value.credentials
+        val currentPasswordErrorMessage =
+            (_viewState.value as? LoginViewState.Active)?.passwordInputErrorMessage
 
+        _viewState.value = LoginViewState.Active(
+            credentials = currentCredentials.withUpdatedEmail(email),
+            emailInputErrorMessage = null,
+            passwordInputErrorMessage = currentPasswordErrorMessage,
+        )
+    }
+    fun passwordChanged(password: String) {
+        val currentCredentials = _viewState.value.credentials
+        val currentEmailErrorMessage = (_viewState.value as? LoginViewState.Active)?.emailInputErrorMessage
+
+        _viewState.value = LoginViewState.Active(
+            credentials = currentCredentials.withUpdatedPassword(password),
+            passwordInputErrorMessage = null,
+            emailInputErrorMessage = currentEmailErrorMessage,
+        )
+    }
+
+    private fun Credentials.withUpdatedPassword(password: String): Credentials {
+        return this.copy(password = Password(password))
+    }
+
+    private fun Credentials.withUpdatedEmail(email: String): Credentials {
+        return this.copy(email = Email(email))
+    }
+
+
+    //TODO: THIS NEEDS TO BE WORKED OUT
     private fun loginUser(email: String,password:String)= viewModelScope.launch{
-        loginUseCase.execute(LoginParams(email,password)).collect{ response ->
+        loginUseCase.execute(Credentials(Email(email), Password( password))).collect{ response ->
             _uiState.value = _uiState.value.copy(loginStatus = response)
         }
     }

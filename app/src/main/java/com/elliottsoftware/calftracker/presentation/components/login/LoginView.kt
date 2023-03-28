@@ -1,22 +1,13 @@
 package com.elliottsoftware.calftracker.presentation.components.login
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import com.elliottsoftware.calftracker.R.drawable
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import com.elliottsoftware.calftracker.R
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -41,7 +32,12 @@ fun LoginViews(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit
 }
 
 @Composable
-fun LoginView(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit) {
+fun LoginView(
+    viewModel: LoginViewModel = viewModel(),
+    onNavigate: (Int) -> Unit,
+
+) {
+
     if(viewModel.state.value.isUserLoggedIn){
         onNavigate(R.id.action_loginFragment_to_mainFragment2)
     }else{
