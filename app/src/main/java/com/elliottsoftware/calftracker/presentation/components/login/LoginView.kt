@@ -1,5 +1,6 @@
 package com.elliottsoftware.calftracker.presentation.components.login
 
+import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -7,6 +8,7 @@ import com.elliottsoftware.calftracker.R
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -130,3 +132,4 @@ fun LinearLoadingBar(){
         .padding(start = 0.dp, 16.dp, 0.dp, 0.dp))
 
 }
+

@@ -31,7 +31,7 @@ data class LoginUIState(
     val passwordIconChecked:Boolean = false,
     val showProgressBar:Boolean = false,
     val isUserLoggedIn:Boolean = false,
-    val loginStatus: Response<Boolean> = Response.Success(false)
+    val loginStatus: Response<Boolean> = Response.Success(false),
 )
 
 @HiltViewModel
@@ -44,45 +44,15 @@ class LoginViewModel @Inject constructor(
      private var _uiState:MutableState<LoginUIState> = mutableStateOf(LoginUIState())
      val state: State<LoginUIState> = _uiState
 
-    //TODO: WE NEED TO GET IT SO WE CAN JUST TYPE FIRST. THEN WORRY ABOUT THE VALIDATION STUFF
-    private val _viewState: MutableStateFlow<LoginViewState> =
-        MutableStateFlow(LoginViewState.Initial)
-    val viewState: StateFlow<LoginViewState> = _viewState
 
     init {
 
         checkLogInStatus()
+
+
     }
 
-    fun emailChanged(email: String) {
-        val currentCredentials = _viewState.value.credentials
-        val currentPasswordErrorMessage =
-            (_viewState.value as? LoginViewState.Active)?.passwordInputErrorMessage
 
-        _viewState.value = LoginViewState.Active(
-            credentials = currentCredentials.withUpdatedEmail(email),
-            emailInputErrorMessage = null,
-            passwordInputErrorMessage = currentPasswordErrorMessage,
-        )
-    }
-    fun passwordChanged(password: String) {
-        val currentCredentials = _viewState.value.credentials
-        val currentEmailErrorMessage = (_viewState.value as? LoginViewState.Active)?.emailInputErrorMessage
-
-        _viewState.value = LoginViewState.Active(
-            credentials = currentCredentials.withUpdatedPassword(password),
-            passwordInputErrorMessage = null,
-            emailInputErrorMessage = currentEmailErrorMessage,
-        )
-    }
-
-    private fun Credentials.withUpdatedPassword(password: String): Credentials {
-        return this.copy(password = Password(password))
-    }
-
-    private fun Credentials.withUpdatedEmail(email: String): Credentials {
-        return this.copy(email = Email(email))
-    }
 
 
     //TODO: THIS NEEDS TO BE WORKED OUT
