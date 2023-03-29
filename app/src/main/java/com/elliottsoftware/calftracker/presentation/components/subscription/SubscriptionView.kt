@@ -2,10 +2,7 @@ package com.elliottsoftware.calftracker.presentation.components.subscription
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectableGroup
@@ -81,6 +78,7 @@ fun SubscriptionViews(
     val scope = rememberCoroutineScope()
     Scaffold(
         scaffoldState = scaffoldState,
+        backgroundColor = MaterialTheme.colors.primary,
         drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
         topBar = {
             TopAppBar(
@@ -162,7 +160,9 @@ fun TabScreen(viewModel: BillingViewModel,UIState:BillingUiState) {
     }
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth()
+            .verticalScroll(rememberScrollState()),
+
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -184,7 +184,8 @@ fun TabScreen(viewModel: BillingViewModel,UIState:BillingUiState) {
             }
         }
         when (tabIndex) {
-            0 -> BuyingText(UIState,viewModel)
+            //BuyingText(UIState,viewModel)
+            0 -> ActiveSubscription()
             1 -> Settings()
             2 -> Text("Settings")
 
@@ -222,6 +223,45 @@ fun MyButton(url:String) {
     val uriHandler = LocalUriHandler.current
     Button(onClick = { uriHandler.openUri(url) }){
         Text("Subscriptions")
+    }
+}
+
+@Composable
+fun ActiveSubscription(){
+    Column(modifier = Modifier.padding(15.dp)){
+        Text("My active ", style = MaterialTheme.typography.h5)
+        Text("subscription:",style = MaterialTheme.typography.h5,modifier = Modifier.padding(bottom=10.dp))
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable{ },
+            elevation = 10.dp,
+            backgroundColor = MaterialTheme.colors.secondary
+        ){
+            Row(
+                horizontalArrangement= Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Icon(Icons.Default.CrueltyFree, contentDescription = "free subscription",modifier = Modifier.size(60.dp))
+                Column(modifier = Modifier.padding(15.dp)){
+                    Text("Basic Calf Storage")
+                    Text("50 calf limit",color = Color.Black.copy(alpha = 0.6f))
+                    Text(
+                        buildAnnotatedString {
+                            withStyle(style = SpanStyle(
+                                fontSize =  32.sp
+                            )
+                            ) {
+                                append("$0.00")
+                            }
+                            append("/month")
+                        }
+                    )
+                }
+            }
+
+
+        }
     }
 }
 

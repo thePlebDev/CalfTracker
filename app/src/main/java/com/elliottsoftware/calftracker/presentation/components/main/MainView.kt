@@ -129,6 +129,19 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
                         }
                     ),
                     MenuItem(
+                        id= "subscriptions",
+                        title="Subscriptions",
+                        contentDescription = "check your subscriptions",
+                        icon = Icons.Default.CurrencyExchange,
+                        onClick = {
+                            scope.launch {
+                                onNavigate(R.id.action_mainFragment2_to_subscriptionFragment)
+                                scaffoldState.drawerState.close()
+
+                            }
+                        }
+                    ),
+                    MenuItem(
                         id= "weather",
                         title="Weather",
                         contentDescription = "Weather",
