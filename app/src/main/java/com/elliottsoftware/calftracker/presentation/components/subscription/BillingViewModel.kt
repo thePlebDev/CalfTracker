@@ -2,7 +2,12 @@ package com.elliottsoftware.calftracker.presentation.components.subscription
 
 import android.app.Activity
 import android.app.Application
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Autorenew
+import androidx.compose.material.icons.filled.CrueltyFree
+import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.*
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.ProductDetails
@@ -10,20 +15,31 @@ import com.android.billingclient.api.Purchase
 import com.elliottsoftware.calftracker.data.repositories.SubscriptionDataRepository
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.presentation.components.billing.BillingClientWrapper
-import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfUIState
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-
-data class BillingUiState(
-    val subscriptionProduct: Response<ProductDetails> = Response.Loading,
-    val purchasedSubscriptions:Response<List<Purchase>> = Response.Loading,
-    val subscribed:Response<Boolean> = Response.Loading
+data class SubscriptionValues(
+    val description:String,
+    val title:String,
+    val items:String,
+    val price:String,
+    val icon: ImageVector
 )
 
-class BillingViewModel(application: Application): AndroidViewModel(application){
+data class BillingUiState(
+    val subscriptionProduct: Response<ProductDetails> = Response.Loading, //THIS IS THE PRODUCT DETAILS
+    val purchasedSubscriptions:Response<List<Purchase>> = Response.Loading, //THIS IS THE ACTUAL PRODUCTS
+    val subscribed:Response<Boolean> = Response.Loading,
+    val subscribedInfo:SubscriptionValues = SubscriptionValues(
+        description = "Loading...",
+        title= "Loading...",
+        items= "Loading...",
+        price = "...",
+        icon = Icons.Default.Autorenew
+            )
+)
+
+class BillingViewModel(application: Application): AndroidViewModel(application),DefaultLifecycleObserver {
 
     private val _uiState = mutableStateOf(BillingUiState())
     val state = _uiState
@@ -49,30 +65,30 @@ class BillingViewModel(application: Application): AndroidViewModel(application){
     }
     // The userCurrentSubscriptionFlow object combines all the possible subscription flows into one
 // for emission.
-    private val userCurrentSubscriptionFlow = combine(
-        repo.hasRenewablePremium,
-        repo.hasPrepaidPremium
-    ){
-            hasRenewablePremium,
-            hasPrepaidPremium
-        ->
-        MainState(
-            hasRenewablePremium = hasRenewablePremium,
-            hasPrepaidPremium = hasPrepaidPremium
-        )
-
-    }
+//    private val userCurrentSubscriptionFlow = combine(
+//        repo.hasRenewablePremium,
+//        repo.hasPrepaidPremium
+//    ){
+//            hasRenewablePremium,
+//            hasPrepaidPremium
+//        ->
+//        MainState(
+//            hasRenewablePremium = hasRenewablePremium,
+//            hasPrepaidPremium = hasPrepaidPremium
+//        )
+//
+//    }
 
     init {
         viewModelScope.launch {
             /**
              * I think this is for if the user has already paid.
              * This can come later*/
-            userCurrentSubscriptionFlow.collectLatest { collectedSubscriptions ->
-                Timber.tag("BILLINGR").d("userCurrentSubscriptionFlow.collectLatest")
-                Timber.tag("BILLINGR").d(collectedSubscriptions.hasRenewablePremium?.toString() ?: "Nothing on hasRenewablePremium")
-                Timber.tag("BILLINGR").d(collectedSubscriptions.hasPrepaidPremium?.toString() ?: "Nothing on hasPrepaidPremium")
-            }
+//            userCurrentSubscriptionFlow.collectLatest { collectedSubscriptions ->
+//                Timber.tag("BILLINGR").d("userCurrentSubscriptionFlow.collectLatest")
+//                Timber.tag("BILLINGR").d(collectedSubscriptions.hasRenewablePremium?.toString() ?: "Nothing on hasRenewablePremium")
+//                Timber.tag("BILLINGR").d(collectedSubscriptions.hasPrepaidPremium?.toString() ?: "Nothing on hasPrepaidPremium")
+//            }
         }
     }
 
@@ -80,7 +96,7 @@ class BillingViewModel(application: Application): AndroidViewModel(application){
      * We should be able to do a current collect that is found in all the other repository stuff
      * */
     init{
-        testingCollectingRepoInfo()
+//        testingCollectingRepoInfo()
         viewModelScope.launch {
             getPurchases()
         }
@@ -113,10 +129,50 @@ class BillingViewModel(application: Application): AndroidViewModel(application){
         viewModelScope.launch {
             billingClient.queryPurchases()
             repo.hasRenewablePremium.collect { collectedSubscriptions ->
-                //val value = collectedSubscriptions.hasRenewablePremium
-                _uiState.value = _uiState.value.copy(
-                    subscribed = Response.Success(collectedSubscriptions)
-                )
+
+                    when(collectedSubscriptions){
+                        is Response.Loading -> {
+                            _uiState.value = _uiState.value.copy(
+
+                                subscribedInfo = SubscriptionValues(
+                                    description = "Fetching Subscription",
+                                    title= "Loading...",
+                                    items= "....",
+                                    price = "....",
+                                    icon = Icons.Default.Autorenew
+                                )
+                            )
+                        }
+                        is Response.Success ->{
+                            if(collectedSubscriptions.data){
+                                _uiState.value = _uiState.value.copy(
+
+                                    subscribedInfo = SubscriptionValues(
+                                        description = "Premium subscription",
+                                        title= "Premium subscription",
+                                        items= "Unlimited Calf",
+                                        price = "$10.00",
+                                        icon = Icons.Default.MonetizationOn
+                                    )
+                                )
+                            }else{
+                                _uiState.value = _uiState.value.copy(
+
+                                    subscribedInfo = SubscriptionValues(
+                                        description = "Basic subscription",
+                                        title= "Basic subscription",
+                                        items= "50 Calf limit",
+                                        price = "$0.00",
+                                        icon = Icons.Default.CrueltyFree
+                                    )
+                                )
+
+                            }
+
+                        }
+                        is Response.Failure -> {}
+                    }
+
             }
         }
 
@@ -313,6 +369,11 @@ class BillingViewModel(application: Application): AndroidViewModel(application){
 
 
         private const val MAX_CURRENT_PURCHASES_ALLOWED = 1
+    }
+
+
+    override fun onResume(owner: LifecycleOwner) {
+        refreshPurchases()
     }
 
 }
