@@ -2,10 +2,9 @@ package com.elliottsoftware.calftracker.data.repositories
 
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
+import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.presentation.components.billing.BillingClientWrapper
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import timber.log.Timber
 
 class SubscriptionDataRepository(billingClientWrapper: BillingClientWrapper) {
@@ -13,9 +12,15 @@ class SubscriptionDataRepository(billingClientWrapper: BillingClientWrapper) {
 
 
     // Set to true when a returned purchase is an auto-renewing basic subscription.
-    //hasRenewablePremium IS HOW WE WILL DETERMINE IF THERE IS A SUBSCRIPTION OR NOT
-    val hasRenewablePremium: Flow<Boolean> = billingClientWrapper.purchases.map { value: List<Purchase> ->
-        value.any { purchase: Purchase ->  purchase.products.contains(PREMIUM_SUB) && purchase.isAutoRenewing}
+    /**IS HOW WE WILL DETERMINE IF THERE IS A SUBSCRIPTION OR NOT*/
+    val hasRenewablePremium: Flow<Response<Boolean>> = try{
+        billingClientWrapper.purchases.map { value: List<Purchase> ->
+            val value = value.any { purchase: Purchase ->  purchase.products.contains(PREMIUM_SUB) && purchase.isAutoRenewing}
+            Response.Success(value)
+        }
+    }catch (e:Exception){
+
+        MutableStateFlow(Response.Failure(e))
     }
     // Set to true when a returned purchase is prepaid premium subscription.
     val hasPrepaidPremium: Flow<Boolean> = billingClientWrapper.purchases.map { purchaseList ->

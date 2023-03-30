@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentSubscriptionBinding
@@ -26,6 +28,8 @@ class SubscriptionFragment : Fragment() {
     private val binding get() = _binding!!
 
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -37,7 +41,12 @@ class SubscriptionFragment : Fragment() {
     ): View? {
         _binding = FragmentSubscriptionBinding.inflate(inflater, container, false)
         val view = binding.root
-       // lifecycle.addObserver(viewModel)// we should do this with the BillingViewModel
+
+
+        val billingViewModel:BillingViewModel by activityViewModels()
+
+        lifecycle.addObserver(billingViewModel)
+
         binding.composeView.apply {
             // Dispose of the Composition when the view's LifecycleOwner
             // is destroyed
@@ -45,7 +54,10 @@ class SubscriptionFragment : Fragment() {
             setContent {
                 // In Compose world
                 MaterialTheme {
-                    SubscriptionView(onNavigate = { dest -> findNavController().navigate(dest) })
+                    SubscriptionView(
+                        onNavigate = { dest -> findNavController().navigate(dest) },
+                        viewModel = billingViewModel
+                    )
                 }
             }
         }
@@ -56,6 +68,7 @@ class SubscriptionFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+//        lifecycle.removeObserver(billingViewModel)
     }
 
 

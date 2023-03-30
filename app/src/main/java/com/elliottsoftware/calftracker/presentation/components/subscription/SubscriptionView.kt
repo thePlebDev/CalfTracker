@@ -1,67 +1,47 @@
 package com.elliottsoftware.calftracker.presentation.components.subscription
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.Placeable
-import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.debugInspectorInfo
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.android.billingclient.api.Purchase
-import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
-import com.elliottsoftware.calftracker.presentation.components.main.FloatingButton
-import com.elliottsoftware.calftracker.presentation.components.newCalf.LoadingFloatingButton
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
 import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
-import com.elliottsoftware.calftracker.presentation.sharedViews.BannerCard
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.util.findActivity
 import com.google.accompanist.pager.*
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @Composable
-fun SubscriptionView( onNavigate: (Int) -> Unit = {}){
+fun SubscriptionView(
+    onNavigate: (Int) -> Unit = {},
+    viewModel:BillingViewModel
+){
     AppTheme(false){
-        SubscriptionViews(onNavigate = {location -> onNavigate(location)})
+        SubscriptionViews(
+            onNavigate = {location -> onNavigate(location)},
+            billingViewModel = viewModel
+        )
     }
 }
 
@@ -139,28 +119,29 @@ fun TabScreen(viewModel: BillingViewModel,UIState:BillingUiState) {
     val tabs = listOf("Home", "Premium", "Settings")
     val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
     // If `lifecycleOwner` changes, dispose and reset the effect
-    DisposableEffect(lifecycleOwner) {
-        // Create an observer that triggers our remembered callbacks
-        // for sending analytics events
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-
-                Timber.tag("LIFEEVENTCYCLE").d("WE ARE RESUMING")
-                viewModel.refreshPurchases()
-            }
-        }
-
-        // Add the observer to the lifecycle
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        // When the effect leaves the Composition, remove the observer
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
+//    DisposableEffect(lifecycleOwner) {
+//        // Create an observer that triggers our remembered callbacks
+//        // for sending analytics events
+//        val observer = LifecycleEventObserver { _, event ->
+//            if (event == Lifecycle.Event.ON_RESUME) {
+//
+//                Timber.tag("LIFEEVENTCYCLE").d("WE ARE RESUMING")
+//                viewModel.refreshPurchases()
+//            }
+//        }
+//
+//        // Add the observer to the lifecycle
+//        lifecycleOwner.lifecycle.addObserver(observer)
+//
+//        // When the effect leaves the Composition, remove the observer
+//        onDispose {
+//            lifecycleOwner.lifecycle.removeObserver(observer)
+//        }
+//    }
 
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .verticalScroll(rememberScrollState()),
 
         verticalArrangement = Arrangement.Center,
@@ -185,7 +166,7 @@ fun TabScreen(viewModel: BillingViewModel,UIState:BillingUiState) {
         }
         when (tabIndex) {
             //BuyingText(UIState,viewModel)
-            0 -> ActiveSubscription()
+            0 -> ActiveSubscription(viewModel.state.value)
             1 -> Settings()
             2 -> Text("Settings")
 
@@ -226,41 +207,56 @@ fun MyButton(url:String) {
     }
 }
 
+
 @Composable
-fun ActiveSubscription(){
+fun ActiveSubscription(value: BillingUiState) {
+    val subscriptionInfo = value.subscribedInfo
     Column(modifier = Modifier.padding(15.dp)){
         Text("My active ", style = MaterialTheme.typography.h5)
         Text("subscription:",style = MaterialTheme.typography.h5,modifier = Modifier.padding(bottom=10.dp))
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable{ },
-            elevation = 10.dp,
-            backgroundColor = MaterialTheme.colors.secondary
+        SubscriptionCard(
+            SubscriptionValues(
+                description = subscriptionInfo.description,
+                title=subscriptionInfo.title,
+                items=subscriptionInfo.items,
+                price = subscriptionInfo.price,
+                icon = subscriptionInfo.icon
+            )
+        )
+
+    }
+}
+
+
+@Composable
+fun SubscriptionCard(subscriptionData:SubscriptionValues){
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { },
+        elevation = 10.dp,
+        backgroundColor = MaterialTheme.colors.secondary
+    ){
+        Row(
+            horizontalArrangement= Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
         ){
-            Row(
-                horizontalArrangement= Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ){
-                Icon(Icons.Default.CrueltyFree, contentDescription = "free subscription",modifier = Modifier.size(60.dp))
-                Column(modifier = Modifier.padding(15.dp)){
-                    Text("Basic Calf Storage")
-                    Text("50 calf limit",color = Color.Black.copy(alpha = 0.6f))
-                    Text(
-                        buildAnnotatedString {
-                            withStyle(style = SpanStyle(
-                                fontSize =  32.sp
-                            )
-                            ) {
-                                append("$0.00")
-                            }
-                            append("/month")
+            Icon(subscriptionData.icon, contentDescription = subscriptionData.description,modifier = Modifier.size(60.dp))
+            Column(modifier = Modifier.padding(15.dp)){
+                Text(subscriptionData.title)
+                Text(subscriptionData.items,color = Color.Black.copy(alpha = 0.6f))
+                Text(
+                    buildAnnotatedString {
+                        withStyle(style = SpanStyle(
+                            fontSize =  32.sp
+                        )
+                        ) {
+                            append(subscriptionData.price)
                         }
-                    )
-                }
+                        append("/month")
+                    }
+                )
             }
-
-
         }
     }
 }
