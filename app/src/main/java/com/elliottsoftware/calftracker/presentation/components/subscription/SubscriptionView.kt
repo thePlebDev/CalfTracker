@@ -166,8 +166,8 @@ fun TabScreen(viewModel: BillingViewModel,UIState:BillingUiState) {
         }
         when (tabIndex) {
             //BuyingText(UIState,viewModel)
-            0 -> ActiveSubscription(viewModel.state.value)
-            1 -> Settings()
+            0 -> ActiveSubscription(viewModel.state.value.subscribedInfo)
+            1 -> PremiumPage(billingUiState = viewModel.state.value, billingViewModel = viewModel)
             2 -> Text("Settings")
 
         }
@@ -177,43 +177,81 @@ fun TabScreen(viewModel: BillingViewModel,UIState:BillingUiState) {
 
 
 @Composable
-fun Settings(){
-
-
-
+fun Settings(billingUiState: BillingUiState,billingViewModel: BillingViewModel){
     val context = LocalContext.current
    val packageName =  context.applicationContext.packageName
      val PLAY_STORE_SUBSCRIPTION_DEEPLINK_URL = "https://play.google.com/store/account/subscriptions?product=%s&package=%s"
     val url = String.format(PLAY_STORE_SUBSCRIPTION_DEEPLINK_URL,
         "calf_tracker_premium_10", packageName);
 
-    Column() {
-        Button(onClick = {}){
+    Column(modifier = Modifier.padding(15.dp)) {
+        Text("Premium ", style = MaterialTheme.typography.h5)
+        Text("subscription:",
+            style = MaterialTheme.typography.h5,
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
+        SubscriptionCardInfo(
+            subscriptionInfo = SubscriptionValues(
+                description = "Premium subscription",
+                title= "Premium subscription",
+                items= "Unlimited Calf",
+                price = "$10.00",
+                icon = Icons.Default.MonetizationOn
+            )
+        )
 
-            Text("Manage Subscription")
-        }
-
-        MyButton(url)
-
-
+        BuyingText(billingUiState,billingViewModel)
     }
 
 }
+
 @Composable
-fun MyButton(url:String) {
+fun PremiumPage(billingUiState: BillingUiState,billingViewModel: BillingViewModel){
+    Column(modifier = Modifier.padding(15.dp)) {
+        Text("Premium ", style = MaterialTheme.typography.h5)
+        Text("subscription:",
+            style = MaterialTheme.typography.h5,
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
+        SubscriptionCardInfo(
+            subscriptionInfo = SubscriptionValues(
+                description = "Premium subscription",
+                title= "Premium subscription",
+                items= "Unlimited Calf",
+                price = "$10.00",
+                icon = Icons.Default.MonetizationOn
+            )
+        )
+
+        BuyingText(billingUiState,billingViewModel)
+    }
+}
+
+@Composable
+fun MyButton(url:String) {//THIS SHOULD BE IN THE SETTINGS
     val uriHandler = LocalUriHandler.current
     Button(onClick = { uriHandler.openUri(url) }){
         Text("Subscriptions")
     }
 }
 
+@Composable
+fun ActiveSubscription(subscriptionInfo: SubscriptionValues){
+    Column(modifier = Modifier.padding(15.dp)) {
+        Text("My active ", style = MaterialTheme.typography.h5)
+        Text(
+            "subscription:",
+            style = MaterialTheme.typography.h5,
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
+        SubscriptionCardInfo(subscriptionInfo)
+
+    }
+}
 
 @Composable
-fun ActiveSubscription(value: BillingUiState) {
-    val subscriptionInfo = value.subscribedInfo
-    Column(modifier = Modifier.padding(15.dp)){
-        Text("My active ", style = MaterialTheme.typography.h5)
-        Text("subscription:",style = MaterialTheme.typography.h5,modifier = Modifier.padding(bottom=10.dp))
+fun SubscriptionCardInfo(subscriptionInfo: SubscriptionValues) {
+
         SubscriptionCard(
             SubscriptionValues(
                 description = subscriptionInfo.description,
@@ -223,8 +261,6 @@ fun ActiveSubscription(value: BillingUiState) {
                 icon = subscriptionInfo.icon
             )
         )
-
-    }
 }
 
 
@@ -277,7 +313,7 @@ fun BuyingText(value: BillingUiState,billingViewModel: BillingViewModel) {
 
 
     Column() {
-        SubscribedText(value)
+
 
         when(val response = value.subscriptionProduct){
             is Response.Loading -> {
@@ -341,22 +377,7 @@ fun BuyingText(value: BillingUiState,billingViewModel: BillingViewModel) {
     }
 }
 
-@Composable
-fun SubscribedText(value: BillingUiState){
-    when(val state = value.subscribed){
-        is Response.Loading -> {
-            Text("LOADING SUBSCRIBED STATE")
-        }
-        is Response.Success -> {
-            Text(state.data.toString() + " You are Subscribed")
-        }
-        is Response.Failure -> {
-            Text("FAIL SUBSCRIBED STATE")
-        }
 
-    }
-
-}
 
 
 
