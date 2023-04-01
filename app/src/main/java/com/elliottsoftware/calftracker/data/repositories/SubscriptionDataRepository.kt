@@ -41,7 +41,7 @@ class SubscriptionDataRepository(billingClientWrapper: BillingClientWrapper) {
                 PREMIUM_SUB
             )
         }.map {
-            //THIS DOES SEEM TO BE DOING THE PROPER MAPPING
+
             it[PREMIUM_SUB]!!
         }
 

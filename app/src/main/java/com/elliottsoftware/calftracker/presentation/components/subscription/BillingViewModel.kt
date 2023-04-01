@@ -96,7 +96,7 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
      * We should be able to do a current collect that is found in all the other repository stuff
      * */
     init{
-//        testingCollectingRepoInfo()
+        testingCollectingRepoInfo()
         viewModelScope.launch {
             getPurchases()
         }
@@ -258,6 +258,7 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
         productDetails: ProductDetails,
         offerToken: String
     ): BillingFlowParams.Builder {
+
         return BillingFlowParams.newBuilder().setProductDetailsParamsList(
             listOf(
                 BillingFlowParams.ProductDetailsParams.newBuilder()
@@ -284,6 +285,10 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
         activity: Activity,
         tag: String
     ) {
+
+        Timber.tag("buycall").d(productDetails.name)
+        Timber.tag("buycall").d(currentPurchases?.size.toString() )
+        Timber.tag("buycall").d("User has more than 1 current purchase.")
         val offers =
             productDetails.subscriptionOfferDetails?.let {
                 retrieveEligibleOffers(
@@ -291,6 +296,7 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
                     tag = tag.lowercase()
                 )
             }
+
         val offerToken = offers?.let { leastPricedOfferToken(it) }
         val oldPurchaseToken: String
 
