@@ -42,7 +42,9 @@ class SubscriptionDataRepository(billingClientWrapper: BillingClientWrapper) {
             )
         }.map {
 
-            it[PREMIUM_SUB]!!
+           val item = it[PREMIUM_SUB]!!
+            Timber.tag("productsDetails").d(item.toString())
+            item
         }
 
 
