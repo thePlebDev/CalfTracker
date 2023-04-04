@@ -204,7 +204,7 @@ class BillingClientWrapper(
 
                 } else {
                     newMap = productDetailsList.associateBy {
-                        it.productId //This is going to be the key fo the map
+                        it.productId //This is going to be the key fo the map. the key is calf_tracker_premium_10
                     }
                 }
 

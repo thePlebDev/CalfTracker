@@ -29,7 +29,7 @@ data class SubscriptionValues(
 data class BillingUiState(
     val subscriptionProduct: Response<ProductDetails> = Response.Loading, //THIS IS THE PRODUCT DETAILS
     val purchasedSubscriptions:Response<List<Purchase>> = Response.Loading, //THIS IS THE ACTUAL PRODUCTS
-    val subscribed:Response<Boolean> = Response.Loading,
+    val subscribed:Boolean = false,
     val subscribedInfo:SubscriptionValues = SubscriptionValues(
         description = "Loading...",
         title= "Loading...",
@@ -150,10 +150,11 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
                                     subscribedInfo = SubscriptionValues(
                                         description = "Premium subscription",
                                         title= "Premium subscription",
-                                        items= "Unlimited Calf",
+                                        items= "Unlimited calf storage",
                                         price = "$10.00",
                                         icon = Icons.Default.MonetizationOn
-                                    )
+                                    ),
+                                    subscribed = true
                                 )
                             }else{
                                 _uiState.value = _uiState.value.copy(
@@ -161,10 +162,11 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
                                     subscribedInfo = SubscriptionValues(
                                         description = "Basic subscription",
                                         title= "Basic subscription",
-                                        items= "50 Calf limit",
+                                        items= "100 calf limit",
                                         price = "$0.00",
                                         icon = Icons.Default.CrueltyFree
-                                    )
+                                    ),
+                                    subscribed = false
                                 )
 
                             }
@@ -286,35 +288,39 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
         tag: String
     ) {
 
-        Timber.tag("buycall").d(productDetails.name)
-        Timber.tag("buycall").d(currentPurchases?.size.toString() )
-        Timber.tag("buycall").d("User has more than 1 current purchase.")
         val offers =
             productDetails.subscriptionOfferDetails?.let {
                 retrieveEligibleOffers(
                     offerDetails = it,
                     tag = tag.lowercase()
                 )
-            }
+            } // is a List<ProductDetails.SubscriptionOfferDetails>
+//        Timber.tag("offers").d(offers?.size?.toString() ?: "NOTHING IN OFFERS")
 
-        val offerToken = offers?.let { leastPricedOfferToken(it) }
+        //offers is an empty list
+
+        val offerToken = offers?.let { leastPricedOfferToken(it) } //offerToken gives us ""
+
+//        Timber.tag("offers").d(offerToken ?: "NOTHING IN OFFER TOKENS")
         val oldPurchaseToken: String
 
-        // Get current purchase. In this app, a user can only have one current purchase at
-        // any given time.
+        // THIS WONT RUN
         if (!currentPurchases.isNullOrEmpty() &&
             currentPurchases.size == MAX_CURRENT_PURCHASES_ALLOWED
         ) {
             // This either an upgrade, downgrade, or conversion purchase.
+            // This is nothing for us
             val currentPurchase = currentPurchases.first()
 
             // Get the token from current purchase.
+            //nothing for us
             oldPurchaseToken = currentPurchase.purchaseToken
+
 
             val billingParams = offerToken?.let {
                 upDowngradeBillingFlowParamsBuilder(
-                    productDetails = productDetails,
-                    offerToken = it,
+                    productDetails = productDetails, //null
+                    offerToken = it, // ""
                     oldToken = oldPurchaseToken
                 )
             }
@@ -325,14 +331,18 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
                     billingParams
                 )
             }
+            /************THIS GET RUNS************/
         } else if (currentPurchases == null) {
-            // This is a normal purchase.
+
+
+            // This is not null
             val billingParams = offerToken?.let {
                 billingFlowParamsBuilder(
                     productDetails = productDetails,
                     offerToken = it
                 )
             }
+
 
             if (billingParams != null) {
                 billingClient.launchBillingFlow(

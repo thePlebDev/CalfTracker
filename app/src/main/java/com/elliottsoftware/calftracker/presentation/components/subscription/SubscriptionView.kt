@@ -116,28 +116,8 @@ fun TabScreen(viewModel: BillingViewModel,UIState:BillingUiState) {
     var tabIndex by remember { mutableStateOf(0) }
 
 
-    val tabs = listOf("Home", "Premium", "Settings")
-    val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
-    // If `lifecycleOwner` changes, dispose and reset the effect
-//    DisposableEffect(lifecycleOwner) {
-//        // Create an observer that triggers our remembered callbacks
-//        // for sending analytics events
-//        val observer = LifecycleEventObserver { _, event ->
-//            if (event == Lifecycle.Event.ON_RESUME) {
-//
-//                Timber.tag("LIFEEVENTCYCLE").d("WE ARE RESUMING")
-//                viewModel.refreshPurchases()
-//            }
-//        }
-//
-//        // Add the observer to the lifecycle
-//        lifecycleOwner.lifecycle.addObserver(observer)
-//
-//        // When the effect leaves the Composition, remove the observer
-//        onDispose {
-//            lifecycleOwner.lifecycle.removeObserver(observer)
-//        }
-//    }
+    val tabs = listOf("Home", "Premium", "Details")
+
 
     Column(
         modifier = Modifier
@@ -165,10 +145,13 @@ fun TabScreen(viewModel: BillingViewModel,UIState:BillingUiState) {
             }
         }
         when (tabIndex) {
-            //BuyingText(UIState,viewModel)
-            0 -> ActiveSubscription(viewModel.state.value.subscribedInfo)
+            0 -> MainSubscription(
+                viewModel.state.value.subscribedInfo,
+                changeIndex = {tabIndex = 1},
+                subscribed = viewModel.state.value.subscribed
+            )
             1 -> PremiumPage(billingUiState = viewModel.state.value, billingViewModel = viewModel)
-            2 -> Text("Settings")
+            2 -> Settings(billingUiState=viewModel.state.value, billingViewModel = viewModel)
 
         }
     }
@@ -178,29 +161,19 @@ fun TabScreen(viewModel: BillingViewModel,UIState:BillingUiState) {
 
 @Composable
 fun Settings(billingUiState: BillingUiState,billingViewModel: BillingViewModel){
-    val context = LocalContext.current
-   val packageName =  context.applicationContext.packageName
-     val PLAY_STORE_SUBSCRIPTION_DEEPLINK_URL = "https://play.google.com/store/account/subscriptions?product=%s&package=%s"
-    val url = String.format(PLAY_STORE_SUBSCRIPTION_DEEPLINK_URL,
-        "calf_tracker_premium_10", packageName);
 
     Column(modifier = Modifier.padding(15.dp)) {
-        Text("Premium ", style = MaterialTheme.typography.h5)
-        Text("subscription:",
-            style = MaterialTheme.typography.h5,
-            modifier = Modifier.padding(bottom = 10.dp)
+        ActiveSubscription(subscriptionInfo = billingUiState.subscribedInfo)
+        Text("When will I be charged ?", style = MaterialTheme.typography.h5)
+        Text("Immediately upon purchase. This purchase is recurring and you will be charged once a month",
+            color = Color.Black.copy(alpha = 0.6f)
         )
-        SubscriptionCardInfo(
-            subscriptionInfo = SubscriptionValues(
-                description = "Premium subscription",
-                title= "Premium subscription",
-                items= "Unlimited Calf",
-                price = "$10.00",
-                icon = Icons.Default.MonetizationOn
-            )
+        Text("Subscription Benefits", style = MaterialTheme.typography.h5)
+        Text("Unlimited calf data storage and digital backups of all your data",
+            color = Color.Black.copy(alpha = 0.6f)
         )
 
-        BuyingText(billingUiState,billingViewModel)
+
     }
 
 }
@@ -217,7 +190,7 @@ fun PremiumPage(billingUiState: BillingUiState,billingViewModel: BillingViewMode
             subscriptionInfo = SubscriptionValues(
                 description = "Premium subscription",
                 title= "Premium subscription",
-                items= "Unlimited Calf",
+                items= "Unlimited calf storage",
                 price = "$10.00",
                 icon = Icons.Default.MonetizationOn
             )
@@ -237,7 +210,7 @@ fun MyButton(url:String) {//THIS SHOULD BE IN THE SETTINGS
 
 @Composable
 fun ActiveSubscription(subscriptionInfo: SubscriptionValues){
-    Column(modifier = Modifier.padding(15.dp)) {
+    Column() {
         Text("My active ", style = MaterialTheme.typography.h5)
         Text(
             "subscription:",
@@ -247,6 +220,43 @@ fun ActiveSubscription(subscriptionInfo: SubscriptionValues){
         SubscriptionCardInfo(subscriptionInfo)
 
     }
+}
+//todo: make the button conditional
+@Composable
+fun MainSubscription(
+    subscriptionInfo: SubscriptionValues,
+    changeIndex:() ->Unit,
+    subscribed: Boolean
+){
+    val uriHandler = LocalUriHandler.current
+    val context = LocalContext.current
+    val packageName =  context.applicationContext.packageName
+    val PLAY_STORE_SUBSCRIPTION_DEEPLINK_URL = "https://play.google.com/store/account/subscriptions?product=%s&package=%s"
+    val url = String.format(PLAY_STORE_SUBSCRIPTION_DEEPLINK_URL,
+        "calf_tracker_premium_10", packageName);
+
+    Column(modifier = Modifier.padding(15.dp)) {
+        ActiveSubscription(subscriptionInfo)
+        if(subscribed){
+            Button(
+                onClick = {
+                    uriHandler.openUri(url)
+                }
+            ){
+                Text("Manage Subscription")
+            }
+        }else{
+            Button(
+                onClick = {
+                    changeIndex()
+                }
+            ){
+                Text("Upgrade")
+            }
+        }
+
+    }
+
 }
 
 @Composable
@@ -331,7 +341,7 @@ fun BuyingText(value: BillingUiState,billingViewModel: BillingViewModel) {
                     )
                 }
                 ){
-                    Text(response.data.name)
+                    Text("Purchase")
                 }
             }
             is Response.Failure ->{
@@ -339,37 +349,6 @@ fun BuyingText(value: BillingUiState,billingViewModel: BillingViewModel) {
                     Text("Fail")
                 }
             }
-        }
-
-        when(val response = value.purchasedSubscriptions){
-            is Response.Loading -> {
-                Button(onClick = {}){
-                    Text("Loading purchasedSubscriptions")
-                }
-            }
-            is Response.Success -> {
-                Button(onClick = {}
-                ){
-                    if(response.data.isNotEmpty()){
-                        Column(){
-                            Text((response.data[0].purchaseState == Purchase.PurchaseState.PURCHASED).toString())
-                            Text((response.data[0].purchaseState == Purchase.PurchaseState.PENDING).toString())
-                            Text((response.data[0].purchaseState == Purchase.PurchaseState.UNSPECIFIED_STATE).toString())
-                        }
-
-                    }else{
-                        Text("Purchase Empty")
-                    }
-
-                }
-            }
-            is Response.Failure ->{
-                Button(onClick = {}){
-                    Text("Fail purchasedSubscriptions")
-                }
-            }
-
-
         }
 
 
