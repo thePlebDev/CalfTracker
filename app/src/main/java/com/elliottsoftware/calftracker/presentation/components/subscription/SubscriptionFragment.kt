@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentSubscriptionBinding
+import timber.log.Timber
 
 
 /**
@@ -33,6 +34,11 @@ class SubscriptionFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Timber.tag("CLOSINGT").d("fragment destroyed")
     }
 
     override fun onCreateView(

@@ -11,4 +11,5 @@
 
     <color name="primaryBlue">#FF102840</color>
     <color name="secondaryBlue">#FF0d47a1</color>
+    <color name="linkColor">#FF005799</color>
 </resources>

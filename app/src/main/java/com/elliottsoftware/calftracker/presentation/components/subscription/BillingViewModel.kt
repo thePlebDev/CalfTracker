@@ -61,34 +61,14 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
 
 
     init {
+        Timber.tag("CLOSINGT").d("BILLING VIEW MODEL IS Created")
         billingClient.startBillingConnection(billingConnectionState = _billingConnectionState)
     }
-    // The userCurrentSubscriptionFlow object combines all the possible subscription flows into one
-// for emission.
-//    private val userCurrentSubscriptionFlow = combine(
-//        repo.hasRenewablePremium,
-//        repo.hasPrepaidPremium
-//    ){
-//            hasRenewablePremium,
-//            hasPrepaidPremium
-//        ->
-//        MainState(
-//            hasRenewablePremium = hasRenewablePremium,
-//            hasPrepaidPremium = hasPrepaidPremium
-//        )
-//
-//    }
+
 
     init {
         viewModelScope.launch {
-            /**
-             * I think this is for if the user has already paid.
-             * This can come later*/
-//            userCurrentSubscriptionFlow.collectLatest { collectedSubscriptions ->
-//                Timber.tag("BILLINGR").d("userCurrentSubscriptionFlow.collectLatest")
-//                Timber.tag("BILLINGR").d(collectedSubscriptions.hasRenewablePremium?.toString() ?: "Nothing on hasRenewablePremium")
-//                Timber.tag("BILLINGR").d(collectedSubscriptions.hasPrepaidPremium?.toString() ?: "Nothing on hasPrepaidPremium")
-//            }
+
         }
     }
 
@@ -113,7 +93,11 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
     private suspend fun getPurchases(){
         // Current purchases.
          repo.purchases.collect{ purchases ->
+
+             //todo: THE PURCHASES NEEDS TO BE CREATED INTO ITS OWN PRODUCT OBJECT FOR DETERMINING THE GRACE PERIOD
              val value = purchases.any { purchase: Purchase -> purchase.isAutoRenewing}
+
+
              _uiState.value = _uiState.value.copy(
                  purchasedSubscriptions = Response.Success(purchases)
              )
@@ -365,6 +349,7 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
     // billing connection.
     override fun onCleared() {
         billingClient.terminateBillingConnection()
+        Timber.tag("CLOSINGT").d("BILLING VIEW MODEL IS CLEARED")
     }
 
 

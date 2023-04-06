@@ -9,6 +9,7 @@ val primaryLight =Color(0xFFbfd5ef)
 val primaryLightVariant =Color(0xFFf2ffff)
 val lightSecondary = Color(0xFFefd8bf)
 val lightSecondaryVariant = Color(0xFFefd8bf)
+val linkColor = Color(0xFF0000EE)
 
 val Black2 = Color(0xFF000000)
 val White2= Color(0xFFFFFFFF)
