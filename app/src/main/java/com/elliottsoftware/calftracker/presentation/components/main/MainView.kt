@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -39,21 +40,22 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.*
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
+import com.elliottsoftware.calftracker.presentation.components.subscription.SubscriptionCard
+import com.elliottsoftware.calftracker.presentation.components.subscription.SubscriptionValues
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
 import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
@@ -89,6 +91,7 @@ fun MainView(
 }
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @RequiresApi(Build.VERSION_CODES.N)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
@@ -96,12 +99,24 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
 
+    //BottomSheetScaffold states
+    var skipHalfExpanded by remember { mutableStateOf(false) }
+    val bottomModalState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        skipHalfExpanded = skipHalfExpanded
+    )
+
     Scaffold(
 
         backgroundColor = MaterialTheme.colors.primary,
         scaffoldState = scaffoldState,
         drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
-        floatingActionButton = { FloatingButton(onNavigate) },
+        floatingActionButton = {
+            FloatingButton(
+                navigate = onNavigate,
+                showSheetState = {scope.launch { bottomModalState.animateTo(ModalBottomSheetValue.Expanded) }}
+            )
+                               },
         topBar = {
             CustomTopBar(
                 viewModel.state.value.chipText,
@@ -164,13 +179,112 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
 
         ) {
 
+        ModalBottomSheetLayout(
+            sheetState = bottomModalState,
+            sheetContent = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(400.dp)
+                ){
+                    ActiveSubscription(
+                        subscriptionInfo = SubscriptionValues(
+                            description = "Premium subscription",
+                            title= "Premium subscription",
+                            items= "Unlimited calf storage",
+                            price = "$10.00",
+                            icon = Icons.Default.MonetizationOn
+                        )
+                    )
+                }
+            },
+            sheetBackgroundColor = MaterialTheme.colors.primary
+        ){
+            HomeView(
+                viewModel,onNavigate,sharedViewModel,viewModel.state.value.data,
+                {chipText -> viewModel.setChipText(chipText)},
+                {viewModel.getCalves()}
+            )
+        }
 
-        HomeView(viewModel,onNavigate,sharedViewModel,viewModel.state.value.data,
-            {chipText -> viewModel.setChipText(chipText)},
-            {viewModel.getCalves()}
+
+
+
+    }
+}
+
+
+
+@Composable
+fun SubscriptionCardInfo(subscriptionInfo: SubscriptionValues) {
+
+    SubscriptionCard(
+        SubscriptionValues(
+            description = subscriptionInfo.description,
+            title=subscriptionInfo.title,
+            items=subscriptionInfo.items,
+            price = subscriptionInfo.price,
+            icon = subscriptionInfo.icon
         )
+    )
+}
+
+@Composable
+fun ActiveSubscription(subscriptionInfo: SubscriptionValues){
+
+    Column(modifier = Modifier.padding(15.dp)) {
+        Text("Oops!", style = MaterialTheme.typography.h5)
+        Text(
+            "Looks like you hit the limit on your free tier and will need to upgrade for unlimited calf storage.",
+
+            color = Color.Black.copy(alpha = 0.6f),
+
+        )
+        Text("This subscription will auto renew every 30 days. You can cancel any time in the ",color = Color.Black.copy(alpha = 0.6f))
+        ClickText()
+
+        SubscriptionCardInfo(
+            subscriptionInfo
+        )
+        BuyButton()
 
 
+    }
+}
+@Composable
+fun ClickText(){
+    val uriHandler = LocalUriHandler.current
+    val context = LocalContext.current
+    val packageName =  context.applicationContext.packageName
+    val subscriptionId = "calf_tracker_premium_10"
+    val PLAY_STORE_SUBSCRIPTION_DEEPLINK_URL = "https://play.google.com/store/account/subscriptions?product=%s&package=%s"
+    val url = String.format(PLAY_STORE_SUBSCRIPTION_DEEPLINK_URL,
+        subscriptionId, packageName);
+
+    ClickableText(
+        onClick ={uriHandler.openUri(url)},
+        text = AnnotatedString("Google Play store"),
+        style = TextStyle(
+            fontSize =  20.sp,
+            color= Color(R.color.linkColor)
+        ),
+        modifier = Modifier.padding(bottom = 20.dp)
+    )
+
+}
+
+@Composable
+fun BuyButton(){
+    Button(onClick = {
+//    billingViewModel.buy(
+//        productDetails = response.data,
+//        currentPurchases = null,
+//        activity = activity,
+//        tag = "calf_tracker_premium"
+//    )
+    }
+    ){
+        Text("Purchase")
     }
 }
 
@@ -300,10 +414,19 @@ fun MessageList(
 
 }
 
+
+
 @Composable
-fun FloatingButton(navigate:(Int)-> Unit){
+fun FloatingButton(navigate:(Int)-> Unit,showSheetState:()-> Unit = {}){
+   // val scope = rememberCoroutineScope()
     FloatingActionButton(
-        onClick = { navigate(R.id.action_mainFragment2_to_newCalfFragment) },
+        onClick = {
+          //  navigate(R.id.action_mainFragment2_to_newCalfFragment)
+//            scope.launch {
+//                sheetState.show()
+//            }
+                  showSheetState()
+                  },
         backgroundColor = MaterialTheme.colors.secondary,
         content = {
             Icon(
@@ -521,13 +644,14 @@ fun CalfCard(
     ){
 
         Card(
-            modifier =Modifier
-                .width(160.dp).height(110.dp)
+            modifier = Modifier
+                .width(160.dp)
+                .height(110.dp)
                 .align(Alignment.CenterEnd)
 
                 .padding(horizontal = 15.dp, vertical = 8.dp)
                 .clickable {
-                    setCalfDeleteTagNId(calf.calftag!!,calf.id!!)
+                    setCalfDeleteTagNId(calf.calftag!!, calf.id!!)
                     showDeleteModal(true)
                 },
             elevation = 2.dp,
@@ -598,7 +722,8 @@ fun ConfirmDelete(
 
     Card(
         backgroundColor = MaterialTheme.colors.secondary,
-        modifier = Modifier.padding(vertical = 20.dp)
+        modifier = Modifier
+            .padding(vertical = 20.dp)
             .border(width = 2.dp, color = Color.Red)
     ) {
         Column(modifier = Modifier

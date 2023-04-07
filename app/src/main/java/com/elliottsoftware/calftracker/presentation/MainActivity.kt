@@ -18,6 +18,7 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.appcheck.FirebaseAppCheck
 import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import timber.log.Timber.*
 import timber.log.Timber.Forest.plant
 
@@ -25,6 +26,10 @@ import timber.log.Timber.Forest.plant
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
+    override fun onDestroy() {
+        super.onDestroy()
+        Timber.tag("CLOSINGT").d("ACTIVITY DESTROYED")
+    }
 
 
     @RequiresApi(Build.VERSION_CODES.S)
