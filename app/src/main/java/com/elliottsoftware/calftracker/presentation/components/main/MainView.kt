@@ -54,6 +54,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
+import com.elliottsoftware.calftracker.presentation.components.subscription.BillingViewModel
 import com.elliottsoftware.calftracker.presentation.components.subscription.SubscriptionCard
 import com.elliottsoftware.calftracker.presentation.components.subscription.SubscriptionValues
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
@@ -84,6 +85,7 @@ fun MainView(
     viewModel: MainViewModel = viewModel(),
     onNavigate: (Int) -> Unit,
     sharedViewModel: EditCalfViewModel,
+    billingViewModel: BillingViewModel
 ){
     AppTheme(false){
         ScaffoldView(viewModel,onNavigate,sharedViewModel)

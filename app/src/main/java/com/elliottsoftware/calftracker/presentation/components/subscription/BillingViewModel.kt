@@ -355,6 +355,7 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
 
 
 
+
     /**
      * Enum representing the various screens a user can be redirected to.
      */
