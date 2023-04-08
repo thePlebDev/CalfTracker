@@ -9,6 +9,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.elliottsoftware.calftracker.R
@@ -35,6 +36,10 @@ class SubscriptionFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
     }
+    override fun onDetach() {
+        super.onDetach()
+        Timber.tag("CLOSINGT").d("fragment DETACHED")
+    }
 
     override fun onDestroy() {
         super.onDestroy()
@@ -45,10 +50,12 @@ class SubscriptionFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Timber.tag("CLOSINGT").d("fragment CREATED")
         _binding = FragmentSubscriptionBinding.inflate(inflater, container, false)
         val view = binding.root
 
 
+        //viewModels() should be used instead of activityViewModels()
         val billingViewModel:BillingViewModel by activityViewModels()
 
         lifecycle.addObserver(billingViewModel)
@@ -76,6 +83,7 @@ class SubscriptionFragment : Fragment() {
         _binding = null
 //        lifecycle.removeObserver(billingViewModel)
     }
+
 
 
 }

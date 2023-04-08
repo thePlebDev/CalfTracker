@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.android.billingclient.api.Purchase
+import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
@@ -91,6 +92,20 @@ fun SubscriptionViews(
                                // viewModel.signUserOut()
                                 scaffoldState.drawerState.close()
 
+
+                            }
+                        }
+                    ),
+                    MenuItem(
+                        id= "Home",
+                        title="Home",
+                        contentDescription = "navigate to home menu",
+                        icon = Icons.Default.Logout,
+                        onClick = {
+                            scope.launch {
+                                //viewModel.signUserOut()
+                                onNavigate(R.id.action_subscriptionFragment_to_mainFragment22)
+                                scaffoldState.drawerState.close()
 
                             }
                         }

@@ -42,6 +42,7 @@ class BillingClientWrapper(
         billingResult: BillingResult, //contains the response code from the In-App billing API
         purchases: List<Purchase>? // a list of objects representing in-app purchases
     ) {
+        Timber.tag("CLOSINGT").d("purchase update listener")
 
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK
             && !purchases.isNullOrEmpty()

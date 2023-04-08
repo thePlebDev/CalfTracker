@@ -20,6 +20,7 @@ import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
 
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import com.elliottsoftware.calftracker.presentation.components.subscription.BillingViewModel
 import com.elliottsoftware.calftracker.util.findActivity
 
 
@@ -46,7 +47,7 @@ class MainFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
+        val billingViewModel: BillingViewModel by activityViewModels()
         _binding = FragmentMainBinding.inflate(inflater,container,false)
         val view = binding.root
         val sharedViewModel: EditCalfViewModel by activityViewModels()
@@ -63,10 +64,8 @@ class MainFragment : Fragment() {
                     viewModel = mainViewModel,
                     onNavigate = { dest -> findNavController().navigate(dest) },
                     sharedViewModel = sharedViewModel,
-
+                    billingViewModel = billingViewModel
                 )
-
-
             }
 
         }
