@@ -17,6 +17,7 @@ import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.presentation.components.billing.BillingClientWrapper
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.*
 
 data class SubscriptionValues(
     val description:String,
@@ -36,7 +37,8 @@ data class BillingUiState(
         items= "Loading...",
         price = "...",
         icon = Icons.Default.Autorenew
-            )
+            ),
+    val nextBillingPeriod:String =" None"
 )
 
 class BillingViewModel(application: Application): AndroidViewModel(application),DefaultLifecycleObserver {
@@ -68,6 +70,7 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
 
     init {
         viewModelScope.launch {
+            subscribedPurchases()
 
         }
     }
@@ -76,9 +79,11 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
      * We should be able to do a current collect that is found in all the other repository stuff
      * */
     init{
+        Timber.tag("subscribedP").d("initialized")
         testingCollectingRepoInfo()
         viewModelScope.launch {
             getPurchases()
+
         }
     }
 
@@ -93,9 +98,6 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
     private suspend fun getPurchases(){
         // Current purchases.
          repo.purchases.collect{ purchases ->
-
-             //todo: THE PURCHASES NEEDS TO BE CREATED INTO ITS OWN PRODUCT OBJECT FOR DETERMINING THE GRACE PERIOD
-             val value = purchases.any { purchase: Purchase -> purchase.isAutoRenewing}
 
 
              _uiState.value = _uiState.value.copy(
@@ -352,6 +354,56 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
         Timber.tag("CLOSINGT").d("BILLING VIEW MODEL IS CLEARED")
     }
 
+    /******* I THINK I WANT TO PUT THIS AS A USECASE**********/
+    // THIS SHOULD BE CLEANED UP A BIT INTO UTIL METHODS
+    private fun subscribedPurchases(){
+
+        viewModelScope.launch {
+            repo.subscribedObject.collect{item ->
+                when(val response = item){
+                    is Response.Success ->{
+                        val list = response.data
+
+                        //todo: THE PURCHASES NEEDS TO BE CREATED INTO ITS OWN PRODUCT OBJECT FOR DETERMINING THE GRACE PERIOD
+                        if(!list.isNullOrEmpty()){
+                            val timeStamp = list[0].purchaseTime
+                            val date = Date(timeStamp)
+                            val calendar = Calendar.getInstance()
+                            calendar.time = date
+                            calendar.add(Calendar.DATE,30)
+
+                            _uiState.value = _uiState.value.copy(
+                                nextBillingPeriod = calendar.time.toString().subSequence(0,10).toString()
+                            )
+                        }else{
+                            _uiState.value = _uiState.value.copy(
+                                nextBillingPeriod = "None"
+                            )
+                        }
+                    }
+                    is Response.Loading ->{
+                        _uiState.value = _uiState.value.copy(
+                            nextBillingPeriod = "None"
+                        )
+                    }
+                    is Response.Failure ->{
+                        _uiState.value = _uiState.value.copy(
+                            nextBillingPeriod = "None"
+                        )
+                    }
+
+                    else -> {
+
+                    }
+                }
+
+            }
+        }
+
+
+
+    }
+
 
 
 
@@ -376,6 +428,7 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
 
     override fun onResume(owner: LifecycleOwner) {
         refreshPurchases()
+        subscribedPurchases()
     }
 
 }
