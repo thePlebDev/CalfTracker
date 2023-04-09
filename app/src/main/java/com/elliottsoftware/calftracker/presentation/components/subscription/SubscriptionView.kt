@@ -163,9 +163,12 @@ fun TabScreen(viewModel: BillingViewModel,UIState:BillingUiState) {
             0 -> MainSubscription(
                 viewModel.state.value.subscribedInfo,
                 changeIndex = {tabIndex = 1},
-                subscribed = viewModel.state.value.subscribed
+                subscribed = viewModel.state.value.subscribed,
+                viewModel.state.value.nextBillingPeriod
             )
+
             1 -> PremiumPage(billingUiState = viewModel.state.value, billingViewModel = viewModel)
+
             2 -> Settings(billingUiState=viewModel.state.value, billingViewModel = viewModel)
 
         }
@@ -241,7 +244,8 @@ fun ActiveSubscription(subscriptionInfo: SubscriptionValues){
 fun MainSubscription(
     subscriptionInfo: SubscriptionValues,
     changeIndex:() ->Unit,
-    subscribed: Boolean
+    subscribed: Boolean,
+    billingPeriod: String
 ){
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
@@ -269,6 +273,7 @@ fun MainSubscription(
                 Text("Upgrade")
             }
         }
+        Text("Next billing period: $billingPeriod")
 
     }
 

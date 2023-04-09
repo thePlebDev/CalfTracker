@@ -13,9 +13,19 @@ class SubscriptionDataRepository(billingClientWrapper: BillingClientWrapper) {
 
     // Set to true when a returned purchase is an auto-renewing basic subscription.
     /**IS HOW WE WILL DETERMINE IF THERE IS A SUBSCRIPTION OR NOT*/
+    //
     val hasRenewablePremium: Flow<Response<Boolean>> = try{
         billingClientWrapper.purchases.map { value: List<Purchase> ->
             val value = value.any { purchase: Purchase ->  purchase.products.contains(PREMIUM_SUB) && purchase.isAutoRenewing}
+            Response.Success(value)
+        }
+    }catch (e:Exception){
+
+        MutableStateFlow(Response.Failure(e))
+    }
+    val subscribedObject: Flow<Response<List<Purchase>>> = try{
+        billingClientWrapper.purchases.map { value: List<Purchase> ->
+            val value = value.filter { purchase: Purchase ->  purchase.products.contains(PREMIUM_SUB) && purchase.isAutoRenewing}
             Response.Success(value)
         }
     }catch (e:Exception){
