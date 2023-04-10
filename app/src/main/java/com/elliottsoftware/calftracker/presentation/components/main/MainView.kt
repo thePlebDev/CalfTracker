@@ -54,6 +54,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
+import com.elliottsoftware.calftracker.presentation.components.subscription.BillingUiState
 import com.elliottsoftware.calftracker.presentation.components.subscription.BillingViewModel
 import com.elliottsoftware.calftracker.presentation.components.subscription.SubscriptionCard
 import com.elliottsoftware.calftracker.presentation.components.subscription.SubscriptionValues
@@ -63,6 +64,7 @@ import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
+import com.elliottsoftware.calftracker.util.findActivity
 import com.google.android.material.internal.ViewUtils.dpToPx
 import com.skydoves.balloon.ArrowPositionRules
 import com.skydoves.balloon.Balloon
@@ -88,7 +90,12 @@ fun MainView(
     billingViewModel: BillingViewModel
 ){
     AppTheme(false){
-        ScaffoldView(viewModel,onNavigate,sharedViewModel)
+        ScaffoldView(
+            viewModel,
+            onNavigate,
+            sharedViewModel,
+            billingViewModel
+        )
     }
 }
 
@@ -97,7 +104,12 @@ fun MainView(
 @RequiresApi(Build.VERSION_CODES.N)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Unit,sharedViewModel: EditCalfViewModel){
+fun ScaffoldView(
+    viewModel: MainViewModel = viewModel(),
+    onNavigate: (Int) -> Unit,
+    sharedViewModel: EditCalfViewModel,
+    billingViewModel: BillingViewModel
+){
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
 
@@ -196,7 +208,8 @@ fun ScaffoldView(viewModel: MainViewModel = viewModel(),onNavigate: (Int) -> Uni
                             items= "Unlimited calf storage",
                             price = "$10.00",
                             icon = Icons.Default.MonetizationOn
-                        )
+                        ),
+                        billingViewModel = billingViewModel
                     )
                 }
             },
@@ -232,7 +245,7 @@ fun SubscriptionCardInfo(subscriptionInfo: SubscriptionValues) {
 }
 
 @Composable
-fun ActiveSubscription(subscriptionInfo: SubscriptionValues){
+fun ActiveSubscription(subscriptionInfo: SubscriptionValues,billingViewModel: BillingViewModel){
 
     Column(modifier = Modifier.padding(15.dp)) {
         Text("Oops!", style = MaterialTheme.typography.h5)
@@ -248,7 +261,10 @@ fun ActiveSubscription(subscriptionInfo: SubscriptionValues){
         SubscriptionCardInfo(
             subscriptionInfo
         )
-        BuyButton()
+        BuyingText(
+            value = billingViewModel.state.value,
+            billingViewModel = billingViewModel
+        )
 
 
     }
@@ -275,21 +291,48 @@ fun ClickText(){
 
 }
 
+
 @Composable
-fun BuyButton(){
-    Button(onClick = {
-//    billingViewModel.buy(
-//        productDetails = response.data,
-//        currentPurchases = null,
-//        activity = activity,
-//        tag = "calf_tracker_premium"
-//    )
-    }
-    ){
-        Text("Purchase")
+fun BuyingText(value: BillingUiState, billingViewModel: BillingViewModel) {
+    val context = LocalContext.current
+
+    val activity = context.findActivity()
+
+
+
+    Column() {
+
+
+        when(val response = value.subscriptionProduct){
+            is Response.Loading -> {
+                Button(onClick = {}){
+                    Text("Loading")
+                }
+            }
+            is Response.Success -> {
+                Button(onClick = {
+                    billingViewModel.buy(
+                        productDetails = response.data,
+                        currentPurchases = null,
+                        activity = activity,
+                        tag = "calf_tracker_premium"
+                    )
+                }
+                ){
+                    Text("Purchase")
+                }
+            }
+            is Response.Failure ->{
+                Button(onClick = {}){
+                    Text("Fail")
+                }
+            }
+        }
+
+
+
     }
 }
-
 
 
 
