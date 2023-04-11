@@ -14,10 +14,13 @@ import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.elliottsoftware.calftracker.data.repositories.SubscriptionDataRepository
 import com.elliottsoftware.calftracker.domain.models.Response
+import com.elliottsoftware.calftracker.domain.repositories.SubscriptionRepository
 import com.elliottsoftware.calftracker.presentation.components.billing.BillingClientWrapper
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
+import javax.inject.Inject
 
 data class SubscriptionValues(
     val description:String,
@@ -41,19 +44,14 @@ data class BillingUiState(
     val nextBillingPeriod:String =" None"
 )
 
-class BillingViewModel(application: Application): AndroidViewModel(application),DefaultLifecycleObserver {
+@HiltViewModel
+class BillingViewModel @Inject constructor(
+    application: Application,
+    private val repo: SubscriptionRepository //Keep doing this
+): AndroidViewModel(application),DefaultLifecycleObserver {
 
     private val _uiState = mutableStateOf(BillingUiState())
     val state = _uiState
-
-
-    private var billingClient: BillingClientWrapper = BillingClientWrapper(application)
-    /************THIS REPOSITORY SETUP NEEDS TO BE LOOKED INTO***************/
-    private var repo: SubscriptionDataRepository =
-        SubscriptionDataRepository(billingClientWrapper = billingClient)
-
-    private val _billingConnectionState = MutableLiveData(false)
-    val billingConnectionState: LiveData<Boolean> = _billingConnectionState
 
     /**
      * representing the various screens a user can be redirected to.
@@ -62,10 +60,10 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
 //    val destinationScreen: LiveData<DestinationScreen> = _destinationScreen
 
 
-    init {
-        Timber.tag("CLOSINGT").d("BILLING VIEW MODEL IS Created")
-        billingClient.startBillingConnection(billingConnectionState = _billingConnectionState)
-    }
+//    init {
+//        Timber.tag("CLOSINGT").d("BILLING VIEW MODEL IS Created")
+//        billingClient.startBillingConnection(billingConnectionState = _billingConnectionState)
+//    }
 
 
     init {
@@ -88,22 +86,27 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
     }
 
     private fun testingCollectingRepoInfo() =viewModelScope.launch{
-        repo.premiumProductDetails.collect{ it
+//        repo.premiumProductDetails.collect{ it
+//            _uiState.value = _uiState.value.copy(
+//                subscriptionProduct = Response.Success(it)
+//            )
+//
+//        }
+        repo.premiumProductDetails().collect{
             _uiState.value = _uiState.value.copy(
                 subscriptionProduct = Response.Success(it)
             )
-
         }
     }
     private suspend fun getPurchases(){
         // Current purchases.
-         repo.purchases.collect{ purchases ->
-
-
-             _uiState.value = _uiState.value.copy(
-                 purchasedSubscriptions = Response.Success(purchases)
-             )
-         }
+//         repo.purchases.collect{ purchases ->
+//
+//
+//             _uiState.value = _uiState.value.copy(
+//                 purchasedSubscriptions = Response.Success(purchases)
+//             )
+//         }
 
     }
 
@@ -113,55 +116,56 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
      fun refreshPurchases(){
 
         viewModelScope.launch {
-            billingClient.queryPurchases()
-            repo.hasRenewablePremium.collect { collectedSubscriptions ->
-
-                    when(collectedSubscriptions){
-                        is Response.Loading -> {
-                            _uiState.value = _uiState.value.copy(
-
-                                subscribedInfo = SubscriptionValues(
-                                    description = "Fetching Subscription",
-                                    title= "Loading...",
-                                    items= "....",
-                                    price = "....",
-                                    icon = Icons.Default.Autorenew
-                                )
-                            )
-                        }
-                        is Response.Success ->{
-                            if(collectedSubscriptions.data){
-                                _uiState.value = _uiState.value.copy(
-
-                                    subscribedInfo = SubscriptionValues(
-                                        description = "Premium subscription",
-                                        title= "Premium subscription",
-                                        items= "Unlimited calf storage",
-                                        price = "$10.00",
-                                        icon = Icons.Default.MonetizationOn
-                                    ),
-                                    subscribed = true
-                                )
-                            }else{
-                                _uiState.value = _uiState.value.copy(
-
-                                    subscribedInfo = SubscriptionValues(
-                                        description = "Basic subscription",
-                                        title= "Basic subscription",
-                                        items= "100 calf limit",
-                                        price = "$0.00",
-                                        icon = Icons.Default.CrueltyFree
-                                    ),
-                                    subscribed = false
-                                )
-
-                            }
-
-                        }
-                        is Response.Failure -> {}
-                    }
-
-            }
+            //billingClient.queryPurchases() //THIS NEEDS TO GO THROUGH THE REPOSITORY
+           // repo.queryPurchases()
+//            repo.hasRenewablePremium.collect { collectedSubscriptions ->
+//
+//                    when(collectedSubscriptions){
+//                        is Response.Loading -> {
+//                            _uiState.value = _uiState.value.copy(
+//
+//                                subscribedInfo = SubscriptionValues(
+//                                    description = "Fetching Subscription",
+//                                    title= "Loading...",
+//                                    items= "....",
+//                                    price = "....",
+//                                    icon = Icons.Default.Autorenew
+//                                )
+//                            )
+//                        }
+//                        is Response.Success ->{
+//                            if(collectedSubscriptions.data){
+//                                _uiState.value = _uiState.value.copy(
+//
+//                                    subscribedInfo = SubscriptionValues(
+//                                        description = "Premium subscription",
+//                                        title= "Premium subscription",
+//                                        items= "Unlimited calf storage",
+//                                        price = "$10.00",
+//                                        icon = Icons.Default.MonetizationOn
+//                                    ),
+//                                    subscribed = true
+//                                )
+//                            }else{
+//                                _uiState.value = _uiState.value.copy(
+//
+//                                    subscribedInfo = SubscriptionValues(
+//                                        description = "Basic subscription",
+//                                        title= "Basic subscription",
+//                                        items= "100 calf limit",
+//                                        price = "$0.00",
+//                                        icon = Icons.Default.CrueltyFree
+//                                    ),
+//                                    subscribed = false
+//                                )
+//
+//                            }
+//
+//                        }
+//                        is Response.Failure -> {}
+//                    }
+//
+//            }
         }
 
     }
@@ -312,7 +316,11 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
             }
 
             if (billingParams != null) {
-                billingClient.launchBillingFlow(
+//                billingClient.launchBillingFlow(
+//                    activity,
+//                    billingParams
+//                )
+                repo.launchBillingFlow(
                     activity,
                     billingParams
                 )
@@ -331,7 +339,11 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
 
 
             if (billingParams != null) {
-                billingClient.launchBillingFlow(
+//                billingClient.launchBillingFlow(
+//                    activity,
+//                    billingParams.build()
+//                )
+                repo.launchBillingFlow(
                     activity,
                     billingParams.build()
                 )
@@ -350,7 +362,8 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
     // When an activity is destroyed the viewModel's onCleared is called, so we terminate the
     // billing connection.
     override fun onCleared() {
-        billingClient.terminateBillingConnection()
+       // billingClient.terminateBillingConnection() //this needs to go through the repository
+        //repo.terminateConnection()
         Timber.tag("CLOSINGT").d("BILLING VIEW MODEL IS CLEARED")
     }
 
@@ -359,39 +372,39 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
     private fun subscribedPurchases(){
 
         viewModelScope.launch {
-            repo.subscribedObject.collect{item ->
-                when(val response = item){
-                    is Response.Success ->{
-                        val list = response.data
-
-                        //todo: THE PURCHASES NEEDS TO BE CREATED INTO ITS OWN PRODUCT OBJECT FOR DETERMINING THE GRACE PERIOD
-                        if(!list.isNullOrEmpty()){
-                            setDate(
-                                purchase = list[0], numberOfDays = 30
-                            )
-                        }else{
-                            _uiState.value = _uiState.value.copy(
-                                nextBillingPeriod = "None"
-                            )
-                        }
-                    }
-                    is Response.Loading ->{
-                        _uiState.value = _uiState.value.copy(
-                            nextBillingPeriod = "None"
-                        )
-                    }
-                    is Response.Failure ->{
-                        _uiState.value = _uiState.value.copy(
-                            nextBillingPeriod = "None"
-                        )
-                    }
-
-                    else -> {
-
-                    }
-                }
-
-            }
+//            repo.subscribedObject.collect{item ->
+//                when(val response = item){
+//                    is Response.Success ->{
+//                        val list = response.data
+//
+//                        //todo: THE PURCHASES NEEDS TO BE CREATED INTO ITS OWN PRODUCT OBJECT FOR DETERMINING THE GRACE PERIOD
+//                        if(!list.isNullOrEmpty()){
+//                            setDate(
+//                                purchase = list[0], numberOfDays = 30
+//                            )
+//                        }else{
+//                            _uiState.value = _uiState.value.copy(
+//                                nextBillingPeriod = "None"
+//                            )
+//                        }
+//                    }
+//                    is Response.Loading ->{
+//                        _uiState.value = _uiState.value.copy(
+//                            nextBillingPeriod = "None"
+//                        )
+//                    }
+//                    is Response.Failure ->{
+//                        _uiState.value = _uiState.value.copy(
+//                            nextBillingPeriod = "None"
+//                        )
+//                    }
+//
+//                    else -> {
+//
+//                    }
+//                }
+//
+//            }
         }
 
 
