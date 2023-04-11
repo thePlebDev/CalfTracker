@@ -1,13 +1,19 @@
 package com.elliottsoftware.calftracker.data.repositories
 
+import android.app.Activity
+import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.elliottsoftware.calftracker.domain.models.Response
+import com.elliottsoftware.calftracker.domain.repositories.SubscriptionRepository
 import com.elliottsoftware.calftracker.presentation.components.billing.BillingClientWrapper
 import kotlinx.coroutines.flow.*
 import timber.log.Timber
+import kotlinx.coroutines.flow.flow
 
-class SubscriptionDataRepository(billingClientWrapper: BillingClientWrapper) {
+class SubscriptionDataRepository(
+    private val billingClientWrapper: BillingClientWrapper
+    ): SubscriptionRepository {
 
 
 
@@ -56,6 +62,42 @@ class SubscriptionDataRepository(billingClientWrapper: BillingClientWrapper) {
             Timber.tag("productsDetails").d(item.toString())
             item
         }
+
+    //terminate the connection
+    fun terminateConnection(){
+        billingClientWrapper.terminateBillingConnection()
+    }
+    override fun launchBillingFlow(activity: Activity, params: BillingFlowParams){
+        billingClientWrapper.launchBillingFlow(
+            activity,
+            params
+        )
+    }
+
+    override suspend fun premiumProductDetails() = flow {
+
+        billingClientWrapper.productWithProductDetails.filter {
+
+                it.containsKey(
+                    PREMIUM_SUB
+                )
+            }.map {
+
+                val item = it[PREMIUM_SUB]!!
+                Timber.tag("productsDetails").d(item.toString())
+                item
+            }.collect{
+                emit(it)
+        }
+
+
+
+
+    }
+
+    fun queryPurchases(){
+        billingClientWrapper.queryPurchases()
+    }
 
 
 
