@@ -64,7 +64,7 @@ class SubscriptionDataRepository(
         }
 
     //terminate the connection
-    fun terminateConnection(){
+    override fun terminateConnection(){
         billingClientWrapper.terminateBillingConnection()
     }
     override fun launchBillingFlow(activity: Activity, params: BillingFlowParams){
@@ -95,7 +95,26 @@ class SubscriptionDataRepository(
 
     }
 
-    fun queryPurchases(){
+    override suspend fun hasRenewablePremium() = flow  {
+         billingClientWrapper.purchases.map { value: List<Purchase> ->
+            val value = value.any { purchase: Purchase ->  purchase.products.contains(PREMIUM_SUB) && purchase.isAutoRenewing}
+            Response.Success(value)
+        }.collect{
+             emit(it)
+         }
+
+    }
+
+    override suspend fun subscribedObject()=flow {
+        billingClientWrapper.purchases.map { value: List<Purchase> ->
+            val value = value.filter { purchase: Purchase ->  purchase.products.contains(PREMIUM_SUB) && purchase.isAutoRenewing}
+            Response.Success(value)
+        }.collect{
+            emit(it)
+        }
+    }
+
+    override fun queryPurchases(){
         billingClientWrapper.queryPurchases()
     }
 
