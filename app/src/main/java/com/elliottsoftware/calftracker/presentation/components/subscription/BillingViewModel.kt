@@ -366,14 +366,8 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
 
                         //todo: THE PURCHASES NEEDS TO BE CREATED INTO ITS OWN PRODUCT OBJECT FOR DETERMINING THE GRACE PERIOD
                         if(!list.isNullOrEmpty()){
-                            val timeStamp = list[0].purchaseTime
-                            val date = Date(timeStamp)
-                            val calendar = Calendar.getInstance()
-                            calendar.time = date
-                            calendar.add(Calendar.DATE,30)
-
-                            _uiState.value = _uiState.value.copy(
-                                nextBillingPeriod = calendar.time.toString().subSequence(0,10).toString()
+                            setDate(
+                                purchase = list[0], numberOfDays = 30
                             )
                         }else{
                             _uiState.value = _uiState.value.copy(
@@ -405,6 +399,17 @@ class BillingViewModel(application: Application): AndroidViewModel(application),
     }
 
 
+    private fun setDate(purchase:Purchase,numberOfDays:Int){
+        val timeStamp = purchase.purchaseTime
+        val date = Date(timeStamp)
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+        calendar.add(Calendar.DATE,numberOfDays)
+
+        _uiState.value = _uiState.value.copy(
+            nextBillingPeriod = calendar.time.toString().subSequence(0,10).toString()
+        )
+    }
 
 
 
