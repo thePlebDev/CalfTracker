@@ -269,6 +269,26 @@ fun CalendarDock(viewModel: NewCalfViewModel, ){
 
 }
 
+@Composable
+fun FloatingButton(
+    navigate:()-> Unit,showSheetState:()-> Unit = {},
+){
+    // val scope = rememberCoroutineScope()
+    FloatingActionButton(
+        onClick = {
+            navigate()
+        },
+        backgroundColor = MaterialTheme.colors.secondary,
+        content = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_add),
+                contentDescription = null,
+                tint = MaterialTheme.colors.onSecondary
+            )
+        }
+    )
+}
+
 
 
 

@@ -41,7 +41,9 @@ data class BillingUiState(
         price = "...",
         icon = Icons.Default.Autorenew
             ),
-    val nextBillingPeriod:String =" None"
+    val nextBillingPeriod:String =" None",
+    val calfListSize:Int = 0
+
 )
 
 @HiltViewModel
@@ -53,24 +55,16 @@ class BillingViewModel @Inject constructor(
     private val _uiState = mutableStateOf(BillingUiState())
     val state = _uiState
 
-    /**
-     * representing the various screens a user can be redirected to.
-     */
-//    private val _destinationScreen = MutableLiveData<DestinationScreen>()
-//    val destinationScreen: LiveData<DestinationScreen> = _destinationScreen
-
-
-//    init {
-//        Timber.tag("CLOSINGT").d("BILLING VIEW MODEL IS Created")
-//        billingClient.startBillingConnection(billingConnectionState = _billingConnectionState)
-//    }
-
 
     init {
         viewModelScope.launch {
             subscribedPurchases()
 
         }
+
+    }
+    init{
+        refreshPurchases()
     }
 
     /**
@@ -85,19 +79,21 @@ class BillingViewModel @Inject constructor(
         }
     }
 
+    /// TODO:  THIS NEEDS TO BE LOOKED INTO SOME MORE
     private fun testingCollectingRepoInfo() =viewModelScope.launch{
-//        repo.premiumProductDetails.collect{ it
-//            _uiState.value = _uiState.value.copy(
-//                subscriptionProduct = Response.Success(it)
-//            )
-//
-//        }
+
         repo.premiumProductDetails().collect{
             _uiState.value = _uiState.value.copy(
                 subscriptionProduct = Response.Success(it)
             )
         }
     }
+    fun updateCalfListSize(size:Int){
+        _uiState.value = _uiState.value.copy(
+            calfListSize = size
+        )
+    }
+
     private suspend fun getPurchases(){
         // Current purchases.
 //         repo.purchases.collect{ purchases ->
@@ -116,60 +112,58 @@ class BillingViewModel @Inject constructor(
      fun refreshPurchases(){
 
         viewModelScope.launch {
-            //billingClient.queryPurchases() //THIS NEEDS TO GO THROUGH THE REPOSITORY
-           // repo.queryPurchases()
-//            repo.hasRenewablePremium.collect { collectedSubscriptions ->
-//
-//                    when(collectedSubscriptions){
-//                        is Response.Loading -> {
-//                            _uiState.value = _uiState.value.copy(
-//
-//                                subscribedInfo = SubscriptionValues(
-//                                    description = "Fetching Subscription",
-//                                    title= "Loading...",
-//                                    items= "....",
-//                                    price = "....",
-//                                    icon = Icons.Default.Autorenew
-//                                )
-//                            )
-//                        }
-//                        is Response.Success ->{
-//                            if(collectedSubscriptions.data){
-//                                _uiState.value = _uiState.value.copy(
-//
-//                                    subscribedInfo = SubscriptionValues(
-//                                        description = "Premium subscription",
-//                                        title= "Premium subscription",
-//                                        items= "Unlimited calf storage",
-//                                        price = "$10.00",
-//                                        icon = Icons.Default.MonetizationOn
-//                                    ),
-//                                    subscribed = true
-//                                )
-//                            }else{
-//                                _uiState.value = _uiState.value.copy(
-//
-//                                    subscribedInfo = SubscriptionValues(
-//                                        description = "Basic subscription",
-//                                        title= "Basic subscription",
-//                                        items= "100 calf limit",
-//                                        price = "$0.00",
-//                                        icon = Icons.Default.CrueltyFree
-//                                    ),
-//                                    subscribed = false
-//                                )
-//
-//                            }
-//
-//                        }
-//                        is Response.Failure -> {}
-//                    }
-//
-//            }
+            repo.queryPurchases()
+            repo.hasRenewablePremium().collect { collectedSubscriptions ->
+
+                    when(collectedSubscriptions){
+                        is Response.Loading -> {
+                            _uiState.value = _uiState.value.copy(
+
+                                subscribedInfo = SubscriptionValues(
+                                    description = "Fetching Subscription",
+                                    title= "Loading...",
+                                    items= "....",
+                                    price = "....",
+                                    icon = Icons.Default.Autorenew
+                                )
+                            )
+                        }
+                        is Response.Success ->{
+                            if(collectedSubscriptions.data){
+                                _uiState.value = _uiState.value.copy(
+
+                                    subscribedInfo = SubscriptionValues(
+                                        description = "Premium subscription",
+                                        title= "Premium subscription",
+                                        items= "Unlimited calf storage",
+                                        price = "$10.00",
+                                        icon = Icons.Default.MonetizationOn
+                                    ),
+                                    subscribed = true
+                                )
+                            }else{
+                                _uiState.value = _uiState.value.copy(
+
+                                    subscribedInfo = SubscriptionValues(
+                                        description = "Basic subscription",
+                                        title= "Basic subscription",
+                                        items= "100 calf limit",
+                                        price = "$0.00",
+                                        icon = Icons.Default.CrueltyFree
+                                    ),
+                                    subscribed = false
+                                )
+
+                            }
+
+                        }
+                        is Response.Failure -> {}
+                    }
+
+            }
         }
 
     }
-
 
 
 
@@ -362,9 +356,7 @@ class BillingViewModel @Inject constructor(
     // When an activity is destroyed the viewModel's onCleared is called, so we terminate the
     // billing connection.
     override fun onCleared() {
-       // billingClient.terminateBillingConnection() //this needs to go through the repository
-        //repo.terminateConnection()
-        Timber.tag("CLOSINGT").d("BILLING VIEW MODEL IS CLEARED")
+        repo.terminateConnection()
     }
 
     /******* I THINK I WANT TO PUT THIS AS A USECASE**********/
@@ -372,39 +364,35 @@ class BillingViewModel @Inject constructor(
     private fun subscribedPurchases(){
 
         viewModelScope.launch {
-//            repo.subscribedObject.collect{item ->
-//                when(val response = item){
-//                    is Response.Success ->{
-//                        val list = response.data
-//
-//                        //todo: THE PURCHASES NEEDS TO BE CREATED INTO ITS OWN PRODUCT OBJECT FOR DETERMINING THE GRACE PERIOD
-//                        if(!list.isNullOrEmpty()){
-//                            setDate(
-//                                purchase = list[0], numberOfDays = 30
-//                            )
-//                        }else{
-//                            _uiState.value = _uiState.value.copy(
-//                                nextBillingPeriod = "None"
-//                            )
-//                        }
-//                    }
-//                    is Response.Loading ->{
-//                        _uiState.value = _uiState.value.copy(
-//                            nextBillingPeriod = "None"
-//                        )
-//                    }
-//                    is Response.Failure ->{
-//                        _uiState.value = _uiState.value.copy(
-//                            nextBillingPeriod = "None"
-//                        )
-//                    }
-//
-//                    else -> {
-//
-//                    }
-//                }
-//
-//            }
+            repo.subscribedObject().collect{item ->
+                when(val response = item){
+                    is Response.Success ->{
+                        val list = response.data
+
+                        //todo: THE PURCHASES NEEDS TO BE CREATED INTO ITS OWN PRODUCT OBJECT FOR DETERMINING THE GRACE PERIOD
+                        if(list.isNotEmpty()){
+                            setDate(
+                                purchase = list[0], numberOfDays = 30
+                            )
+                        }else{
+                            _uiState.value = _uiState.value.copy(
+                                nextBillingPeriod = "None"
+                            )
+                        }
+                    }
+                    is Response.Loading ->{
+                        _uiState.value = _uiState.value.copy(
+                            nextBillingPeriod = "None"
+                        )
+                    }
+                    is Response.Failure ->{
+                        _uiState.value = _uiState.value.copy(
+                            nextBillingPeriod = "None"
+                        )
+                    }
+                }
+
+            }
         }
 
 

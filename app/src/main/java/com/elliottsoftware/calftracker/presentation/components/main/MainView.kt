@@ -128,7 +128,10 @@ fun ScaffoldView(
         floatingActionButton = {
             FloatingButton(
                 navigate = onNavigate,
-                showSheetState = {scope.launch { bottomModalState.animateTo(ModalBottomSheetValue.Expanded) }}
+                showSheetState = {scope.launch { bottomModalState.animateTo(ModalBottomSheetValue.Expanded) }},
+                isSubscribed = billingViewModel.state.value.subscribed,
+                calfListSize = billingViewModel.state.value.calfListSize,
+                hideSheetState = {scope.launch { bottomModalState.animateTo(ModalBottomSheetValue.Hidden) }}
             )
                                },
         topBar = {
@@ -209,7 +212,8 @@ fun ScaffoldView(
                             price = "$10.00",
                             icon = Icons.Default.MonetizationOn
                         ),
-                        billingViewModel = billingViewModel
+                        billingViewModel = billingViewModel,
+                        onNavigate = {location -> onNavigate(location)}
                     )
                 }
             },
@@ -218,7 +222,8 @@ fun ScaffoldView(
             HomeView(
                 viewModel,onNavigate,sharedViewModel,viewModel.state.value.data,
                 {chipText -> viewModel.setChipText(chipText)},
-                {viewModel.getCalves()}
+                {viewModel.getCalves()},
+                updateCalfListSize = {size -> billingViewModel.updateCalfListSize(size)}
             )
         }
 
@@ -245,7 +250,11 @@ fun SubscriptionCardInfo(subscriptionInfo: SubscriptionValues) {
 }
 
 @Composable
-fun ActiveSubscription(subscriptionInfo: SubscriptionValues,billingViewModel: BillingViewModel){
+fun ActiveSubscription(
+    subscriptionInfo: SubscriptionValues,
+    billingViewModel: BillingViewModel,
+    onNavigate: (Int) -> Unit
+){
 
     Column(modifier = Modifier.padding(15.dp)) {
         Text("Oops!", style = MaterialTheme.typography.h5)
@@ -256,7 +265,9 @@ fun ActiveSubscription(subscriptionInfo: SubscriptionValues,billingViewModel: Bi
 
         )
         Text("This subscription will auto renew every 30 days. You can cancel any time in the ",color = Color.Black.copy(alpha = 0.6f))
-        ClickText()
+        ClickText(
+            onNavigate = {location -> onNavigate(location)}
+        )
 
         SubscriptionCardInfo(
             subscriptionInfo
@@ -270,7 +281,7 @@ fun ActiveSubscription(subscriptionInfo: SubscriptionValues,billingViewModel: Bi
     }
 }
 @Composable
-fun ClickText(){
+fun ClickText(onNavigate: (Int) -> Unit){
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
     val packageName =  context.applicationContext.packageName
@@ -280,8 +291,8 @@ fun ClickText(){
         subscriptionId, packageName);
 
     ClickableText(
-        onClick ={uriHandler.openUri(url)},
-        text = AnnotatedString("Google Play store"),
+        onClick ={onNavigate(R.id.action_mainFragment2_to_subscriptionFragment)},
+        text = AnnotatedString("Subscription settings"),
         style = TextStyle(
             fontSize =  20.sp,
             color= Color(R.color.linkColor)
@@ -344,7 +355,8 @@ fun HomeView(
     sharedViewModel: EditCalfViewModel,
     state:Response<List<FireBaseCalf>>,
     setChipTextMethod:(data:List<FireBaseCalf>) -> Unit,
-    errorRefreshMethod:()->Unit
+    errorRefreshMethod:()->Unit,
+    updateCalfListSize:(Int)->Unit
 ){
 
 
@@ -371,8 +383,7 @@ fun HomeView(
                 }
                 else{
 
-
-
+                    updateCalfListSize(state.data.size)
                         MessageList(
                             calfList = state.data,
                             onNavigate,
@@ -454,23 +465,28 @@ fun MessageList(
 
     }
 
-
-
-
 }
 
 
-
 @Composable
-fun FloatingButton(navigate:(Int)-> Unit,showSheetState:()-> Unit = {}){
-   // val scope = rememberCoroutineScope()
+fun FloatingButton(
+    navigate:(Int)-> Unit,
+    showSheetState:()-> Unit = {},
+    isSubscribed:Boolean,
+    calfListSize:Int,
+    hideSheetState:()-> Unit ={}
+){
+    if(isSubscribed){
+        hideSheetState()
+    }
+
     FloatingActionButton(
         onClick = {
-          //  navigate(R.id.action_mainFragment2_to_newCalfFragment)
-//            scope.launch {
-//                sheetState.show()
-//            }
-                  showSheetState()
+            if(isSubscribed or (calfListSize <=100)){
+                navigate(R.id.action_mainFragment2_to_newCalfFragment)
+            }else{
+                showSheetState()
+            }
                   },
         backgroundColor = MaterialTheme.colors.secondary,
         content = {
