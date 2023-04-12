@@ -5,11 +5,16 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.elliottsoftware.calftracker.databinding.FragmentLoginBinding
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
+import com.elliottsoftware.calftracker.R
 
 
 /**
@@ -22,6 +27,9 @@ class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
 
     private val binding get() = _binding!!
+    // Initialize Firebase Auth
+    private val auth = Firebase.auth
+//    private val navController = findNavController()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,20 +44,20 @@ class LoginFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentLoginBinding.inflate(inflater,container,false)
         val view = binding.root
-        binding.composeView.apply {
-            // Dispose of the Composition when the view's LifecycleOwner
-            // is destroyed
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-
-
-                LoginViews(onNavigate = { dest -> findNavController().navigate(dest) })
-
+        if(auth.currentUser != null){
+            findNavController().navigate(R.id.action_loginFragment_to_mainFragment2)
+        }else{
+            binding.composeView.apply {
+                // Dispose of the Composition when the view's LifecycleOwner
+                // is destroyed
+                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                setContent {
+                    LoginViews(onNavigate = { dest -> findNavController().navigate(dest) })
+                }
 
             }
-
-
         }
+
         return view
     }
 

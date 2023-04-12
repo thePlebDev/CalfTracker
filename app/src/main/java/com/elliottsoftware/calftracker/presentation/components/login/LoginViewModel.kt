@@ -30,7 +30,7 @@ data class LoginUIState(
     val passwordError: String? = null,
     val passwordIconChecked:Boolean = false,
     val showProgressBar:Boolean = false,
-    val isUserLoggedIn:Boolean = false,
+//    val isUserLoggedIn:Boolean = false,
     val loginStatus: Response<Boolean> = Response.Success(false),
 )
 
@@ -38,21 +38,10 @@ data class LoginUIState(
 class LoginViewModel @Inject constructor(
     private val validateEmail:ValidateEmailUseCase,
     private val validatePassword: ValidatePasswordUseCase,
-    private val checkUserLoggedIn: CheckUserLoggedInUseCase,
     private val loginUseCase: LoginUseCase
 ):ViewModel() {
      private var _uiState:MutableState<LoginUIState> = mutableStateOf(LoginUIState())
      val state: State<LoginUIState> = _uiState
-
-
-    init {
-
-        checkLogInStatus()
-
-
-    }
-
-
 
 
     //TODO: THIS NEEDS TO BE WORKED OUT
@@ -71,12 +60,6 @@ class LoginViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(password = password)
     }
 
-    private fun checkLogInStatus() = viewModelScope.launch{
-        val auth = checkUserLoggedIn.execute(Unit)
-
-        _uiState.value = _uiState.value.copy(isUserLoggedIn = auth)
-
-    }
 
 
     fun passwordIconChecked(checked:Boolean){
