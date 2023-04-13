@@ -40,12 +40,7 @@ class MainActivity : AppCompatActivity() {
             PlayIntegrityAppCheckProviderFactory.getInstance()
         )
         installSplashScreen()
-//        Activity.getSplashScreen()
 
-
-
-        // Add a callback that's called when the splash screen is animating to the
-        // app content.
         super.onCreate(savedInstanceState)
         supportActionBar!!.hide()
         setContentView(R.layout.activity_main)
@@ -53,25 +48,6 @@ class MainActivity : AppCompatActivity() {
         //for debugging
         CrashAndLog.setupTimber()
 
-        // Add a callback that's called when the splash screen is animating to the
-        // app content.
-//        splashScreen.setOnExitAnimationListener { splashScreenView ->
-//            // Create your custom animation.
-//            val slideUp = ObjectAnimator.ofFloat(
-//                splashScreenView,
-//                View.TRANSLATION_Y,
-//                0f,
-//                -splashScreenView.height.toFloat()
-//            )
-//            slideUp.interpolator = AnticipateInterpolator()
-//            slideUp.duration = 200L
-//
-//            // Call SplashScreenView.remove at the end of your custom animation.
-//            slideUp.doOnEnd { splashScreenView.remove() }
-//
-//            // Run your animation.
-//            slideUp.start()
-//        }
 
 
     }

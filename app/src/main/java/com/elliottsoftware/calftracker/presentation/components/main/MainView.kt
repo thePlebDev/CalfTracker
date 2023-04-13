@@ -6,10 +6,7 @@ import android.icu.text.DateFormat
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateIntOffsetAsState
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -33,16 +30,21 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -232,6 +234,7 @@ fun ScaffoldView(
                 {viewModel.getCalves()},
                 updateCalfListSize = {size -> billingViewModel.updateCalfListSize(size)}
             )
+
         }
 
 
@@ -345,6 +348,7 @@ fun BuyingText(value: BillingUiState, billingViewModel: BillingViewModel) {
                     Text("Fail")
                 }
             }
+            else -> {}
         }
 
 
@@ -377,7 +381,7 @@ fun HomeView(
 
     ){
         when(state){
-            is Response.Loading -> CircularProgressIndicator( color =MaterialTheme.colors.onPrimary)
+            is Response.Loading -> Shimmers()
             is Response.Success -> {
 
                 setChipTextMethod(state.data)
@@ -409,6 +413,7 @@ fun HomeView(
             is Response.Failure -> ErrorResponse(refreshMethod = { errorRefreshMethod() })
 
 
+            else -> {}
         }
 
 
@@ -830,6 +835,85 @@ fun DeleteCalfButton(deleteCalfMethod:() -> Unit,cancelCalfDelete:(Boolean) -> U
         }
     }
 
+}
+
+@Composable
+fun GradientShimmer(){
+
+    Box(
+        modifier = Modifier
+            .padding(horizontal = 8.dp, vertical = 8.dp)
+            .fillMaxWidth()
+            .width(160.dp)
+            .height(110.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .shimmerEffect()
+
+
+        ,
+    ){
+
+        Row(
+            modifier = Modifier
+                .padding(24.dp)
+                .fillMaxSize(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+
+        ){
+            Column(modifier = Modifier.weight(2f)){
+
+            }
+            Column(modifier = Modifier.weight(1f)){
+
+
+            }
+
+        }
+
+
+    }
+
+}
+@Composable
+fun Shimmers(){
+    Column(){
+        GradientShimmer()
+        GradientShimmer()
+        GradientShimmer()
+        GradientShimmer()
+        GradientShimmer()
+
+
+
+    }
+}
+
+fun Modifier.shimmerEffect():Modifier = composed {
+    var size by remember{
+        mutableStateOf(IntSize.Zero)
+    }
+    val transition = rememberInfiniteTransition()
+    val startOffSetX by transition.animateFloat(
+        initialValue = -2 * size.width.toFloat(),
+        targetValue = 2* size.width.toFloat(),
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000)
+        )
+    )
+    background(
+        brush = Brush.linearGradient(
+            colors = listOf(
+                Color(0xFFB8B5B5),
+                Color(0xFF8F8B8B),
+                Color(0xFFB8B5B5)
+            ),
+            start = Offset(startOffSetX,0f),
+            end = Offset(startOffSetX + size.width.toFloat(),size.height.toFloat())
+        )
+    )
+        .onGloballyPositioned {
+            size = it.size
+        }
 }
 
 
