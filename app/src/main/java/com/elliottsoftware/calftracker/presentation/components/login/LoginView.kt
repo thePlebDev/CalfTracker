@@ -40,9 +40,6 @@ fun LoginView(
 
 ) {
 
-    if(viewModel.state.value.isUserLoggedIn){
-        onNavigate(R.id.action_loginFragment_to_mainFragment2)
-    }else{
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             BannerCard("Calf Tracker", "Powered by Elliott Software")
 
@@ -84,7 +81,7 @@ fun LoginView(
             }
 
         }
-    }
+
 
 }
 
