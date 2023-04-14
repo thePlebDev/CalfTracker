@@ -1,7 +1,11 @@
 <resources>
     <string name="app_name">CalfTracker</string>
-    <!-- TODO: Remove or change this placeholder text -->
+   >
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <!-- TODO: Remove or change this placeholder text -->
+
+    <string name="system_auto_theme">System Auto</string>
+    <string name="light_theme">Default</string>
+    <string name="dark_theme">Default Dark</string>
+
 
 </resources>
