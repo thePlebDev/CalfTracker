@@ -1,18 +1,13 @@
 package com.elliottsoftware.calftracker.presentation.components.main
 
 import android.annotation.SuppressLint
-import android.graphics.drawable.GradientDrawable
 import android.icu.text.DateFormat
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -32,32 +27,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.paint
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
-import androidx.compose.ui.window.Popup
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
@@ -73,19 +57,9 @@ import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
 import com.elliottsoftware.calftracker.util.findActivity
-import com.google.android.material.internal.ViewUtils.dpToPx
-import com.skydoves.balloon.ArrowPositionRules
-import com.skydoves.balloon.Balloon
-import com.skydoves.balloon.BalloonAnimation
-import com.skydoves.balloon.BalloonSizeSpec
-import com.skydoves.balloon.compose.Balloon
-import com.skydoves.balloon.compose.rememberBalloonBuilder
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import timber.log.Timber
-import java.time.LocalDate
-import java.util.*
 import kotlin.math.roundToInt
 
 
@@ -118,8 +92,6 @@ fun ScaffoldView(
     sharedViewModel: EditCalfViewModel,
     billingViewModel: BillingViewModel
 ){
-    val scaffoldState = rememberScaffoldState()
-    val scope = rememberCoroutineScope()
 
     //BottomSheetScaffold states
     var skipHalfExpanded by remember { mutableStateOf(false) }
@@ -131,79 +103,48 @@ fun ScaffoldView(
     Scaffold(
 
         backgroundColor = MaterialTheme.colors.primary,
-        scaffoldState = scaffoldState,
-        drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
-        floatingActionButton = {
-            FloatingButton(
-                navigate = onNavigate,
-                showSheetState = {scope.launch { bottomModalState.animateTo(ModalBottomSheetValue.Expanded) }},
-                isSubscribed = billingViewModel.state.value.subscribed,
-                calfListSize = billingViewModel.state.value.calfListSize,
-                hideSheetState = {scope.launch { bottomModalState.animateTo(ModalBottomSheetValue.Hidden) }}
+        bottomBar = {
+            BottomNavigation(
+                onNavigate = { location -> onNavigate(location) },
+                navItemList = listOf(
+                    NavigationItem(
+                        title = "Logout",
+                        contentDescription = "Logout Button",
+                        icon = Icons.Default.Logout,
+                        onClick = {viewModel.signUserOut()},
+                        navigationLocation = R.id.action_mainFragment2_to_loginFragment
+
+                    ),
+                    NavigationItem(
+                        title = "Create",
+                        contentDescription = "Create Button",
+                        icon = Icons.Default.AddCircle,
+                        onClick = {},
+                        navigationLocation = R.id.action_mainFragment2_to_newCalfFragment
+
+                    ),
+                    NavigationItem(
+                        title = "Settings",
+                        contentDescription = "Settings Button",
+                        icon = Icons.Default.Settings,
+                        onClick = {},
+                        navigationLocation = R.id.action_mainFragment2_to_loginFragment
+
+                    )
+
+                )
             )
-                               },
+                    },
 
         topBar = {
             CustomTopBar(
                 viewModel.state.value.chipText,
                 {tagNumber -> viewModel.searchCalfListByTag(tagNumber)},
-                scope,
-                scaffoldState
             )
         },
-        drawerContent = {
-            DrawerHeader()
-            DrawerBody(
-                items = listOf(
-                    MenuItem(
-                        id= "logout",
-                        title="Logout",
-                        contentDescription = "logout of account",
-                        icon = Icons.Default.Logout,
-                        onClick = {
-                            scope.launch {
-                                viewModel.signUserOut()
-                                onNavigate(R.id.action_mainFragment2_to_loginFragment)
-                                scaffoldState.drawerState.close()
+        drawerContent = {},
 
-                            }
-                        }
-                    ),
-                    MenuItem(
-                        id= "subscriptions",
-                        title="Subscriptions",
-                        contentDescription = "check your subscriptions",
-                        icon = Icons.Default.CurrencyExchange,
-                        onClick = {
-                            scope.launch {
-                                onNavigate(R.id.action_mainFragment2_to_subscriptionFragment)
-                                scaffoldState.drawerState.close()
-
-                            }
-                        }
-                    ),
-                    MenuItem(
-                        id= "weather",
-                        title="Weather",
-                        contentDescription = "Weather",
-                        icon = Icons.Default.Satellite,
-                        onClick = {
-                            scope.launch {
-                                scaffoldState.drawerState.close()
-                                onNavigate(R.id.action_mainFragment2_to_weatherFragment)
-
-                            }
-                        }
-                    ),
-                  
-
-                )
-            )
-            //END OF THE DRAWER BODY
-           // ThemeToggle()
-        },
-
-        ) {
+        ) { paddingValues ->
 
         ModalBottomSheetLayout(
             sheetState = bottomModalState,
@@ -232,7 +173,8 @@ fun ScaffoldView(
                 viewModel,onNavigate,sharedViewModel,viewModel.state.value.data,
                 {chipText -> viewModel.setChipText(chipText)},
                 {viewModel.getCalves()},
-                updateCalfListSize = {size -> billingViewModel.updateCalfListSize(size)}
+                updateCalfListSize = {size -> billingViewModel.updateCalfListSize(size)},
+                paddingValues
             )
 
         }
@@ -364,10 +306,11 @@ fun HomeView(
     viewModel: MainViewModel,
     onNavigate: (Int) -> Unit,
     sharedViewModel: EditCalfViewModel,
-    state:Response<List<FireBaseCalf>>,
-    setChipTextMethod:(data:List<FireBaseCalf>) -> Unit,
-    errorRefreshMethod:()->Unit,
-    updateCalfListSize:(Int)->Unit
+    state: Response<List<FireBaseCalf>>,
+    setChipTextMethod: (data: List<FireBaseCalf>) -> Unit,
+    errorRefreshMethod: () -> Unit,
+    updateCalfListSize: (Int) -> Unit,
+    paddingValues: PaddingValues
 ){
 
 
@@ -376,7 +319,7 @@ fun HomeView(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
-           // .padding(horizontal = 8.dp)
+            .padding(bottom = paddingValues.calculateBottomPadding())
 
 
     ){
@@ -512,13 +455,7 @@ fun FloatingButton(
 }
 
 @Composable
-fun CustomTopBar(chipTextList:List<String>,searchMethod:(String)->Unit, scope: CoroutineScope, scaffoldState: ScaffoldState){
-    //TODO: MOVE THIS TO THE MAIN FRAGMENT
-//    val viewSize = rememberWindowSize()
-//    val value = viewSize.width
-
-
-
+fun CustomTopBar(chipTextList:List<String>,searchMethod:(String)->Unit){
     Column() {
         Surface(
             modifier = Modifier.fillMaxWidth(),
@@ -528,7 +465,7 @@ fun CustomTopBar(chipTextList:List<String>,searchMethod:(String)->Unit, scope: C
             Column() {
 
 
-                 SearchText(searchMethod= { tagNumber -> searchMethod(tagNumber) },scope,scaffoldState)
+                 SearchText(searchMethod= { tagNumber -> searchMethod(tagNumber) })
                     //CHIPS GO BELOW HERE
                     LazyRow(
                         modifier= Modifier
@@ -540,12 +477,6 @@ fun CustomTopBar(chipTextList:List<String>,searchMethod:(String)->Unit, scope: C
                             Chip(it)
                         }
                     }
-
-
-
-
-
-
             }
 
 
@@ -555,7 +486,7 @@ fun CustomTopBar(chipTextList:List<String>,searchMethod:(String)->Unit, scope: C
 }
 
 @Composable
-fun SearchText(searchMethod:(String)->Unit,scope: CoroutineScope, scaffoldState: ScaffoldState){
+fun SearchText(searchMethod:(String)->Unit){
     var tagNumber by remember { mutableStateOf("") }
     var clicked by remember { mutableStateOf(false)}
     val source = remember {
@@ -567,11 +498,7 @@ fun SearchText(searchMethod:(String)->Unit,scope: CoroutineScope, scaffoldState:
         clicked = true
     }
     Row(modifier = Modifier.fillMaxWidth(),verticalAlignment = Alignment.CenterVertically) {
-        IconButton(onClick = {
-            scope.launch { scaffoldState.drawerState.open() }
-        }) {
-            Icon(Icons.Filled.Menu, contentDescription = "Toggle navigation drawer")
-        }
+
         TextField(
             modifier = Modifier
                 .fillMaxWidth()
@@ -914,6 +841,56 @@ fun Modifier.shimmerEffect():Modifier = composed {
         .onGloballyPositioned {
             size = it.size
         }
+}
+data class NavigationItem(
+    val title:String,
+    val contentDescription:String,
+    val icon: ImageVector,
+    val onClick: () -> Unit ={},
+    val navigationLocation:Int,
+
+
+)
+
+@Composable
+fun BottomNavigation(onNavigate: (Int) -> Unit,navItemList:List<NavigationItem>){
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colors.primary),
+        horizontalArrangement = Arrangement.SpaceAround
+
+    ){
+        navItemList.forEach {
+            BottomNavItem(
+                title = it.title,
+                description = it.contentDescription,
+                icon = it.icon,
+                onNavigate = {
+                    it.onClick()
+                    onNavigate(it.navigationLocation)
+                }
+
+            )
+        }
+    }
+}
+
+@Composable
+fun BottomNavItem(title:String,description:String,icon:ImageVector,onNavigate: () -> Unit,){
+    Column(
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(16.dp).clickable {  onNavigate()}
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = description,
+            modifier = Modifier.size(28.dp)
+        )
+        Text(title)
+
+    }
 }
 
 
