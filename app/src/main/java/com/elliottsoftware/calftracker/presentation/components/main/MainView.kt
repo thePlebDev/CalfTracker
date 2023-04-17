@@ -289,13 +289,57 @@ fun MainBodyView(
 
                 }
             }
-            is Response.Failure ->{}
+            is Response.Failure ->{
+                Spacer(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(color = Color.Gray.copy(alpha = .7f))
+                )
+                CircularProgressIndicator(
+                    color= MaterialTheme.colors.onSecondary,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(60.dp)
+                )
+                CalfCreationError(
+                    modifier=Modifier.align(Alignment.Center),
+                    refreshMethod = {newCalfViewModel.resetResponse()}
+                )
+
+            }
         }
 
 
 
 
 
+    }
+}
+/**************ERRORS*****************/
+@Composable
+fun CalfCreationError(modifier:Modifier = Modifier,refreshMethod:()->Unit) {
+    Card(backgroundColor = MaterialTheme.colors.secondary,modifier = modifier.padding(8.dp)) {
+        Column(modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth(),horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("Calf Not Created", style = MaterialTheme.typography.h4)
+            Text("A Error has occurred Please check you network connection and try again",
+                style = MaterialTheme.typography.subtitle1,
+                textAlign = TextAlign.Center
+            )
+            ErrorButton2(refreshMethod)
+        }
+    }
+
+}
+@Composable
+fun ErrorButton2(refreshMethod:()->Unit) {
+    Button(onClick = {
+        refreshMethod()
+    }) {
+        Text(text = "I understand",
+            style = MaterialTheme.typography.subtitle1,
+            textAlign = TextAlign.Center)
     }
 }
 
