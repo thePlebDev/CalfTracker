@@ -8,12 +8,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Logout
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
@@ -23,6 +24,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.presentation.components.main.*
+import com.elliottsoftware.calftracker.presentation.components.subscription.SubscriptionValues
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
 import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
@@ -48,6 +50,8 @@ fun NewCalfView(onNavigate:(Int)->Unit) {
     }
 
 }
+
+@OptIn(ExperimentalMaterialApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
@@ -56,74 +60,132 @@ fun ScaffoldView(viewModel: NewCalfViewModel = viewModel(),onNavigate:(Int)->Uni
     val scope = rememberCoroutineScope()
     val state = viewModel.state.value
     val vaccineList = remember { mutableStateListOf<String>() }
+    val bottomModalState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        skipHalfExpanded = true
+    )
+
     if(state.loggedUserOut){
         onNavigate(R.id.action_newCalfFragment_to_loginFragment)
     }
-    Scaffold(
-        scaffoldState = scaffoldState,
-        drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
-        floatingActionButton = {
+    ModalBottomSheetLayout(
+        sheetState = bottomModalState,
+        sheetContent = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth().fillMaxHeight()
 
-            if(viewModel.state.value.calfSaved == Response.Loading){
-                LoadingFloatingButton()
-            }else{
-                FloatingButton(navigate = {
-                    viewModel.submitCalf(vaccineList)
-                })
+            ){
+
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center).size(60.dp)
+                )
             }
-                               },
-        topBar = {
-            TopAppBar(
-                title = { Text("Calf Tracker") },
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            scope.launch {
-                                scaffoldState.drawerState.open()
-
-                            }
-                        }
-                    ) {
-                        Icon(Icons.Filled.Menu, contentDescription = "Toggle navigation drawer")
-                    }
-                }
-            )
         },
-        drawerContent = {
-            DrawerHeader()
-            DrawerBody(
-                items = listOf(
-                    MenuItem(
-                        id= "logout",
-                        title="Logout",
-                        contentDescription = "Logout",
-                        icon = Icons.Default.Logout,
-                        onClick = {
-                            scope.launch {
-                                viewModel.signUserOut()
-                                scaffoldState.drawerState.close()
+        sheetBackgroundColor = Color.Gray.copy(alpha = .7f)
+    ) {
+        Scaffold(
+            scaffoldState = scaffoldState,
+            drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
+            floatingActionButton = {
 
+                //todo: this will go inside the Create Calf Item
+//            if(viewModel.state.value.calfSaved == Response.Loading){
+//                LoadingFloatingButton()
+//            }else{
+//                FloatingButton(navigate = {
+//                    viewModel.submitCalf(vaccineList)
+//                })
+//            }
+            },
+            bottomBar = {
+                BottomNavigation(
+                    onNavigate = { location -> onNavigate(location) },
+                    navItemList = listOf(
+                        NavigationItem(
+                            title = "Logout",
+                            contentDescription = "Logout Button",
+                            icon = Icons.Default.Logout,
+                            onClick = { viewModel.signUserOut() },
+                            navigationLocation = R.id.action_newCalfFragment_to_loginFragment
 
-                            }
-                        }
+                        ),
+                        NavigationItem(
+                            title = "Create",
+                            contentDescription = "Create Calf",
+                            icon = Icons.Default.AddCircle,
+                            onClick = {
+                                    viewModel.submitCalf(vaccineList)
+                            },
+                            navigationLocation = R.id.action_newCalfFragment_to_mainFragment2
+
+                        ),
+                        NavigationItem(
+                            title = "Settings",
+                            contentDescription = "Settings Button",
+                            icon = Icons.Default.Settings,
+                            onClick = {},
+                            navigationLocation = R.id.action_newCalfFragment_to_loginFragment
+
+                        )
+
                     )
                 )
+            },
+            topBar = {
+                TopBar(
+                    onNavigate = { item -> onNavigate(item) }
+                )
+            },
+            drawerContent = {
+                DrawerHeader()
+                DrawerBody(
+                    items = listOf(
+                        MenuItem(
+                            id = "logout",
+                            title = "Logout",
+                            contentDescription = "Logout",
+                            icon = Icons.Default.Logout,
+                            onClick = {
+                                scope.launch {
+                                    viewModel.signUserOut()
+                                    scaffoldState.drawerState.close()
+
+
+                                }
+                            }
+                        )
+                    )
+                )
+            },
+
+            ) { padding ->
+
+            //this should get danced to the MainBodyView
+            MainBodyView(
+                viewModel,
+                onNavigate,
+                scaffoldState,
+                padding,
+                vaccineList,
+                showModal = {
+                    scope.launch {
+                        bottomModalState.show()
+                    }
+                },
+                hideModal = {
+                    scope.launch {
+                        bottomModalState.hide()
+                    }
+                }
+
             )
-        },
-
-        ) { padding ->
-
-         //this should get danced to the MainBodyView
 
 
-            MainBodyView(viewModel,onNavigate,scaffoldState,padding,vaccineList)
-
-
-
-
-
+        }
     }
 }
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -133,9 +195,10 @@ fun MainBodyView(
     scaffoldState: ScaffoldState,
     padding: PaddingValues,
     vaccineList: MutableList<String>,
+    showModal:()->Unit,
+    hideModal:()->Unit
 
 ){
-    val snackbarHostState = remember { SnackbarHostState() }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -196,11 +259,21 @@ fun MainBodyView(
 
 
         when(val response = viewModel.state.value.calfSaved){
-            is Response.Loading -> {}
+            is Response.Loading -> {
+                showModal()
+            }
             is Response.Success ->{
                 if(response.data){
                     //THIS IS WHERE WE DO THE NAVIGATION
-                    onNavigate(R.id.action_newCalfFragment_to_mainFragment2)
+                    hideModal()
+
+                    LaunchedEffect(scaffoldState.snackbarHostState) {
+
+                        scaffoldState.snackbarHostState.showSnackbar(
+                            message = "Calf Created",
+                            actionLabel = "Close"
+                        )
+                    }
                 }
             }
             is Response.Failure ->{
@@ -306,3 +379,88 @@ fun LoadingFloatingButton(){
         }
     )
 }
+
+
+data class NavigationItem(
+    val title:String,
+    val contentDescription:String,
+    val icon: ImageVector,
+    val onClick: () -> Unit ={},
+    val navigationLocation:Int,
+
+    )
+
+@Composable
+fun BottomNavigation(onNavigate: (Int) -> Unit,navItemList:List<NavigationItem>){
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colors.primary),
+        horizontalArrangement = Arrangement.SpaceAround
+
+    ){
+        navItemList.forEach {
+            com.elliottsoftware.calftracker.presentation.components.main.BottomNavItem(
+                title = it.title,
+                description = it.contentDescription,
+                icon = it.icon,
+                onNavigate = {
+                    it.onClick()
+                    //onNavigate(it.navigationLocation)
+                }
+
+            )
+        }
+    }
+}
+
+@Composable
+fun BottomNavItem(title:String, description:String, icon: ImageVector, onNavigate: () -> Unit,){
+    Column(
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .padding(16.dp)
+            .clickable { onNavigate() }
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = description,
+            modifier = Modifier.size(28.dp)
+        )
+        Text(title)
+
+    }
+}
+
+
+@Composable
+fun TopBar(
+    onNavigate: (Int) -> Unit
+){
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colors.primary,
+            elevation = 8.dp
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ){
+                Icon(
+                    modifier = Modifier
+                        .size(38.dp)
+                        .padding(start = 8.dp)
+                        .clickable {
+                            onNavigate(R.id.action_newCalfFragment_to_mainFragment2)
+                        },
+                    imageVector = Icons.Default.KeyboardBackspace,
+                    contentDescription ="Return to home screen",
+                )
+            }
+    }
+}
+

@@ -44,6 +44,9 @@
         <action
             android:id="@+id/action_mainFragment2_to_subscriptionFragment"
             app:destination="@id/subscriptionFragment" />
+        <action
+            android:id="@+id/action_mainFragment2_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
 
     </fragment>
     <fragment
@@ -109,5 +112,10 @@
             android:id="@+id/action_subscriptionFragment_to_mainFragment22"
             app:destination="@id/mainFragment2" />
     </fragment>
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.elliottsoftware.calftracker.presentation.components.settings.SettingsFragment"
+        android:label="fragment_settings"
+        tools:layout="@layout/fragment_settings" />
 
 </navigation>

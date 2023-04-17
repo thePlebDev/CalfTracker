@@ -211,7 +211,11 @@ fun VaccineRow(
             textStyle = TextStyle(fontSize = 20.sp),
             placeholder = {
                 Text(text = "Vaccination", fontSize = 20.sp)
-            }
+            },
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Color.Black,
+                unfocusedBorderColor = Color.Black
+            )
 
         )
         OutlinedTextField(
@@ -224,7 +228,11 @@ fun VaccineRow(
             textStyle = TextStyle(fontSize = 20.sp),
             placeholder = {
                 Text(text = dateText, fontSize = 20.sp)
-            }
+            },
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Color.Black,
+                unfocusedBorderColor = Color.Black
+            )
 
         )
     }
