@@ -46,6 +46,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
+import com.elliottsoftware.calftracker.presentation.components.newCalf.CalendarDock
 import com.elliottsoftware.calftracker.presentation.components.subscription.BillingUiState
 import com.elliottsoftware.calftracker.presentation.components.subscription.BillingViewModel
 import com.elliottsoftware.calftracker.presentation.components.subscription.SubscriptionCard
@@ -53,9 +54,14 @@ import com.elliottsoftware.calftracker.presentation.components.subscription.Subs
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
 import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
+import com.elliottsoftware.calftracker.presentation.sharedViews.BullHeiferRadioInput
+import com.elliottsoftware.calftracker.presentation.sharedViews.NumberInput
+import com.elliottsoftware.calftracker.presentation.sharedViews.SimpleTextInput
+import com.elliottsoftware.calftracker.presentation.sharedViews.VaccinationView
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
+import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
 import com.elliottsoftware.calftracker.util.findActivity
 
 import kotlinx.coroutines.CoroutineScope
@@ -63,7 +69,7 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 
-@RequiresApi(Build.VERSION_CODES.N)
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainView(
     viewModel: MainViewModel = viewModel(),
@@ -83,7 +89,7 @@ fun MainView(
 
 
 @OptIn(ExperimentalMaterialApi::class)
-@RequiresApi(Build.VERSION_CODES.N)
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun ScaffoldView(
@@ -97,9 +103,17 @@ fun ScaffoldView(
     var skipHalfExpanded by remember { mutableStateOf(false) }
     val bottomModalState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
-        skipHalfExpanded = skipHalfExpanded
+        skipHalfExpanded = true
     )
+    val scope = rememberCoroutineScope()
 
+    ModalBottomSheetLayout(
+        sheetState = bottomModalState,
+        sheetContent = {
+            ModalContent(billingViewModel,onNavigate = onNavigate,bottomModalState = bottomModalState)
+        },
+        sheetBackgroundColor = MaterialTheme.colors.primary
+    ){
     Scaffold(
 
         backgroundColor = MaterialTheme.colors.primary,
@@ -119,16 +133,20 @@ fun ScaffoldView(
                         title = "Create",
                         contentDescription = "Create Button",
                         icon = Icons.Default.AddCircle,
-                        onClick = {},
+                        onClick = {
+                                  scope.launch {
+                                      bottomModalState.show()
+                                  }
+                        },
                         navigationLocation = R.id.action_mainFragment2_to_newCalfFragment
 
                     ),
                     NavigationItem(
-                        title = "Settings",
-                        contentDescription = "Settings Button",
-                        icon = Icons.Default.Settings,
+                        title = "Subscription",
+                        contentDescription = "Subscription Button",
+                        icon = Icons.Default.AttachMoney,
                         onClick = {},
-                        navigationLocation = R.id.action_mainFragment2_to_loginFragment
+                        navigationLocation = R.id.action_mainFragment2_to_subscriptionFragment
 
                     )
 
@@ -146,29 +164,6 @@ fun ScaffoldView(
 
         ) { paddingValues ->
 
-        ModalBottomSheetLayout(
-            sheetState = bottomModalState,
-            sheetContent = {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(400.dp)
-                ){
-                    ActiveSubscription(
-                        subscriptionInfo = SubscriptionValues(
-                            description = "Premium subscription",
-                            title= "Premium subscription",
-                            items= "Unlimited calf storage",
-                            price = "$10.00",
-                            icon = Icons.Default.MonetizationOn
-                        ),
-                        billingViewModel = billingViewModel,
-                        onNavigate = {location -> onNavigate(location)}
-                    )
-                }
-            },
-            sheetBackgroundColor = MaterialTheme.colors.primary
-        ){
             HomeView(
                 viewModel,onNavigate,sharedViewModel,viewModel.state.value.data,
                 {chipText -> viewModel.setChipText(chipText)},
@@ -177,14 +172,185 @@ fun ScaffoldView(
                 paddingValues
             )
 
-        }
-
-
+        } //this should be outside, Actually this doesn't matter
 
 
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun ModalContent(
+    billingViewModel: BillingViewModel,
+    onNavigate: (Int) -> Unit,
+    bottomModalState:ModalBottomSheetState
+){
+//    Box(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .height(400.dp)
+//    ){
+//        ActiveSubscription(
+//            subscriptionInfo = SubscriptionValues(
+//                description = "Premium subscription",
+//                title= "Premium subscription",
+//                items= "Unlimited calf storage",
+//                price = "$10.00",
+//                icon = Icons.Default.MonetizationOn
+//            ),
+//            billingViewModel = billingViewModel,
+//            onNavigate = {location -> onNavigate(location)}
+//        )
+//    }
+    MainBodyView(
+        bottomModalState= bottomModalState
+    )
+}
+
+data class SimpleTextInputData(
+    val state:String,
+    val placeHolderText:String,
+    val updateValue:(String)->Unit,
+    val errorMessage:String? = null,
+    val key:Int
+)
+
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun MainBodyView(
+   newCalfViewModel: NewCalfViewModel = viewModel(),
+//    onNavigate: (Int) -> Unit,
+//    scaffoldState: ScaffoldState,
+//    padding: PaddingValues,
+//    vaccineList: MutableList<String>,
+//    showModal:()->Unit,
+//    hideModal:()->Unit
+    bottomModalState:ModalBottomSheetState
+
+) {
+    val scope = rememberCoroutineScope()
+    val vaccineList = remember { mutableStateListOf<String>() }
+
+    val simpleTextInputList = listOf<SimpleTextInputData>(
+        SimpleTextInputData(
+            state = newCalfViewModel.state.value.calfTag,
+            placeHolderText = "Calf tag number",
+            updateValue = { tagNumber -> newCalfViewModel.updateCalfTag(tagNumber)},
+            errorMessage = newCalfViewModel.state.value.calfTagError,
+            key =0
+        ),
+        SimpleTextInputData(
+            state = newCalfViewModel.state.value.cowTagNumber,
+            placeHolderText = "Cow tag number",
+            updateValue = { tagNumber -> newCalfViewModel.updateCowTagNumber(tagNumber)},
+            key =1
+        ),
+        SimpleTextInputData(
+            state = newCalfViewModel.state.value.cciaNumber,
+            placeHolderText = "CCIA number",
+            updateValue = { cciaNumber -> newCalfViewModel.updateCciaNumber(cciaNumber)},
+            key =2
+        ),
+        SimpleTextInputData(
+            state = newCalfViewModel.state.value.description,
+            placeHolderText = "Description",
+            updateValue = { description -> newCalfViewModel.updateDescription(description)},
+            key =3
+        ),
+    )
+
+
+        LazyColumn {
+            stickyHeader {
+                Header(
+                    cancelFunction = {
+                        scope.launch {
+                            bottomModalState.hide()
+                        }
+                    },
+                    createCalf = {
+                        newCalfViewModel.submitCalf(vaccineList)
+                    }
+                )
+            }
+            item{
+                Text(text ="Basic Information :", modifier = Modifier.padding(top = 16.dp, bottom = 4.dp,start=8.dp))
+            }
+
+            items(
+                simpleTextInputList,
+                key={ item ->
+                    item.key
+                }
+            ) { item ->
+                SimpleTextInput(
+                    state = item.state,
+                    placeHolderText = item.placeHolderText,
+                    updateValue = { value -> item.updateValue(value) },
+                    errorMessage = item.errorMessage
+                )
+            }
+            item{
+                BullHeiferRadioInput(
+                    state = newCalfViewModel.state.value.sex,
+                    updateSex = {value -> newCalfViewModel.updateSex(value) },
+                    modifier = Modifier
+                )
+            }
+
+            item{
+                NumberInput(
+                    "Birth Weight",
+                    state =newCalfViewModel.state.value.birthWeight,
+                    updateValue = {value -> newCalfViewModel.updateBirthWeight(value)}
+                )
+            }
+            item{
+                CalendarDock(newCalfViewModel)
+            }
+            item{
+                Text(text ="Vaccination List :", modifier = Modifier.padding(top = 16.dp, bottom = 4.dp,start=8.dp))
+            }
+            item{
+                VaccinationView(
+                    vaccineText = newCalfViewModel.state.value.vaccineText,
+                    updateVaccineText = {text -> newCalfViewModel.updateVaccineText(text) },
+                    dateText1 = newCalfViewModel.state.value.vaccineDate,
+                    updateDateText = {date -> newCalfViewModel.updateDateText(date)},
+                    vaccineList = vaccineList,
+                    addItemToVaccineList = {item -> vaccineList.add(item)},
+                    removeItemFromVaccineList = {item -> vaccineList.remove(item)}
+                )
+            }
+
+
+    }
+}
+
+@Composable
+fun Header(
+    cancelFunction:() -> Unit,
+    createCalf:() -> Unit
+){
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colors.secondary),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ){
+        Button(onClick = {cancelFunction()},modifier = Modifier.padding(8.dp)){
+            Text("Cancel",fontSize=17.sp)
+        }
+        Text("New Calf",fontSize=20.sp)
+        Button(onClick = {createCalf()},modifier = Modifier.padding(8.dp)){
+            Text("Create",fontSize=17.sp)
+
+        }
+    }
+}
 
 
 @Composable
@@ -868,7 +1034,7 @@ fun BottomNavigation(onNavigate: (Int) -> Unit,navItemList:List<NavigationItem>)
                 icon = it.icon,
                 onNavigate = {
                     it.onClick()
-                    onNavigate(it.navigationLocation)
+                   // onNavigate(it.navigationLocation)
                 }
 
             )
@@ -881,7 +1047,9 @@ fun BottomNavItem(title:String,description:String,icon:ImageVector,onNavigate: (
     Column(
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(16.dp).clickable {  onNavigate()}
+        modifier = Modifier
+            .padding(16.dp)
+            .clickable { onNavigate() }
     ) {
         Icon(
             imageVector = icon,

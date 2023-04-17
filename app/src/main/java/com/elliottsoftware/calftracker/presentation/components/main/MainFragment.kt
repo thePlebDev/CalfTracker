@@ -41,8 +41,8 @@ class MainFragment : Fragment() {
 
     }
 
-    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
-    @RequiresApi(Build.VERSION_CODES.N)
+
+    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
