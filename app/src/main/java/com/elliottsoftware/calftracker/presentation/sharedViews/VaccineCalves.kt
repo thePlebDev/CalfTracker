@@ -146,7 +146,7 @@ fun VaccineLazyColumn(
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
                         .border(
-                            BorderStroke(2.dp, Color.LightGray),
+                            BorderStroke(2.dp, Color.Black),
                             shape = RoundedCornerShape(8)
                         )
                 ){

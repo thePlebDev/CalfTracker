@@ -81,6 +81,22 @@ class NewCalfViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(birthDate = convertedDate)
 
     }
+    fun clearData(){
+        _uiState.value = _uiState.value.copy(
+            calfTag = "",
+            calfTagError = null,
+            cowTagNumber= "",
+            cciaNumber="",
+            description="",
+            birthWeight="",
+            sex="Bull"
+        )
+    }
+    fun resetResponse(){
+        _uiState.value = _uiState.value.copy(
+            calfSaved= Response.Success(false)
+        )
+    }
 
     /*****VACCINE STUFF*******/
     fun updateVaccineText(text:String){
