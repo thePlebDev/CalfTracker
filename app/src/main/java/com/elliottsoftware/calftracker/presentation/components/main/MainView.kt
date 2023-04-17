@@ -54,10 +54,7 @@ import com.elliottsoftware.calftracker.presentation.components.subscription.Subs
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
 import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
-import com.elliottsoftware.calftracker.presentation.sharedViews.BullHeiferRadioInput
-import com.elliottsoftware.calftracker.presentation.sharedViews.NumberInput
-import com.elliottsoftware.calftracker.presentation.sharedViews.SimpleTextInput
-import com.elliottsoftware.calftracker.presentation.sharedViews.VaccinationView
+import com.elliottsoftware.calftracker.presentation.sharedViews.*
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.EditCalfViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
@@ -148,9 +145,9 @@ fun ScaffoldView(
 
                     ),
                     NavigationItem(
-                        title = "Subscription",
+                        title = "Settings",
                         contentDescription = "Subscription Button",
-                        icon = Icons.Default.AttachMoney,
+                        icon = Icons.Default.Settings,
                         onClick = {},
                         navigationLocation = R.id.action_mainFragment2_to_subscriptionFragment
 
@@ -301,9 +298,13 @@ fun MainBodyView(
                         .align(Alignment.Center)
                         .size(60.dp)
                 )
-                CalfCreationError(
-                    modifier=Modifier.align(Alignment.Center),
-                    refreshMethod = {newCalfViewModel.resetResponse()}
+                ErrorResponse(
+                    refreshMethod = {newCalfViewModel.resetResponse()},
+                    errorMessageTitle = "Calf not created",
+                    errorMessageBody = "A error has occurred. Please check your network question and try again",
+                    errorButtonMessage = "I understand",
+                    modifier=Modifier.align(Alignment.Center)
+
                 )
 
             }
@@ -313,33 +314,6 @@ fun MainBodyView(
 
 
 
-    }
-}
-/**************ERRORS*****************/
-@Composable
-fun CalfCreationError(modifier:Modifier = Modifier,refreshMethod:()->Unit) {
-    Card(backgroundColor = MaterialTheme.colors.secondary,modifier = modifier.padding(8.dp)) {
-        Column(modifier = Modifier
-            .padding(8.dp)
-            .fillMaxWidth(),horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("Calf Not Created", style = MaterialTheme.typography.h4)
-            Text("A Error has occurred Please check you network connection and try again",
-                style = MaterialTheme.typography.subtitle1,
-                textAlign = TextAlign.Center
-            )
-            ErrorButton2(refreshMethod)
-        }
-    }
-
-}
-@Composable
-fun ErrorButton2(refreshMethod:()->Unit) {
-    Button(onClick = {
-        refreshMethod()
-    }) {
-        Text(text = "I understand",
-            style = MaterialTheme.typography.subtitle1,
-            textAlign = TextAlign.Center)
     }
 }
 
@@ -479,116 +453,7 @@ fun Header(
 }
 
 
-@Composable
-fun SubscriptionCardInfo(subscriptionInfo: SubscriptionValues) {
 
-    SubscriptionCard(
-        SubscriptionValues(
-            description = subscriptionInfo.description,
-            title=subscriptionInfo.title,
-            items=subscriptionInfo.items,
-            price = subscriptionInfo.price,
-            icon = subscriptionInfo.icon
-        )
-    )
-}
-
-@Composable
-fun ActiveSubscription(
-    subscriptionInfo: SubscriptionValues,
-    billingViewModel: BillingViewModel,
-    onNavigate: (Int) -> Unit
-){
-
-    Column(modifier = Modifier.padding(15.dp)) {
-        Text("Oops!", style = MaterialTheme.typography.h5)
-        Text(
-            "Looks like you hit the limit on your free tier and will need to upgrade for unlimited calf storage.",
-
-            color = Color.Black.copy(alpha = 0.6f),
-
-        )
-        Text("This subscription will auto renew every 30 days. You can cancel any time in the ",color = Color.Black.copy(alpha = 0.6f))
-        ClickText(
-            onNavigate = {location -> onNavigate(location)}
-        )
-
-        SubscriptionCardInfo(
-            subscriptionInfo
-        )
-        BuyingText(
-            value = billingViewModel.state.value,
-            billingViewModel = billingViewModel
-        )
-
-
-    }
-}
-@Composable
-fun ClickText(onNavigate: (Int) -> Unit){
-    val uriHandler = LocalUriHandler.current
-    val context = LocalContext.current
-    val packageName =  context.applicationContext.packageName
-    val subscriptionId = "calf_tracker_premium_10"
-    val PLAY_STORE_SUBSCRIPTION_DEEPLINK_URL = "https://play.google.com/store/account/subscriptions?product=%s&package=%s"
-    val url = String.format(PLAY_STORE_SUBSCRIPTION_DEEPLINK_URL,
-        subscriptionId, packageName);
-
-    ClickableText(
-        onClick ={onNavigate(R.id.action_mainFragment2_to_subscriptionFragment)},
-        text = AnnotatedString("Subscription settings"),
-        style = TextStyle(
-            fontSize =  20.sp,
-            color= Color(R.color.linkColor)
-        ),
-        modifier = Modifier.padding(bottom = 20.dp)
-    )
-
-}
-
-
-@Composable
-fun BuyingText(value: BillingUiState, billingViewModel: BillingViewModel) {
-    val context = LocalContext.current
-
-    val activity = context.findActivity()
-
-
-
-    Column() {
-
-
-        when(val response = value.subscriptionProduct){
-            is Response.Loading -> {
-                Button(onClick = {}){
-                    Text("Loading")
-                }
-            }
-            is Response.Success -> {
-                Button(onClick = {
-                    billingViewModel.buy(
-                        productDetails = response.data,
-                        currentPurchases = null,
-                        activity = activity,
-                        tag = "calf_tracker_premium"
-                    )
-                }
-                ){
-                    Text("Purchase")
-                }
-            }
-            is Response.Failure ->{
-                Button(onClick = {}){
-                    Text("Fail")
-                }
-            }
-            else -> {}
-        }
-
-
-
-    }
-}
 
 
 
@@ -645,7 +510,12 @@ fun HomeView(
                 }
 
             }
-            is Response.Failure -> ErrorResponse(refreshMethod = { errorRefreshMethod() })
+            is Response.Failure -> ErrorResponse(
+                refreshMethod = { errorRefreshMethod() },
+                errorMessageTitle = "User Notice",
+                errorMessageBody = "A Error has occurred and the development team has been notified. Thank you for your continued support ",
+                errorButtonMessage = "Click to reload"
+            )
 
 
             else -> {}
@@ -714,37 +584,6 @@ fun MessageList(
 
 }
 
-
-@Composable
-fun FloatingButton(
-    navigate:(Int)-> Unit,
-    showSheetState:()-> Unit = {},
-    isSubscribed:Boolean,
-    calfListSize:Int,
-    hideSheetState:()-> Unit ={}
-){
-    if(isSubscribed){
-        hideSheetState()
-    }
-
-    FloatingActionButton(
-        onClick = {
-            if(isSubscribed or (calfListSize <=100)){
-                navigate(R.id.action_mainFragment2_to_newCalfFragment)
-            }else{
-                showSheetState()
-            }
-                  },
-        backgroundColor = MaterialTheme.colors.secondary,
-        content = {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_add),
-                contentDescription = null,
-                tint = MaterialTheme.colors.onSecondary
-            )
-        }
-    )
-}
 
 @Composable
 fun CustomTopBar(chipTextList:List<String>,searchMethod:(String)->Unit){
@@ -846,41 +685,7 @@ fun Chip(value:String){
     }
 }
 
-
-/**************ERRORS*****************/
-@Composable
-fun ErrorResponse(refreshMethod:()->Unit) {
-    Card(backgroundColor = MaterialTheme.colors.secondary,modifier = Modifier.padding(vertical = 20.dp)) {
-        Column(modifier = Modifier
-            .padding(8.dp)
-            .fillMaxWidth(),horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("User Notice", style = MaterialTheme.typography.h4)
-            Text("A Error has occurred and the development team has been notified. Thank you for your continued support ",
-                style = MaterialTheme.typography.subtitle1,
-                textAlign = TextAlign.Center
-            )
-            ErrorButton(refreshMethod)
-        }
-    }
-
-}
-
-@Composable
-fun ErrorButton(refreshMethod:()->Unit) {
-    Button(onClick = {
-        refreshMethod()
-    }) {
-        Text(text = "Click to reload",
-            style = MaterialTheme.typography.subtitle1,
-            textAlign = TextAlign.Center)
-    }
-}
-
-
-
-
 @RequiresApi(Build.VERSION_CODES.N)
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun SwipeableSample(
     calf:FireBaseCalf,
@@ -1056,84 +861,6 @@ fun DeleteCalfButton(deleteCalfMethod:() -> Unit,cancelCalfDelete:(Boolean) -> U
 
 }
 
-@Composable
-fun GradientShimmer(){
-
-    Box(
-        modifier = Modifier
-            .padding(horizontal = 8.dp, vertical = 8.dp)
-            .fillMaxWidth()
-            .width(160.dp)
-            .height(110.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .shimmerEffect()
-
-
-        ,
-    ){
-
-        Row(
-            modifier = Modifier
-                .padding(24.dp)
-                .fillMaxSize(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-
-        ){
-            Column(modifier = Modifier.weight(2f)){
-
-            }
-            Column(modifier = Modifier.weight(1f)){
-
-
-            }
-
-        }
-
-
-    }
-
-}
-@Composable
-fun Shimmers(){
-    Column(){
-        GradientShimmer()
-        GradientShimmer()
-        GradientShimmer()
-        GradientShimmer()
-        GradientShimmer()
-
-
-
-    }
-}
-
-fun Modifier.shimmerEffect():Modifier = composed {
-    var size by remember{
-        mutableStateOf(IntSize.Zero)
-    }
-    val transition = rememberInfiniteTransition()
-    val startOffSetX by transition.animateFloat(
-        initialValue = -2 * size.width.toFloat(),
-        targetValue = 2* size.width.toFloat(),
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000)
-        )
-    )
-    background(
-        brush = Brush.linearGradient(
-            colors = listOf(
-                Color(0xFFB8B5B5),
-                Color(0xFF8F8B8B),
-                Color(0xFFB8B5B5)
-            ),
-            start = Offset(startOffSetX,0f),
-            end = Offset(startOffSetX + size.width.toFloat(),size.height.toFloat())
-        )
-    )
-        .onGloballyPositioned {
-            size = it.size
-        }
-}
 data class NavigationItem(
     val title:String,
     val contentDescription:String,
