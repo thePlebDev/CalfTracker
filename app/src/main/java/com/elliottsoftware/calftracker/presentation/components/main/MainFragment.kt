@@ -49,6 +49,8 @@ class MainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val billingViewModel: BillingViewModel by activityViewModels()
+        lifecycle.addObserver(billingViewModel)
+
         _binding = FragmentMainBinding.inflate(inflater,container,false)
         val view = binding.root
         val sharedViewModel: EditCalfViewModel by activityViewModels()
@@ -80,6 +82,8 @@ class MainFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        //I don't think we have to remove this. I think it is done automatically for us.
+        //        lifecycle.removeObserver(billingViewModel)
     }
 
 

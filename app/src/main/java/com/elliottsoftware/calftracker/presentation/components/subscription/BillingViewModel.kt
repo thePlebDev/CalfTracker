@@ -433,6 +433,7 @@ class BillingViewModel @Inject constructor(
 
 
     override fun onResume(owner: LifecycleOwner) {
+        Timber.tag("substuff").d("ONRESUME CALLED")
         refreshPurchases()
         subscribedPurchases()
     }
