@@ -193,12 +193,9 @@ fun ModalContent(
     scaffoldState:ScaffoldState,
 ){
     val isUserSubscribed = billingViewModel.state.value.subscribed
-    if(isUserSubscribed){
-        MainBodyView(
-            bottomModalState= bottomModalState,
-            scaffoldState = scaffoldState
-        )
-    }else{
+    val calfSize = billingViewModel.state.value.calfListSize
+    val calfLimit = 50
+    if(!isUserSubscribed && calfSize >= calfLimit){
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -216,6 +213,12 @@ fun ModalContent(
                 onNavigate = {location -> onNavigate(location)}
             )
         }
+    }else{
+
+        MainBodyView(
+            bottomModalState= bottomModalState,
+            scaffoldState = scaffoldState
+        )
     }
 
 
