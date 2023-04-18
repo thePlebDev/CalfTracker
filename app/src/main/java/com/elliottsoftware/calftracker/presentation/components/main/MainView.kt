@@ -122,14 +122,15 @@ fun ScaffoldView(
         backgroundColor = MaterialTheme.colors.primary,
         bottomBar = {
             BottomNavigation(
-                onNavigate = { location -> onNavigate(location) },
                 navItemList = listOf(
                     NavigationItem(
                         title = "Logout",
                         contentDescription = "Logout Button",
                         icon = Icons.Default.Logout,
-                        onClick = {viewModel.signUserOut()},
-                        navigationLocation = R.id.action_mainFragment2_to_loginFragment
+                        onClick = {
+                            viewModel.signUserOut()
+                            onNavigate(R.id.action_mainFragment2_to_loginFragment)
+                                  },
 
                     ),
                     NavigationItem(
@@ -141,15 +142,15 @@ fun ScaffoldView(
                                       bottomModalState.show()
                                   }
                         },
-                        navigationLocation = R.id.action_mainFragment2_to_newCalfFragment
 
                     ),
                     NavigationItem(
                         title = "Settings",
                         contentDescription = "Subscription Button",
                         icon = Icons.Default.Settings,
-                        onClick = {},
-                        navigationLocation = R.id.action_mainFragment2_to_subscriptionFragment
+                        onClick = {
+                                  onNavigate(R.id.action_mainFragment2_to_settingsFragment)
+                        },
 
                     )
 
@@ -866,13 +867,12 @@ data class NavigationItem(
     val contentDescription:String,
     val icon: ImageVector,
     val onClick: () -> Unit ={},
-    val navigationLocation:Int,
 
 
 )
 
 @Composable
-fun BottomNavigation(onNavigate: (Int) -> Unit,navItemList:List<NavigationItem>){
+fun BottomNavigation(navItemList:List<NavigationItem>){
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -887,7 +887,7 @@ fun BottomNavigation(onNavigate: (Int) -> Unit,navItemList:List<NavigationItem>)
                 icon = it.icon,
                 onNavigate = {
                     it.onClick()
-                   // onNavigate(it.navigationLocation)
+
                 }
 
             )

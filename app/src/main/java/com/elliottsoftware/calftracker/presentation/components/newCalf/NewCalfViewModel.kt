@@ -28,7 +28,7 @@ data class NewCalfUIState(
     val birthWeight:String="",
     val sex:String="Bull",
     val birthDate:Date = Date(),
-    val calfSaved:Response<Boolean> = Response.Failure(Exception()),
+    val calfSaved:Response<Boolean> = Response.Success(false),
     val loggedUserOut:Boolean = false,
 
 
