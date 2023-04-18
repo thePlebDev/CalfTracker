@@ -192,28 +192,33 @@ fun ModalContent(
     bottomModalState:ModalBottomSheetState,
     scaffoldState:ScaffoldState,
 ){
-    val scope = rememberCoroutineScope()
-//    Box(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .height(400.dp)
-//    ){
-//        ActiveSubscription(
-//            subscriptionInfo = SubscriptionValues(
-//                description = "Premium subscription",
-//                title= "Premium subscription",
-//                items= "Unlimited calf storage",
-//                price = "$10.00",
-//                icon = Icons.Default.MonetizationOn
-//            ),
-//            billingViewModel = billingViewModel,
-//            onNavigate = {location -> onNavigate(location)}
-//        )
-//    }
-    MainBodyView(
-        bottomModalState= bottomModalState,
-        scaffoldState = scaffoldState
-    )
+    val isUserSubscribed = billingViewModel.state.value.subscribed
+    if(isUserSubscribed){
+        MainBodyView(
+            bottomModalState= bottomModalState,
+            scaffoldState = scaffoldState
+        )
+    }else{
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(400.dp)
+        ){
+            ActiveSubscription(
+                subscriptionInfo = SubscriptionValues(
+                    description = "Premium subscription",
+                    title= "Premium subscription",
+                    items= "Unlimited calf storage",
+                    price = "$10.00",
+                    icon = Icons.Default.MonetizationOn
+                ),
+                billingViewModel = billingViewModel,
+                onNavigate = {location -> onNavigate(location)}
+            )
+        }
+    }
+
+
 }
 
 data class SimpleTextInputData(
