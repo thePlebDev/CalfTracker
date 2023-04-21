@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.icu.text.DateFormat
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
@@ -168,6 +169,8 @@ fun ScaffoldView(
 
         ) { paddingValues ->
 
+
+
             HomeView(
                 viewModel,onNavigate,sharedViewModel,viewModel.state.value.data,
                 {chipText -> viewModel.setChipText(chipText)},
@@ -175,9 +178,125 @@ fun ScaffoldView(
                 updateCalfListSize = {size -> billingViewModel.updateCalfListSize(size)},
                 paddingValues,
 
-            )
+                )
+
+
+
+        //TestingEnterExitAnimations(viewModel)
 
         } //this should be outside, Actually this doesn't matter
+
+
+    }
+}
+@Composable
+fun MainAnimationView(
+    paddingValues: PaddingValues,
+    mainViewModel: MainViewModel,
+    content: @Composable (PaddingValues) -> Unit){
+    val animate = mainViewModel.state.value.animate
+
+    Box(){
+        testingAnimationMore(animate)
+
+        AnimatedVisibility(
+            visible = animate,
+            enter = slideInHorizontally(animationSpec = tween(durationMillis = 200)) { fullWidth ->
+                // Offsets the content by 1/3 of its width to the left, and slide towards right
+                // Overwrites the default animation with tween for this slide animation.
+                -fullWidth / 3
+            } + fadeIn(
+                // Overwrites the default animation with tween
+                animationSpec = tween(durationMillis = 200)
+            ),
+            exit = slideOutHorizontally(animationSpec = spring(stiffness = Spring.StiffnessHigh)) {
+                // Overwrites the ending position of the slide-out to 200 (pixels) to the right
+                200
+            } + fadeOut()
+        ) {
+            // Content that needs to appear/disappear goes here:
+            content(paddingValues)
+
+        }
+    }
+
+
+
+
+
+}
+
+@Composable
+fun TestingEnterExitAnimations(mainViewModel:MainViewModel){
+    //var visible by remember { mutableStateOf(true) }
+    val animate = mainViewModel.state.value.animate
+    Column(){
+        Box(){
+            testingAnimationMore(animate)
+            testingAnimationMore2(animate)
+        }
+
+    }
+
+
+}
+@Composable
+fun testingAnimationMore(animate:Boolean){
+
+    AnimatedVisibility(
+        visible = !animate,
+        enter = slideInHorizontally(animationSpec = tween(durationMillis = 200)) { fullWidth ->
+            // Offsets the content by 1/3 of its width to the left, and slide towards right
+            // Overwrites the default animation with tween for this slide animation.
+            -fullWidth / 3
+        } + fadeIn(
+            // Overwrites the default animation with tween
+            animationSpec = tween(durationMillis = 200)
+        ),
+        exit = slideOutHorizontally(animationSpec = spring(stiffness = Spring.StiffnessHigh)) {
+            // Overwrites the ending position of the slide-out to 200 (pixels) to the right
+            200
+        } + fadeOut()
+    ) {
+        // Content that needs to appear/disappear goes here:
+
+        Column(){
+            GradientShimmer()
+            GradientShimmer()
+            GradientShimmer()
+
+        }
+    }
+}
+@Composable
+fun testingAnimationMore2(animate:Boolean){
+    AnimatedVisibility(
+        visible = animate,
+        enter = slideInHorizontally(animationSpec = tween(durationMillis = 200)) { fullWidth ->
+            // Offsets the content by 1/3 of its width to the left, and slide towards right
+            // Overwrites the default animation with tween for this slide animation.
+            -fullWidth / 3
+        } + fadeIn(
+            // Overwrites the default animation with tween
+            animationSpec = tween(durationMillis = 200)
+        ),
+        exit = slideOutHorizontally(animationSpec = spring(stiffness = Spring.StiffnessHigh)) {
+            // Overwrites the ending position of the slide-out to 200 (pixels) to the right
+            200
+        } + fadeOut()
+    ) {
+        // Content that needs to appear/disappear goes here:
+        Column(){
+            GradientShimmer2()
+            GradientShimmer2()
+            GradientShimmer2()
+            GradientShimmer2()
+            GradientShimmer2()
+            GradientShimmer2()
+
+
+        }
+
 
 
     }
@@ -194,7 +313,7 @@ fun ModalContent(
 ){
     val isUserSubscribed = billingViewModel.state.value.subscribed
     val calfSize = billingViewModel.state.value.calfListSize
-    val calfLimit = 50
+    val calfLimit = 49
     if(!isUserSubscribed && calfSize >= calfLimit){
         Box(
             modifier = Modifier
@@ -490,7 +609,9 @@ fun HomeView(
 
     ){
         when(state){
-            is Response.Loading -> Shimmers()
+            is Response.Loading -> {
+                Shimmers()
+            }
             is Response.Success -> {
 
                 setChipTextMethod(state.data)

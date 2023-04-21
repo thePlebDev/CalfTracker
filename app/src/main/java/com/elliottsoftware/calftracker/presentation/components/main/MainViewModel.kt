@@ -30,7 +30,8 @@ data class MainUIState(
     val chipText:List<String> = listOf("TOTAL: 0 ","BULLS: 0","HEIFERS: 0","VACCINATED: 0"),
     val showDeleteModal:Boolean = false,
     val calfToBeDeletedTagNumber:String = "",
-    val calfToBeDeletedId:String = ""
+    val calfToBeDeletedId:String = "",
+    val animate:Boolean = false
 
         )
 
@@ -53,12 +54,28 @@ class MainViewModel @Inject constructor(
         logoutUseCase.execute(Unit)
 
     }
+    fun changeAnimate(animate: Boolean){
+        _uiState.value = _uiState.value.copy(animate = animate)
+    }
 
 
      fun getCalves() = viewModelScope.launch(){
         getCalvesUseCase.execute(Unit).collect{response ->
 
-            _uiState.value = _uiState.value.copy(data = response)
+            _uiState.value = _uiState.value.copy(
+                data = response,
+            )
+            when(response){
+                is Response.Loading ->{}
+                is Response.Success ->{
+                    _uiState.value = _uiState.value.copy(
+                        animate = true
+                    )
+                }
+                is Response.Failure ->{}
+            }
+
+
 
         }
 

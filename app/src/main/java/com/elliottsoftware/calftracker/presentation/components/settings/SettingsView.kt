@@ -1,6 +1,9 @@
 package com.elliottsoftware.calftracker.presentation.components.settings
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -10,12 +13,14 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardBackspace
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -55,8 +60,10 @@ fun MainView(paddingValues: PaddingValues){
     }
 }
 
+
 @Composable
 fun LazyVerticalGridDemo(){
+    FullScreenNotification()
 
 }
 @Composable
@@ -79,10 +86,40 @@ fun TopBar(){
                 )
                 Text("Settings", fontSize = 30.sp,modifier = Modifier.weight(2f))
             }
-
-
-
         }
     }
 }
+
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun FullScreenNotification() {
+    val aspectRatio: Float by animateFloatAsState(6f)
+    AnimatedVisibility(
+        visible = true,
+        enter = fadeIn(), exit = fadeOut()
+    ) {
+        // Fade in/out the background and foreground
+        Box(Modifier.fillMaxSize().background(Color(0x88000000))) {
+            Box(
+                Modifier.align(Alignment.TopStart).animateEnterExit(
+                    // Slide in/out the rounded rect
+                    enter = slideInVertically(),
+                    exit = slideOutVertically()
+                ).clip(RoundedCornerShape(10.dp)).requiredHeight(100.dp)
+                    .fillMaxWidth().background(Color.White)
+            ) {
+                // Content of the notification goes here
+                Text("hellow",
+                    fontSize=40.sp,
+                    modifier = Modifier.animateEnterExit(enter = scaleIn(), exit = scaleOut())
+                        .aspectRatio(aspectRatio)
+                )
+
+            }
+        }
+    }
+}
+
+
 

@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -43,6 +44,44 @@ fun GradientShimmer(){
 
             }
             Column(modifier = Modifier.weight(1f)){
+
+
+            }
+
+        }
+
+
+    }
+
+}
+
+@Composable
+fun GradientShimmer2(){
+
+    Box(
+        modifier = Modifier
+            .padding(horizontal = 8.dp, vertical = 8.dp)
+            .fillMaxWidth()
+            .width(160.dp)
+            .height(110.dp)
+            .clip(RoundedCornerShape(16.dp))
+
+        ,
+    ){
+
+        Row(
+            modifier = Modifier
+                .padding(24.dp)
+                .fillMaxSize(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+
+        ){
+            Column(modifier = Modifier.weight(2f)){
+                Text("THIS IS WHERE THE TEXT IS GOING TO LOAD FROM")
+
+            }
+            Column(modifier = Modifier.weight(1f)){
+                Text("TTHIS IS JUST ANOTHER TEST TO SEE WHERE THINGS COME FROM")
 
 
             }
