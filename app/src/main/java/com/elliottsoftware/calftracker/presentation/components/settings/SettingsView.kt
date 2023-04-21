@@ -7,6 +7,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -17,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardBackspace
+import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,7 +65,36 @@ fun MainView(paddingValues: PaddingValues){
 
 @Composable
 fun LazyVerticalGridDemo(){
-    FullScreenNotification()
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 128.dp)
+    ) {
+        item{
+            Card(
+                modifier = Modifier
+                    .padding(8.dp),
+                backgroundColor = MaterialTheme.colors.secondary,
+                elevation = 8.dp,
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .padding(vertical = 12.dp, horizontal = 4.dp),
+
+                ){
+                    Icon(
+                        imageVector = Icons.Default.MonetizationOn,
+                        contentDescription = "click for subscriptions",
+                        modifier = Modifier.size(28.dp)
+                    )
+                    Text("Subscription")
+                }
+
+            }
+
+
+        }
+    }
 
 }
 @Composable
@@ -75,12 +106,16 @@ fun TopBar(){
             elevation = 8.dp
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End
             ){
                 Icon(
-                    modifier = Modifier.size(38.dp).weight(1f),
+                    modifier = Modifier
+                        .size(38.dp)
+                        .weight(1f),
                     imageVector = Icons.Default.KeyboardBackspace,
                     contentDescription ="Return to home screen",
                 )
@@ -91,6 +126,7 @@ fun TopBar(){
 }
 
 
+/***********************BELOW IS ALL THE EXIT AND ENTER ANIMATION STUFF I PLAYED AROUND WITH************************************************************/
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun FullScreenNotification() {
@@ -100,19 +136,28 @@ fun FullScreenNotification() {
         enter = fadeIn(), exit = fadeOut()
     ) {
         // Fade in/out the background and foreground
-        Box(Modifier.fillMaxSize().background(Color(0x88000000))) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(Color(0x88000000))) {
             Box(
-                Modifier.align(Alignment.TopStart).animateEnterExit(
-                    // Slide in/out the rounded rect
-                    enter = slideInVertically(),
-                    exit = slideOutVertically()
-                ).clip(RoundedCornerShape(10.dp)).requiredHeight(100.dp)
-                    .fillMaxWidth().background(Color.White)
+                Modifier
+                    .align(Alignment.TopStart)
+                    .animateEnterExit(
+                        // Slide in/out the rounded rect
+                        enter = slideInVertically(),
+                        exit = slideOutVertically()
+                    )
+                    .clip(RoundedCornerShape(10.dp))
+                    .requiredHeight(100.dp)
+                    .fillMaxWidth()
+                    .background(Color.White)
             ) {
                 // Content of the notification goes here
                 Text("hellow",
                     fontSize=40.sp,
-                    modifier = Modifier.animateEnterExit(enter = scaleIn(), exit = scaleOut())
+                    modifier = Modifier
+                        .animateEnterExit(enter = scaleIn(), exit = scaleOut())
                         .aspectRatio(aspectRatio)
                 )
 
