@@ -73,14 +73,16 @@ fun MainView(
     viewModel: MainViewModel = viewModel(),
     onNavigate: (Int) -> Unit,
     sharedViewModel: EditCalfViewModel,
-    billingViewModel: BillingViewModel
+    billingViewModel: BillingViewModel,
+    newCalfViewModel: NewCalfViewModel
 ){
     AppTheme(false){
         ScaffoldView(
             viewModel,
             onNavigate,
             sharedViewModel,
-            billingViewModel
+            billingViewModel,
+            newCalfViewModel
         )
     }
 }
@@ -94,7 +96,9 @@ fun ScaffoldView(
     viewModel: MainViewModel = viewModel(),
     onNavigate: (Int) -> Unit,
     sharedViewModel: EditCalfViewModel,
-    billingViewModel: BillingViewModel
+    billingViewModel: BillingViewModel,
+    newCalfViewModel: NewCalfViewModel,
+
 ){
 
     //BottomSheetScaffold states
@@ -114,6 +118,7 @@ fun ScaffoldView(
                 onNavigate = onNavigate,
                 bottomModalState = bottomModalState,
                 scaffoldState = scaffoldState,
+                newCalfViewModel = newCalfViewModel
             )
         },
         sheetBackgroundColor = MaterialTheme.colors.primary
@@ -307,6 +312,7 @@ fun testingAnimationMore2(animate:Boolean){
 @Composable
 fun ModalContent(
     billingViewModel: BillingViewModel,
+    newCalfViewModel: NewCalfViewModel,
     onNavigate: (Int) -> Unit,
     bottomModalState:ModalBottomSheetState,
     scaffoldState:ScaffoldState,
@@ -336,7 +342,8 @@ fun ModalContent(
 
         MainBodyView(
             bottomModalState= bottomModalState,
-            scaffoldState = scaffoldState
+            scaffoldState = scaffoldState,
+            newCalfViewModel = newCalfViewModel
         )
     }
 
@@ -355,7 +362,7 @@ data class SimpleTextInputData(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainBodyView(
-   newCalfViewModel: NewCalfViewModel = viewModel(),
+   newCalfViewModel: NewCalfViewModel,
 //    onNavigate: (Int) -> Unit,
 //    scaffoldState: ScaffoldState,
 //    padding: PaddingValues,
