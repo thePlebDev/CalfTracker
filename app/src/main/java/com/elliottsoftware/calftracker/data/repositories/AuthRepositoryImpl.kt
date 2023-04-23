@@ -54,7 +54,7 @@ class AuthRepositoryImpl(
                         trySend(Response.Success(true))
                     } else {
                         // If sign in fails, display a message to the user.
-                        Timber.tag("LoginFailure").e(Exception("normal exception"))
+                        Timber.tag("LoginFailure").e(Exception(task.exception))
                         trySend(Response.Failure(Exception()))
                     }
                 }

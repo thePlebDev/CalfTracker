@@ -16,9 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.domain.models.Response
-import com.elliottsoftware.calftracker.presentation.components.register.Fail
-import com.elliottsoftware.calftracker.presentation.components.register.Success
-import com.elliottsoftware.calftracker.presentation.components.weather.ScaffoldView
 import com.elliottsoftware.calftracker.presentation.sharedViews.BannerCard
 import com.elliottsoftware.calftracker.presentation.sharedViews.PasswordInput
 import com.elliottsoftware.calftracker.presentation.sharedViews.RegisterInput

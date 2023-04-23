@@ -20,6 +20,9 @@ import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderF
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import timber.log.Timber.*
+import androidx.activity.compose.setContent
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import timber.log.Timber.Forest.plant
 
 
@@ -43,7 +46,9 @@ class MainActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         supportActionBar!!.hide()
-        setContentView(R.layout.activity_main)
+       setContentView(R.layout.activity_main)
+
+
 
         //for debugging
         CrashAndLog.setupTimber()

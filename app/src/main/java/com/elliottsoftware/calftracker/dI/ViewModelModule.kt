@@ -86,6 +86,7 @@ object ViewModelModule {
         @ApplicationContext context:Context
     ):BillingClientWrapper{
         val _billingConnectionState = MutableLiveData(false)
+        Timber.tag("BillingClientWrapper").d("Created dependency injection")
 
         var billingClient: BillingClientWrapper = BillingClientWrapper(context.applicationContext)
         billingClient.startBillingConnection(billingConnectionState = _billingConnectionState)

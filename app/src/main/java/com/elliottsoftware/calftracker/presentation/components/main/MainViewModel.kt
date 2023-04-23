@@ -46,6 +46,7 @@ class MainViewModel @Inject constructor(
     private var _uiState: MutableState<MainUIState> = mutableStateOf(MainUIState())
     val state:State<MainUIState> = _uiState
     init{
+        Timber.tag("MainViewModel").e("CREATED")
         getCalves()
     }
 
@@ -60,20 +61,12 @@ class MainViewModel @Inject constructor(
 
 
      fun getCalves() = viewModelScope.launch(){
+
         getCalvesUseCase.execute(Unit).collect{response ->
 
             _uiState.value = _uiState.value.copy(
                 data = response,
             )
-            when(response){
-                is Response.Loading ->{}
-                is Response.Success ->{
-                    _uiState.value = _uiState.value.copy(
-                        animate = true
-                    )
-                }
-                is Response.Failure ->{}
-            }
 
 
 

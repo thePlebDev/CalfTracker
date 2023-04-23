@@ -29,49 +29,50 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.presentation.components.main.SearchText
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 
 @Composable
-fun SettingsView(){
+fun SettingsView(onNavigate: (Int) -> Unit){
     AppTheme(false){
-        Settings()
+        Settings(onNavigate)
     }
 }
 
 @Composable
-fun Settings(){
+fun Settings(onNavigate: (Int) -> Unit){
     Scaffold(
         backgroundColor = MaterialTheme.colors.primary,
-        topBar = { TopBar() }
+        topBar = { TopBar(onNavigate) }
     ){ paddingValues ->
-        MainView(paddingValues)
+        MainView(paddingValues,onNavigate)
     }
 }
 
 val settingsList = listOf("Bulls","Subscriptions")
 @Composable
-fun MainView(paddingValues: PaddingValues){
+fun MainView(paddingValues: PaddingValues,onNavigate: (Int) -> Unit){
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = paddingValues.calculateBottomPadding())
     ){
-        LazyVerticalGridDemo()
+        LazyVerticalGridDemo(onNavigate)
     }
 }
 
 
 @Composable
-fun LazyVerticalGridDemo(){
+fun LazyVerticalGridDemo(onNavigate: (Int) -> Unit){
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 128.dp)
     ) {
         item{
             Card(
                 modifier = Modifier
-                    .padding(8.dp),
+                    .padding(8.dp).clickable { onNavigate(R.id.action_settingsFragment_to_subscriptionFragment) },
                 backgroundColor = MaterialTheme.colors.secondary,
                 elevation = 8.dp,
             ) {
@@ -98,7 +99,7 @@ fun LazyVerticalGridDemo(){
 
 }
 @Composable
-fun TopBar(){
+fun TopBar(onNavigate: (Int) -> Unit){
     Column() {
         Surface(
             modifier = Modifier.fillMaxWidth(),
@@ -115,7 +116,7 @@ fun TopBar(){
                 Icon(
                     modifier = Modifier
                         .size(38.dp)
-                        .weight(1f),
+                        .weight(1f).clickable { onNavigate(R.id.action_settingsFragment_to_mainFragment2) },
                     imageVector = Icons.Default.KeyboardBackspace,
                     contentDescription ="Return to home screen",
                 )
