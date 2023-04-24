@@ -69,7 +69,8 @@ class SubscriptionFragment : Fragment() {
                 MaterialTheme {
                     SubscriptionView(
                         onNavigate = { dest -> findNavController().navigate(dest) },
-                        viewModel = billingViewModel
+                        viewModel = billingViewModel,
+
                     )
                 }
             }

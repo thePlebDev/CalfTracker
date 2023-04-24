@@ -3,6 +3,10 @@ package com.elliottsoftware.calftracker.presentation.components.subscription
 import android.annotation.SuppressLint
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -32,6 +36,7 @@ import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.util.findActivity
 import com.google.accompanist.pager.*
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @Composable
 fun SubscriptionView(
@@ -41,20 +46,23 @@ fun SubscriptionView(
     AppTheme(false){
         SubscriptionViews(
             onNavigate = {location -> onNavigate(location)},
-            billingViewModel = viewModel
+            billingViewModel = viewModel,
         )
     }
 }
 
-@OptIn(ExperimentalPagerApi::class)
+@OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun SubscriptionViews(
-
     subscriptionViewModel: SubscriptionViewModel = viewModel(),
     onNavigate: (Int) -> Unit = {},
     billingViewModel:BillingViewModel = viewModel()
 ){
+    val bottomModalState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        skipHalfExpanded = true
+    )
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
     Scaffold(
@@ -68,7 +76,7 @@ fun SubscriptionViews(
                     IconButton(
                         onClick = {
                             scope.launch {
-                                scaffoldState.drawerState.open()
+                                bottomModalState.show()
 
                             }
                         }
@@ -115,15 +123,96 @@ fun SubscriptionViews(
         }
     ){
         //WE NEED A BOTTOM TEXT THAT WE TOUCH AND IT CHANGES VALUES
+        ModalBottomSheetLayout(
+            sheetState = bottomModalState,
+            sheetContent = {
+                ModalContents(
+                    onNavigate = onNavigate,
+                    bottomModalState = bottomModalState
+                )
+            }
 
-        TabScreen(billingViewModel,billingViewModel.state.value)
-
-
-
+        ){
+            TabScreen(billingViewModel,billingViewModel.state.value)
+        }
     }
 
 
 
+}
+
+data class ModalNavigation(
+    val title:String,
+    val contentDescription:String,
+    val navigationDestination:Int,
+    val icon:ImageVector,
+    val key:Int,
+
+)
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ModalContents(
+    onNavigate: (Int) -> Unit = {},
+    bottomModalState:ModalBottomSheetState
+
+){
+    val scope = rememberCoroutineScope()
+    val navItems = listOf(
+        ModalNavigation(
+            title ="Settings",
+            contentDescription = "navigate to settings",
+            navigationDestination = R.id.action_subscriptionFragment_to_settingsFragment,
+            icon = Icons.Default.Settings,
+            key =0
+        ),
+        ModalNavigation(
+            title ="Calves",
+            contentDescription = "navigate to calves screen",
+            navigationDestination = R.id.action_subscriptionFragment_to_mainFragment22,
+            icon = Icons.Default.Home,
+            key =1
+        )
+    )
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colors.primary)
+
+    ){
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(minSize = 128.dp)
+        ) {
+
+            items(navItems) { navItem ->
+                Card(
+                    modifier = Modifier
+                        .padding(8.dp).clickable {
+                            scope.launch {
+                                bottomModalState.hide()
+                                onNavigate(navItem.navigationDestination)
+                            }
+                        },
+                    backgroundColor = MaterialTheme.colors.secondary,
+                    elevation = 8.dp,
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .padding(vertical = 12.dp, horizontal = 4.dp),
+
+                        ){
+                        Icon(
+                            imageVector = navItem.icon,
+                            contentDescription = navItem.contentDescription,
+                            modifier = Modifier.size(28.dp)
+                        )
+                        Text(navItem.title)
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable
