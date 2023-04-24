@@ -113,6 +113,9 @@
         <action
             android:id="@+id/action_subscriptionFragment_to_mainFragment22"
             app:destination="@id/mainFragment2" />
+        <action
+            android:id="@+id/action_subscriptionFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
