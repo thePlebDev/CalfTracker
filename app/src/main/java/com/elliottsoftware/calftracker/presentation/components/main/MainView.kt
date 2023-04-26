@@ -319,7 +319,7 @@ fun ModalContent(
 ){
     val isUserSubscribed = billingViewModel.state.value.subscribed
     val calfSize = billingViewModel.state.value.calfListSize
-    val calfLimit = 49
+    val calfLimit = 50
     if(!isUserSubscribed && calfSize >= calfLimit){
         Box(
             modifier = Modifier

@@ -147,7 +147,7 @@ class BillingViewModel @Inject constructor(
                                     subscribedInfo = SubscriptionValues(
                                         description = "Basic subscription",
                                         title= "Basic subscription",
-                                        items= "100 calf limit",
+                                        items= "50 calf limit",
                                         price = "$0.00",
                                         icon = Icons.Default.CrueltyFree
                                     ),
