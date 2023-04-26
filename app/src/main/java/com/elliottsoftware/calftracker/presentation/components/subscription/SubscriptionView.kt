@@ -29,6 +29,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.android.billingclient.api.Purchase
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
+import com.elliottsoftware.calftracker.presentation.components.navigation.Navigation
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
 import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
@@ -51,7 +52,7 @@ fun SubscriptionView(
     }
 }
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun SubscriptionViews(
@@ -63,66 +64,27 @@ fun SubscriptionViews(
         initialValue = ModalBottomSheetValue.Hidden,
         skipHalfExpanded = true
     )
-    val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
     Scaffold(
-        scaffoldState = scaffoldState,
         backgroundColor = MaterialTheme.colors.primary,
-        drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
         topBar = {
             TopAppBar(
-                title = { Text("Calf Tracker") },
+                title = { Text("Subscriptions") },
                 navigationIcon = {
                     IconButton(
                         onClick = {
                             scope.launch {
                                 bottomModalState.show()
-
                             }
                         }
                     ) {
-                        Icon(Icons.Filled.Menu, contentDescription = "Toggle navigation drawer")
+                        Icon(Icons.Filled.Menu, contentDescription = "Toggle modal drawer")
                     }
                 }
             )
         },
-        drawerContent = {
-            DrawerHeader()
-            DrawerBody(
-                items = listOf(
-                    MenuItem(
-                        id= "logout",
-                        title="Logout",
-                        contentDescription = "Logout",
-                        icon = Icons.Default.Logout,
-                        onClick = {
-                            scope.launch {
-                               // viewModel.signUserOut()
-                                scaffoldState.drawerState.close()
-
-
-                            }
-                        }
-                    ),
-                    MenuItem(
-                        id= "Home",
-                        title="Home",
-                        contentDescription = "navigate to home menu",
-                        icon = Icons.Default.Logout,
-                        onClick = {
-                            scope.launch {
-                                //viewModel.signUserOut()
-                                onNavigate(R.id.action_subscriptionFragment_to_mainFragment22)
-                                scaffoldState.drawerState.close()
-
-                            }
-                        }
-                    )
-                )
-            )
-        }
     ){
-        //WE NEED A BOTTOM TEXT THAT WE TOUCH AND IT CHANGES VALUES
+
         ModalBottomSheetLayout(
             sheetState = bottomModalState,
             sheetContent = {
@@ -141,14 +103,8 @@ fun SubscriptionViews(
 
 }
 
-data class ModalNavigation(
-    val title:String,
-    val contentDescription:String,
-    val navigationDestination:Int,
-    val icon:ImageVector,
-    val key:Int,
 
-)
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ModalContents(
@@ -157,33 +113,20 @@ fun ModalContents(
 
 ){
     val scope = rememberCoroutineScope()
-    val navItems = listOf(
-        ModalNavigation(
-            title ="Settings",
-            contentDescription = "navigate to settings",
-            navigationDestination = R.id.action_subscriptionFragment_to_settingsFragment,
-            icon = Icons.Default.Settings,
-            key =0
-        ),
-        ModalNavigation(
-            title ="Calves",
-            contentDescription = "navigate to calves screen",
-            navigationDestination = R.id.action_subscriptionFragment_to_mainFragment22,
-            icon = Icons.Default.Home,
-            key =1
-        )
-    )
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colors.primary)
+            .background(MaterialTheme.colors.primary),
+        contentAlignment = Alignment.Center
+
 
     ){
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = 128.dp)
         ) {
 
-            items(navItems) { navItem ->
+            items(Navigation.Modal.navList) { navItem ->
                 Card(
                     modifier = Modifier
                         .padding(8.dp).clickable {
