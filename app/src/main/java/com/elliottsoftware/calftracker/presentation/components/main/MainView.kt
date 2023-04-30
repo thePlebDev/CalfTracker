@@ -8,12 +8,11 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
@@ -33,9 +32,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.input.ImeAction
@@ -65,6 +61,16 @@ import com.elliottsoftware.calftracker.util.findActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.pullRefreshIndicatorTransform
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.*
+import kotlinx.coroutines.delay
+import timber.log.Timber
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -176,14 +182,16 @@ fun ScaffoldView(
 
 
 
-            HomeView(
-                viewModel,onNavigate,sharedViewModel,viewModel.state.value.data,
-                {chipText -> viewModel.setChipText(chipText)},
-                {viewModel.getCalves()},
-                updateCalfListSize = {size -> billingViewModel.updateCalfListSize(size)},
-                paddingValues,
-
-                )
+//            HomeView(
+//                viewModel,onNavigate,sharedViewModel,viewModel.state.value.data,
+//                {chipText -> viewModel.setChipText(chipText)},
+//                {viewModel.getCalves()},
+//                updateCalfListSize = {size -> billingViewModel.updateCalfListSize(size)},
+//                paddingValues,
+//
+//                )
+        RefreshingAnimation(paddingValues)
+//        LogPointerEvents(paddingValues=paddingValues)
 
 
 
@@ -194,6 +202,153 @@ fun ScaffoldView(
 
     }
 }
+fun LazyListState.isScrolledToEnd() = layoutInfo.visibleItemsInfo.lastOrNull()?.index == layoutInfo.totalItemsCount - 1
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun RefreshingAnimation(paddingValues: PaddingValues){
+    val configuration = LocalConfiguration.current
+    val screenHeight = configuration.screenHeightDp // total device screen height
+    val scaffoldBottomBarHeight = paddingValues.calculateBottomPadding() // bottom bar height
+    val scaffoldTopBarHeight = 100.dp // top bar height, found through trial and error
+    val screenHiddenByBars = scaffoldBottomBarHeight + scaffoldTopBarHeight // combination of bottom and top bar
+    val screenVisibleToUser = screenHeight - screenHiddenByBars.value //lazyColumn height visible to user
+
+    val itemHeight = 100.dp
+    val state = rememberLazyListState()
+
+
+    val notesList = remember {
+        mutableStateListOf<String>("2","2","2","2")
+    }
+
+    val totalItemHeight = notesList.size* itemHeight.value
+
+    val userCanScroll = (totalItemHeight > screenVisibleToUser)
+
+
+
+    Box() {
+        LazyColumn(
+            state= state,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier= Modifier
+                .fillMaxSize()
+                .padding(bottom = scaffoldBottomBarHeight)
+        ) {
+
+                items(notesList) { item ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(itemHeight),
+                        elevation = 8.dp
+
+                    ){
+                        Text(text = "Item $item")
+                    }
+
+                }
+            item{
+                CircularProgressIndicator( color = Color.Black)
+                LaunchedEffect(true){
+                    if (userCanScroll){
+
+                        delay(2000)
+                        notesList.add("3")
+                        notesList.add("3")
+                        notesList.add("3")
+                        notesList.add("3")
+                        notesList.add("3")
+                        Timber.tag("bottoms").d("adding to the list")
+                    }
+
+                }
+            }
+
+        }
+
+
+    }
+
+
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+private fun LogPointerEvents(filter: PointerEventType? = null,paddingValues: PaddingValues) {
+    val refreshScope = rememberCoroutineScope()
+    var refreshing by remember { mutableStateOf(false) }
+    var itemCount by remember { mutableStateOf(15) }
+
+    fun refresh() = refreshScope.launch {
+        refreshing = true
+        delay(1500)
+        itemCount += 5
+        refreshing = false
+    }
+
+    val state = rememberPullRefreshState(refreshing, ::refresh)
+    val rotation = animateFloatAsState(state.progress * 120)
+
+    Box(
+        Modifier
+            .fillMaxSize()
+            .pullRefresh(state)
+    ) {
+        LazyColumn {
+            if (!refreshing) {
+                items(itemCount) {
+                    ListItem { Text(text = "Item ${itemCount - it}") }
+                }
+            }
+        }
+
+        Surface(
+            modifier = Modifier
+                .size(40.dp)
+                .align(Alignment.TopCenter)
+                .pullRefreshIndicatorTransform(state)
+                .rotate(rotation.value),
+            shape = RoundedCornerShape(10.dp),
+            color = Color.DarkGray,
+            elevation = if (state.progress > 0 || refreshing) 20.dp else 0.dp,
+        ) {
+            Box {
+                if (refreshing) {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .size(25.dp),
+                        color = Color.White,
+                        strokeWidth = 3.dp
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LazyListState.isAtBottom(): Boolean {
+//this is the LazyListState
+    return remember(this) {
+
+        derivedStateOf {
+            val visibleItemsInfo = layoutInfo.visibleItemsInfo
+            if (layoutInfo.totalItemsCount == 0) {
+                false
+            } else {
+                val lastVisibleItem = visibleItemsInfo.last()
+                val viewportHeight = layoutInfo.viewportEndOffset + layoutInfo.viewportStartOffset
+
+                (lastVisibleItem.index + 1 == layoutInfo.totalItemsCount &&
+                        lastVisibleItem.offset + lastVisibleItem.size <= viewportHeight)
+            }
+        }
+    }.value
+}
+
 @Composable
 fun MainAnimationView(
     paddingValues: PaddingValues,
