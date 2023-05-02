@@ -61,10 +61,7 @@ import com.elliottsoftware.calftracker.util.findActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.pullRefreshIndicatorTransform
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
+
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
@@ -182,29 +179,22 @@ fun ScaffoldView(
 
 
 
-//            HomeView(
-//                viewModel,onNavigate,sharedViewModel,viewModel.state.value.data,
-//                {chipText -> viewModel.setChipText(chipText)},
-//                {viewModel.getCalves()},
-//                updateCalfListSize = {size -> billingViewModel.updateCalfListSize(size)},
-//                paddingValues,
-//
-//                )
-        RefreshingAnimation(paddingValues)
-//        LogPointerEvents(paddingValues=paddingValues)
+            HomeView(
+                viewModel,onNavigate,sharedViewModel,viewModel.state.value.data,
+                {chipText -> viewModel.setChipText(chipText)},
+                {viewModel.getCalves()},
+                updateCalfListSize = {size -> billingViewModel.updateCalfListSize(size)},
+                paddingValues,
+
+                )
 
 
-
-        //TestingEnterExitAnimations(viewModel)
 
         } //this should be outside, Actually this doesn't matter
 
 
     }
 }
-fun LazyListState.isScrolledToEnd() = layoutInfo.visibleItemsInfo.lastOrNull()?.index == layoutInfo.totalItemsCount - 1
-
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun RefreshingAnimation(paddingValues: PaddingValues){
     val configuration = LocalConfiguration.current
@@ -274,80 +264,6 @@ fun RefreshingAnimation(paddingValues: PaddingValues){
 
 }
 
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-private fun LogPointerEvents(filter: PointerEventType? = null,paddingValues: PaddingValues) {
-    val refreshScope = rememberCoroutineScope()
-    var refreshing by remember { mutableStateOf(false) }
-    var itemCount by remember { mutableStateOf(15) }
-
-    fun refresh() = refreshScope.launch {
-        refreshing = true
-        delay(1500)
-        itemCount += 5
-        refreshing = false
-    }
-
-    val state = rememberPullRefreshState(refreshing, ::refresh)
-    val rotation = animateFloatAsState(state.progress * 120)
-
-    Box(
-        Modifier
-            .fillMaxSize()
-            .pullRefresh(state)
-    ) {
-        LazyColumn {
-            if (!refreshing) {
-                items(itemCount) {
-                    ListItem { Text(text = "Item ${itemCount - it}") }
-                }
-            }
-        }
-
-        Surface(
-            modifier = Modifier
-                .size(40.dp)
-                .align(Alignment.TopCenter)
-                .pullRefreshIndicatorTransform(state)
-                .rotate(rotation.value),
-            shape = RoundedCornerShape(10.dp),
-            color = Color.DarkGray,
-            elevation = if (state.progress > 0 || refreshing) 20.dp else 0.dp,
-        ) {
-            Box {
-                if (refreshing) {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .size(25.dp),
-                        color = Color.White,
-                        strokeWidth = 3.dp
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun LazyListState.isAtBottom(): Boolean {
-//this is the LazyListState
-    return remember(this) {
-
-        derivedStateOf {
-            val visibleItemsInfo = layoutInfo.visibleItemsInfo
-            if (layoutInfo.totalItemsCount == 0) {
-                false
-            } else {
-                val lastVisibleItem = visibleItemsInfo.last()
-                val viewportHeight = layoutInfo.viewportEndOffset + layoutInfo.viewportStartOffset
-
-                (lastVisibleItem.index + 1 == layoutInfo.totalItemsCount &&
-                        lastVisibleItem.offset + lastVisibleItem.size <= viewportHeight)
-            }
-        }
-    }.value
-}
 
 @Composable
 fun MainAnimationView(
@@ -796,7 +712,10 @@ fun HomeView(
                             showDeleteValue = viewModel.state.value.showDeleteModal,
                             setCalfDeleteTagNId = {value1,value2 -> viewModel.setCalfDeleteTagNId(value1,value2)},
                             TagNumberToBeDeleted = viewModel.state.value.calfToBeDeletedTagNumber,
-                            calfId = viewModel.state.value.calfToBeDeletedId
+                            calfId = viewModel.state.value.calfToBeDeletedId,
+                            paginatedQuery = {viewModel.getPaginatedQuery()},
+                            paddingValues = paddingValues
+
                             )
 
                 }
@@ -832,12 +751,31 @@ fun MessageList(
     setCalfDeleteTagNId:(String,String) ->Unit,
     TagNumberToBeDeleted:String,
     calfId:String,
+    paginatedQuery:() -> Unit,
+    paddingValues: PaddingValues
+
 
     ) {
+    val configuration = LocalConfiguration.current
+    val screenHeight = configuration.screenHeightDp // total device screen height
+    val scaffoldBottomBarHeight = paddingValues.calculateBottomPadding() // bottom bar height
+    val scaffoldTopBarHeight = 100.dp // top bar height, found through trial and error
+    val screenHiddenByBars = scaffoldBottomBarHeight + scaffoldTopBarHeight // combination of bottom and top bar
+    val screenVisibleToUser = screenHeight - screenHiddenByBars.value //lazyColumn height visible to user
+
+    val itemHeight = 130.dp
+    val totalItemHeight = calfList.size* itemHeight.value
+    Timber.tag("heights").d(totalItemHeight.toString())
+    Timber.tag("heights").d(screenVisibleToUser.toString())
+
+    val userCanScroll = (totalItemHeight > screenVisibleToUser)
 
 
     Box(modifier = Modifier.fillMaxSize(),contentAlignment = Alignment.TopCenter){
-        LazyColumn(modifier=Modifier.background(MaterialTheme.colors.primary)) {
+        LazyColumn(
+            modifier=Modifier.background(MaterialTheme.colors.primary),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
 
 
             items(calfList,key = { it.id!! }) { calf ->
@@ -851,6 +789,22 @@ fun MessageList(
                 )
 
             }
+
+            if(userCanScroll){
+                item{
+                    Button(
+                        modifier = Modifier.padding(bottom = 20.dp),
+                        onClick ={paginatedQuery()},
+                        colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.secondary)
+
+                    ){
+                        Text("Load more calves",style = MaterialTheme.typography.h5)
+                    }
+
+                }
+            }
+
+
 
         }//end of the lazy column
         if(showDeleteValue){
@@ -1065,6 +1019,7 @@ fun CalfCard(
                 .offset { IntOffset(swipeableState.offset.value.roundToInt(), 0) }
                 .padding(horizontal = 8.dp, vertical = 8.dp)
                 .fillMaxWidth()
+                .height(110.dp)
                 .clickable {
                     //THIS IS WHERE THE NAVIGATION WILL GO
                     setClickedCalf(calf)

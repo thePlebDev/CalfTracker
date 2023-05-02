@@ -23,7 +23,7 @@ interface DatabaseRepository {
 
     suspend fun createCalf(calf:FireBaseCalf):Flow<Response<Boolean>>
 
-    suspend fun getCalves():Flow<Response<List<FireBaseCalf>>>
+    suspend fun getCalves(queryLimit:Long):Flow<Response<List<FireBaseCalf>>>
 
     suspend fun getCalvesTest():Flow<NetworkResponse<List<FireBaseCalf>>>
 

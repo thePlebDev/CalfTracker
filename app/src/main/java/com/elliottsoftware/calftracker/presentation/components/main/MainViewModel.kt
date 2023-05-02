@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
 import com.elliottsoftware.calftracker.domain.useCases.*
+import com.google.firebase.ktx.Firebase
 
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -31,7 +32,8 @@ data class MainUIState(
     val showDeleteModal:Boolean = false,
     val calfToBeDeletedTagNumber:String = "",
     val calfToBeDeletedId:String = "",
-    val animate:Boolean = false
+    val animate:Boolean = false,
+    val calfLimit:Long = 5
 
         )
 
@@ -41,12 +43,12 @@ class MainViewModel @Inject constructor(
    private val getCalvesUseCase: GetCalvesUseCase,
    private val deleteCalfUseCase: DeleteCalfUseCase,
    private val getCalfByTagNumberUseCase: GetCalfByTagNumberUseCase,
+   private val paginatedCalfQuery: PaginatedCalfQuery
 
 ):ViewModel() {
     private var _uiState: MutableState<MainUIState> = mutableStateOf(MainUIState())
     val state:State<MainUIState> = _uiState
     init{
-        Timber.tag("MainViewModel").e("CREATED")
         getCalves()
     }
 
@@ -55,14 +57,11 @@ class MainViewModel @Inject constructor(
         logoutUseCase.execute(Unit)
 
     }
-    fun changeAnimate(animate: Boolean){
-        _uiState.value = _uiState.value.copy(animate = animate)
-    }
 
 
      fun getCalves() = viewModelScope.launch(){
 
-        getCalvesUseCase.execute(Unit).collect{response ->
+        getCalvesUseCase.execute(_uiState.value.calfLimit + 1).collect{response ->
 
             _uiState.value = _uiState.value.copy(
                 data = response,
@@ -73,6 +72,28 @@ class MainViewModel @Inject constructor(
         }
 
     }
+
+    fun getPaginatedQuery() = viewModelScope.launch{
+        val limit =_uiState.value.calfLimit + 5
+
+        paginatedCalfQuery.execute(limit).collect{ response ->
+            when(response){
+                is Response.Loading ->{}
+                is Response.Success ->{
+                   val paginatedCalfList = response.data
+                    _uiState.value = _uiState.value.copy(
+                        calfLimit = _uiState.value.calfLimit + 1,
+                        data = Response.Success(paginatedCalfList)
+                    )
+                }
+                is Response.Failure ->{}
+            }
+
+        }
+
+
+    }
+
     fun deleteCalf(id:String) = viewModelScope.launch{
         deleteCalfUseCase.execute(id).collect{ response ->
 

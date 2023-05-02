@@ -9,6 +9,7 @@ import com.elliottsoftware.calftracker.util.Actions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
@@ -75,13 +76,19 @@ class DatabaseRepositoryImpl(
 
     //addSnapshotListener is needed for the real time updates
 
-    override suspend fun getCalves(): Flow<Response<List<FireBaseCalf>>> = callbackFlow{
+    override suspend fun getCalves(queryLimit:Long): Flow<Response<List<FireBaseCalf>>> = callbackFlow{
 
             trySend(Response.Loading)
 
 
             val query = db.collection("users")
-                .document(auth.currentUser?.email!!).collection("calves").orderBy("date")
+                .document(auth.currentUser?.email!!)
+                .collection("calves")
+                .orderBy("date", Query.Direction.DESCENDING)
+
+                .limit(queryLimit)
+
+
 
            val  docRef = query.addSnapshotListener { snapshot, e ->
                //error handling for snapshot listeners
@@ -110,7 +117,8 @@ class DatabaseRepositoryImpl(
                         trySend(Response.Failure(Exception("FAILED")))
                     }else{
 
-                        trySend(Response.Success(data.reversed()))
+                        Timber.tag("MORES").d(data.size.toString())
+                        trySend(Response.Success(data))
                     }
 
                 } else {
