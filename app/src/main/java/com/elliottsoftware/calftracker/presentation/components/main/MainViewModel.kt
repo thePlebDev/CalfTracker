@@ -33,7 +33,10 @@ data class MainUIState(
     val calfToBeDeletedTagNumber:String = "",
     val calfToBeDeletedId:String = "",
     val animate:Boolean = false,
-    val calfLimit:Long = 5
+    val calfLimit:Long = 50,
+    val disablePaginationButton:Boolean = false,
+    val paginationState:Response<Boolean> = Response.Success(true),
+    val currentLength: Int = 0
 
         )
 
@@ -61,7 +64,7 @@ class MainViewModel @Inject constructor(
 
      fun getCalves() = viewModelScope.launch(){
 
-        getCalvesUseCase.execute(_uiState.value.calfLimit + 1).collect{response ->
+        getCalvesUseCase.execute(_uiState.value.calfLimit).collect{response ->
 
             _uiState.value = _uiState.value.copy(
                 data = response,
@@ -74,19 +77,38 @@ class MainViewModel @Inject constructor(
     }
 
     fun getPaginatedQuery() = viewModelScope.launch{
-        val limit =_uiState.value.calfLimit + 5
+        val limit =_uiState.value.calfLimit
+        var disableButton = false
 
         paginatedCalfQuery.execute(limit).collect{ response ->
-            when(response){
-                is Response.Loading ->{}
-                is Response.Success ->{
-                   val paginatedCalfList = response.data
+            when(response){ // need to get rid of this and just do it in the UI, we just do simple collect, respone and calfLimit
+                is Response.Loading ->{
                     _uiState.value = _uiState.value.copy(
-                        calfLimit = _uiState.value.calfLimit + 1,
-                        data = Response.Success(paginatedCalfList)
+                        paginationState = Response.Loading,
+                    )
+
+                }
+                is Response.Success ->{
+
+                   val paginatedCalfList = response.data
+
+                    if(_uiState.value.currentLength == paginatedCalfList.size){
+                        disableButton = true
+                    }
+
+                    _uiState.value = _uiState.value.copy(
+                        calfLimit = _uiState.value.calfLimit + 20, // this stays
+                        data = Response.Success(paginatedCalfList),// not sure about this
+                        disablePaginationButton = disableButton, // gone
+                        currentLength = paginatedCalfList.size,
+                        paginationState = Response.Success(true)
                     )
                 }
-                is Response.Failure ->{}
+                is Response.Failure ->{
+                    _uiState.value = _uiState.value.copy(
+                        paginationState = Response.Failure(Exception()),
+                    )
+                }
             }
 
         }
