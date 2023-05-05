@@ -84,7 +84,9 @@ class MainViewModel @Inject constructor(
         val limit =_uiState.value.calfLimit
         var disableButton = false
 
-        paginatedCalfQuery.execute(limit).collect{ response ->
+        paginatedCalfQuery.execute(limit)
+            .flowOn(dispatcherIO)
+            .collect{ response ->
             when(response){ // need to get rid of this and just do it in the UI, we just do simple collect, respone and calfLimit
                 is Response.Loading ->{
                     _uiState.value = _uiState.value.copy(
@@ -121,7 +123,9 @@ class MainViewModel @Inject constructor(
     }
 
     fun deleteCalf(id:String) = viewModelScope.launch{
-        deleteCalfUseCase.execute(id).collect{ response ->
+        deleteCalfUseCase.execute(id)
+            .flowOn(dispatcherIO)
+            .collect{ response ->
 
         }
 
@@ -134,7 +138,9 @@ class MainViewModel @Inject constructor(
 
 
     fun searchCalfListByTag(tagNumber:String) = viewModelScope.launch{
-        getCalfByTagNumberUseCase.execute(tagNumber).collect{ response ->
+        getCalfByTagNumberUseCase.execute(tagNumber)
+            .flowOn(dispatcherIO)
+            .collect{ response ->
             _uiState.value = _uiState.value.copy(data = response)
         }
 
