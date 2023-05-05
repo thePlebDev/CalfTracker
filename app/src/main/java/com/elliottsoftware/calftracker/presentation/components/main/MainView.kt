@@ -171,6 +171,7 @@ fun ScaffoldView(
             CustomTopBar(
                 viewModel.state.value.chipText,
                 {tagNumber -> viewModel.searchCalfListByTag(tagNumber)},
+                cancelSearch = { viewModel.cancelSearch() }
             )
         },
         drawerContent = {},
@@ -702,7 +703,11 @@ fun MessageList(
 
 
 @Composable
-fun CustomTopBar(chipTextList:List<String>,searchMethod:(String)->Unit){
+fun CustomTopBar(
+    chipTextList:List<String>,
+    searchMethod:(String)->Unit,
+    cancelSearch:()->Unit
+){
     Column() {
         Surface(
             modifier = Modifier.fillMaxWidth(),
@@ -712,7 +717,11 @@ fun CustomTopBar(chipTextList:List<String>,searchMethod:(String)->Unit){
             Column() {
 
 
-                 SearchText(searchMethod= { tagNumber -> searchMethod(tagNumber) })
+                 SearchText(
+                     searchMethod= { tagNumber -> searchMethod(tagNumber) },
+                     cancelSearch = {cancelSearch()}
+
+                 )
                     //CHIPS GO BELOW HERE
                     LazyRow(
                         modifier= Modifier
@@ -733,7 +742,10 @@ fun CustomTopBar(chipTextList:List<String>,searchMethod:(String)->Unit){
 }
 
 @Composable
-fun SearchText(searchMethod:(String)->Unit){
+fun SearchText(
+    searchMethod:(String)->Unit,
+    cancelSearch:()->Unit
+){
     var tagNumber by remember { mutableStateOf("") }
     var clicked by remember { mutableStateOf(false)}
     val source = remember {
@@ -750,7 +762,7 @@ fun SearchText(searchMethod:(String)->Unit){
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
-            placeholder = {Text("Search by tag number")},
+            placeholder = {Text("Search by exact tag number")},
             value = tagNumber, onValueChange = {tagNumber = it},
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,
@@ -762,9 +774,9 @@ fun SearchText(searchMethod:(String)->Unit){
                         Icons.Filled.Close,
                         contentDescription = "Clear search icon",
                         modifier = Modifier.clickable {
-                            tagNumber = ""
-                            searchMethod("")
+                            cancelSearch()
                             focusManager.clearFocus()
+                            tagNumber = ""
                         }
                     )
                 }else{
