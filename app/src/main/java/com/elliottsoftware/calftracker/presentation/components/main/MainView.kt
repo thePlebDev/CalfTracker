@@ -180,11 +180,14 @@ fun ScaffoldView(
 
 
             HomeView(
-                viewModel,onNavigate,sharedViewModel,viewModel.state.value.data,
+                viewModel
+                ,onNavigate,
+                sharedViewModel,
+                viewModel.state.value.data,
                 {chipText -> viewModel.setChipText(chipText)},
-                {viewModel.getCalves()},
+                errorRefreshMethod = {viewModel.getCalves()},
                 updateCalfListSize = {size -> billingViewModel.updateCalfListSize(size)},
-                paddingValues,
+               paddingValues= paddingValues,
 
                 )
 

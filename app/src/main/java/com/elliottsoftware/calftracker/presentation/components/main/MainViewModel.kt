@@ -14,11 +14,14 @@ import com.elliottsoftware.calftracker.domain.useCases.*
 import com.google.firebase.ktx.Firebase
 
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -46,12 +49,14 @@ class MainViewModel @Inject constructor(
    private val getCalvesUseCase: GetCalvesUseCase,
    private val deleteCalfUseCase: DeleteCalfUseCase,
    private val getCalfByTagNumberUseCase: GetCalfByTagNumberUseCase,
-   private val paginatedCalfQuery: PaginatedCalfQuery
+   private val paginatedCalfQuery: PaginatedCalfQuery,
 
 ):ViewModel() {
     private var _uiState: MutableState<MainUIState> = mutableStateOf(MainUIState())
     val state:State<MainUIState> = _uiState
+    private val dispatcherIO: CoroutineDispatcher = Dispatchers.IO
     init{
+
         getCalves()
     }
 
@@ -64,14 +69,13 @@ class MainViewModel @Inject constructor(
 
      fun getCalves() = viewModelScope.launch(){
 
-        getCalvesUseCase.execute(_uiState.value.calfLimit).collect{response ->
 
+        getCalvesUseCase.execute(_uiState.value.calfLimit)
+            .flowOn(dispatcherIO)
+            .collect{response ->
             _uiState.value = _uiState.value.copy(
                 data = response,
             )
-
-
-
         }
 
     }
