@@ -185,35 +185,30 @@ class DatabaseRepositoryImpl(
     }
 
 
-
     override suspend fun getCalvesByTagNumber(tagNumber:String)= callbackFlow {
         trySend(Response.Loading)
-        val docRef = db.collection("users")
-            .document(auth.currentUser?.email!!).collection("calves").orderBy("date")
-            .addSnapshotListener { snapshot, e ->
-                if (e != null) {
-
-                    Timber.e(e)
-                    trySend(Response.Failure(e))
-                    return@addSnapshotListener
-                }
-
-                if (snapshot != null) {
-
-                    val data = snapshot.map {  document ->
+        db.collection("users")
+            .document(auth.currentUser?.email!!).collection("calves")
+            .orderBy("date", Query.Direction.DESCENDING)
+            .whereEqualTo("calftag", tagNumber)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null) {
+                    val data = document.map {  document ->
                         document.toObject(FireBaseCalf::class.java)
                     }
-
-                    val filteredCalfList = data.filter { it.calftag!!.contains(tagNumber, ignoreCase = true) }
-                    trySend(Response.Success(filteredCalfList.reversed()))
+                    Timber.tag("CALVESSEARCH").d(data.toString())
+                    trySend(Response.Success(data))
                 } else {
-                    Timber.e("getCalvesByTagNumber data is null")
-
+                    Timber.tag("CALVESSEARCH").d("NOTHING FOUND")
                 }
             }
+            .addOnFailureListener { exception ->
+                Timber.tag("CALVESSEARCH").d(exception.toString())
+                trySend(Response.Failure(exception))
+            }
 
-        awaitClose{
-            docRef.remove()
-        }
+    awaitClose()
+
     }
 }

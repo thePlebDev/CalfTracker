@@ -79,6 +79,9 @@ class MainViewModel @Inject constructor(
         }
 
     }
+    fun cancelSearch(){
+        getCalves()
+    }
 
     fun getPaginatedQuery() = viewModelScope.launch{
         val limit =_uiState.value.calfLimit
