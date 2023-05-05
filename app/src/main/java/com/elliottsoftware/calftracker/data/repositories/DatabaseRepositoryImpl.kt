@@ -85,7 +85,6 @@ class DatabaseRepositoryImpl(
                 .document(auth.currentUser?.email!!)
                 .collection("calves")
                 .orderBy("date", Query.Direction.DESCENDING)
-
                 .limit(queryLimit)
 
 

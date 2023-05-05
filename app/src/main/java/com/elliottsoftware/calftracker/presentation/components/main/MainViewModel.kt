@@ -14,11 +14,14 @@ import com.elliottsoftware.calftracker.domain.useCases.*
 import com.google.firebase.ktx.Firebase
 
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -33,7 +36,10 @@ data class MainUIState(
     val calfToBeDeletedTagNumber:String = "",
     val calfToBeDeletedId:String = "",
     val animate:Boolean = false,
-    val calfLimit:Long = 5
+    val calfLimit:Long = 50,
+    val disablePaginationButton:Boolean = false,
+    val paginationState:Response<Boolean> = Response.Success(true),
+    val currentLength: Int = 0
 
         )
 
@@ -43,12 +49,14 @@ class MainViewModel @Inject constructor(
    private val getCalvesUseCase: GetCalvesUseCase,
    private val deleteCalfUseCase: DeleteCalfUseCase,
    private val getCalfByTagNumberUseCase: GetCalfByTagNumberUseCase,
-   private val paginatedCalfQuery: PaginatedCalfQuery
+   private val paginatedCalfQuery: PaginatedCalfQuery,
 
 ):ViewModel() {
     private var _uiState: MutableState<MainUIState> = mutableStateOf(MainUIState())
     val state:State<MainUIState> = _uiState
+    private val dispatcherIO: CoroutineDispatcher = Dispatchers.IO
     init{
+
         getCalves()
     }
 
@@ -61,32 +69,50 @@ class MainViewModel @Inject constructor(
 
      fun getCalves() = viewModelScope.launch(){
 
-        getCalvesUseCase.execute(_uiState.value.calfLimit + 1).collect{response ->
 
+        getCalvesUseCase.execute(_uiState.value.calfLimit)
+            .flowOn(dispatcherIO)
+            .collect{response ->
             _uiState.value = _uiState.value.copy(
                 data = response,
             )
-
-
-
         }
 
     }
 
     fun getPaginatedQuery() = viewModelScope.launch{
-        val limit =_uiState.value.calfLimit + 5
+        val limit =_uiState.value.calfLimit
+        var disableButton = false
 
         paginatedCalfQuery.execute(limit).collect{ response ->
-            when(response){
-                is Response.Loading ->{}
-                is Response.Success ->{
-                   val paginatedCalfList = response.data
+            when(response){ // need to get rid of this and just do it in the UI, we just do simple collect, respone and calfLimit
+                is Response.Loading ->{
                     _uiState.value = _uiState.value.copy(
-                        calfLimit = _uiState.value.calfLimit + 1,
-                        data = Response.Success(paginatedCalfList)
+                        paginationState = Response.Loading,
+                    )
+
+                }
+                is Response.Success ->{
+
+                   val paginatedCalfList = response.data
+
+                    if(_uiState.value.currentLength == paginatedCalfList.size){
+                        disableButton = true
+                    }
+
+                    _uiState.value = _uiState.value.copy(
+                        calfLimit = _uiState.value.calfLimit + 20, // this stays
+                        data = Response.Success(paginatedCalfList),// not sure about this
+                        disablePaginationButton = disableButton, // gone
+                        currentLength = paginatedCalfList.size,
+                        paginationState = Response.Success(true)
                     )
                 }
-                is Response.Failure ->{}
+                is Response.Failure ->{
+                    _uiState.value = _uiState.value.copy(
+                        paginationState = Response.Failure(Exception()),
+                    )
+                }
             }
 
         }

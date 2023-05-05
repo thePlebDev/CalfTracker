@@ -180,11 +180,14 @@ fun ScaffoldView(
 
 
             HomeView(
-                viewModel,onNavigate,sharedViewModel,viewModel.state.value.data,
+                viewModel
+                ,onNavigate,
+                sharedViewModel,
+                viewModel.state.value.data,
                 {chipText -> viewModel.setChipText(chipText)},
-                {viewModel.getCalves()},
+                errorRefreshMethod = {viewModel.getCalves()},
                 updateCalfListSize = {size -> billingViewModel.updateCalfListSize(size)},
-                paddingValues,
+               paddingValues= paddingValues,
 
                 )
 
@@ -534,7 +537,9 @@ fun HomeView(
                             TagNumberToBeDeleted = viewModel.state.value.calfToBeDeletedTagNumber,
                             calfId = viewModel.state.value.calfToBeDeletedId,
                             paginatedQuery = {viewModel.getPaginatedQuery()},
-                            paddingValues = paddingValues
+                            paddingValues = paddingValues,
+                            disablePaginationButton = viewModel.state.value.disablePaginationButton,
+                            paginationState = viewModel.state.value.paginationState
 
                             )
 
@@ -572,7 +577,9 @@ fun MessageList(
     TagNumberToBeDeleted:String,
     calfId:String,
     paginatedQuery:() -> Unit,
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    disablePaginationButton:Boolean,
+    paginationState:Response<Boolean>
 
 
     ) {
@@ -612,14 +619,57 @@ fun MessageList(
 
             if(userCanScroll){
                 item{
-                    Button(
-                        modifier = Modifier.padding(bottom = 20.dp),
-                        onClick ={paginatedQuery()},
-                        colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.secondary)
+                    if(disablePaginationButton){
+                        Button(
+                            modifier = Modifier.padding(bottom = 20.dp),
+                            enabled = false,
+                            onClick ={},
+                            colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.secondary)
 
-                    ){
-                        Text("Load more calves",style = MaterialTheme.typography.h5)
+                        ){
+
+                            Text("No more calves",style = MaterialTheme.typography.h5)
+                        }
+                    }else{
+                        when(paginationState){
+                            is Response.Loading ->{
+                                Button(
+                                    modifier = Modifier.padding(bottom = 20.dp),
+                                    onClick ={},
+                                    colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.secondary)
+
+                                ){
+
+                                    Text("Loading...",style = MaterialTheme.typography.h5)
+                                }
+                            }
+                            is Response.Success ->{
+                                Button(
+                                    modifier = Modifier.padding(bottom = 20.dp),
+                                    onClick ={paginatedQuery()},
+                                    colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.secondary)
+
+                                ){
+
+                                    Text("Load more calves",style = MaterialTheme.typography.h5)
+                                }
+                            }
+                            is Response.Failure ->{
+                                Button(
+                                    modifier = Modifier.padding(bottom = 20.dp),
+                                    onClick ={paginatedQuery()},
+                                    colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.secondary)
+
+                                ){
+
+                                    Text("Error please try again",style = MaterialTheme.typography.h5)
+                                }
+                            }
+                        }
+
+
                     }
+
 
                 }
             }
@@ -887,7 +937,7 @@ fun ConfirmDelete(
     Card(
         backgroundColor = MaterialTheme.colors.secondary,
         modifier = Modifier
-            .padding(vertical = 20.dp)
+            .padding(10.dp)
             .border(width = 2.dp, color = Color.Red)
     ) {
         Column(modifier = Modifier
