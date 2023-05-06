@@ -17,6 +17,9 @@ import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.repositories.SubscriptionRepository
 import com.elliottsoftware.calftracker.presentation.components.billing.BillingClientWrapper
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.*
@@ -52,6 +55,7 @@ class BillingViewModel @Inject constructor(
     private val repo: SubscriptionRepository //Keep doing this
 ): AndroidViewModel(application),DefaultLifecycleObserver {
 
+    private val dispatcherIO: CoroutineDispatcher = Dispatchers.IO
     private val _uiState = mutableStateOf(BillingUiState())
     val state = _uiState
 
@@ -113,7 +117,9 @@ class BillingViewModel @Inject constructor(
 
         viewModelScope.launch {
             repo.queryPurchases()
-            repo.hasRenewablePremium().collect { collectedSubscriptions ->
+            repo.hasRenewablePremium()
+                .flowOn(dispatcherIO)
+                .collect { collectedSubscriptions ->
 
                     when(collectedSubscriptions){
                         is Response.Loading -> {
@@ -364,7 +370,9 @@ class BillingViewModel @Inject constructor(
     private fun subscribedPurchases(){
 
         viewModelScope.launch {
-            repo.subscribedObject().collect{item ->
+            repo.subscribedObject()
+                .flowOn(dispatcherIO)
+                .collect{item ->
                 when(val response = item){
                     is Response.Success ->{
                         val list = response.data
