@@ -2,6 +2,7 @@
     <string name="app_name">CalfTracker</string>
     >
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="service_description">establishes connection to Google Play</string>
 
     <string name="system_auto_theme">System Auto</string>
     <string name="light_theme">Default</string>

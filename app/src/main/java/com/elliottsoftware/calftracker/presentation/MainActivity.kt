@@ -2,8 +2,13 @@ package com.elliottsoftware.calftracker.presentation
 
 import android.animation.ObjectAnimator
 import android.app.Activity
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.view.View
 import android.view.animation.AnticipateInterpolator
 import androidx.annotation.RequiresApi
@@ -21,6 +26,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import timber.log.Timber.*
 import androidx.activity.compose.setContent
+import com.elliottsoftware.calftracker.background.BillingService
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import timber.log.Timber.Forest.plant
@@ -28,6 +34,7 @@ import timber.log.Timber.Forest.plant
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+
 
     override fun onDestroy() {
         super.onDestroy()
@@ -53,7 +60,7 @@ class MainActivity : AppCompatActivity() {
         //for debugging
         CrashAndLog.setupTimber()
 
-
-
     }
+
+
 }
