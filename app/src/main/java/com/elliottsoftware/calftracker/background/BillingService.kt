@@ -17,15 +17,14 @@ class BillingService : Service() {
     val randomNumber: Int
         get() = mGenerator.nextInt(100)
 
-    /**
-     * Class used for the client Binder. Because we know this service always
-     * runs in the same process as its clients, we don't need to deal with IPC.
-     */
     inner class LocalBinder : Binder() {
-        // Return this instance of LocalService so clients can call public methods.
+        // Return this instance of LocalService so clients can call public methods
+
         fun getService(): BillingService = this@BillingService
     }
 
+    //called by the Android system
+    // IBinder gets passed to onServiceConnected()
     override fun onBind(intent: Intent): IBinder {
         return binder
     }
