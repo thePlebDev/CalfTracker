@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.fragment.app.viewModels
 import com.elliottsoftware.calftracker.background.BillingService
 import com.elliottsoftware.calftracker.presentation.components.subscription.BillingViewModel
+import com.elliottsoftware.calftracker.presentation.components.subscription.SubscriptionViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.MainUIState
 import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
 import com.elliottsoftware.calftracker.util.findActivity
@@ -48,26 +49,9 @@ class MainFragment : Fragment() {
     private var _binding:FragmentMainBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var mService: BillingService
-    private var _uiState: MutableState<Boolean> = mutableStateOf(false)
 
-    /** Defines callbacks for service binding, passed to bindService().  */
-    private val connection = object : ServiceConnection {
 
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance.
-            val binder = service as BillingService.LocalBinder
-            mService = binder.getService()
-            Timber.tag("THINGSS").d(className.className)
-
-            _uiState.value = true
-        }
-
-        override fun onServiceDisconnected(arg0: ComponentName) {
-
-            _uiState.value = false
-        }
-    }
+   private val subscriptionViewModel: SubscriptionViewModel by viewModels()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -106,12 +90,10 @@ class MainFragment : Fragment() {
 //                    billingViewModel = billingViewModel,
 //                    newCalfViewModel = newCalfViewModel
 //                )
-                if(_uiState.value){
-                    val data =mService.randomNumber
+
+                    val data =subscriptionViewModel.state.value
                     Text("$data", fontSize = 60.sp)
-                }else{
-                    Text("NOT CONNECTED")
-                }
+
 
             }
 
@@ -127,21 +109,21 @@ class MainFragment : Fragment() {
         super.onDestroyView()
         _binding = null
         //I don't think we have to remove this. I think it is done automatically for us.
-        //        lifecycle.removeObserver(billingViewModel)
+        //lifecycle.removeObserver(billingViewModel)
     }
 
     override fun onStart() {
         super.onStart()
         // Bind to LocalService.
         Intent(this.requireContext(), BillingService::class.java).also { intent ->
-            activity?.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+            activity?.bindService(intent, subscriptionViewModel.serviceConnection(), Context.BIND_AUTO_CREATE)
         }
 
     }
     override fun onStop() {
         super.onStop()
-        activity?.unbindService(connection)
-        _uiState.value = false
+        activity?.unbindService(subscriptionViewModel.serviceConnection())
+
     }
 
 
