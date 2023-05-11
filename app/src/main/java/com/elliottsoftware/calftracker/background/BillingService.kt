@@ -28,36 +28,11 @@ class BillingService : Service() {
     }
 
 
-
-
-
     //called by the Android system
     // IBinder gets passed to onServiceConnected()
     override fun onBind(intent: Intent): IBinder {
 
         return binder
     }
-    companion object{
-        private val connection = object : ServiceConnection {
 
-            override fun onServiceConnected(className: ComponentName, service: IBinder) {
-                // We've bound to LocalService, cast the IBinder and get LocalService instance.
-                val binder = service as BillingService.LocalBinder
-//            mService = binder.getService()
-//            _uiState.value = true
-            }
-
-            override fun onServiceDisconnected(arg0: ComponentName) {
-
-//            _uiState.value = false
-            }
-        }
-
-        fun startService(context: Context) {
-
-            Intent(context, BillingService::class.java).also { intent ->
-                context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
-            }
-        }
-    }
 }

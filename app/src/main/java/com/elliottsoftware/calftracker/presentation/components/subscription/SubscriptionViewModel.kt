@@ -11,11 +11,9 @@ import androidx.lifecycle.viewModelScope
 import com.elliottsoftware.calftracker.background.BillingService
 import com.elliottsoftware.calftracker.data.repositories.BillingRepository
 import com.elliottsoftware.calftracker.presentation.viewModels.MainUIState
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 data class SubscriptionUiState(
     val isPremium: Boolean = false,
@@ -31,12 +29,13 @@ class SubscriptionViewModel(
 
     private var _uiState: MutableState<Int> = mutableStateOf(2)
     val state: State<Int> = _uiState
-
+    val gettingStuff = billingRepository.getStuff()
      fun serviceConnection():ServiceConnection{
         return billingRepository.getServiceConnection()
     }
     init{
         getRandomNums()
+
     }
 
     fun getRandomNums() = viewModelScope.launch {
