@@ -1,8 +1,8 @@
 package com.elliottsoftware.calftracker.dI
 
 import android.content.Context
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.android.billingclient.api.BillingClient
 import com.elliottsoftware.calftracker.data.remote.WeatherApi
 import com.elliottsoftware.calftracker.data.remote.WeatherRetrofitInstance
 import com.elliottsoftware.calftracker.data.repositories.*
@@ -14,19 +14,18 @@ import com.elliottsoftware.calftracker.presentation.components.billing.BillingCl
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import dagger.Component
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
-import dagger.hilt.android.qualifiers.ActivityContext
+import dagger.hilt.android.components.ServiceComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.android.scopes.ActivityRetainedScoped
-import dagger.hilt.android.scopes.ViewModelScoped
-import dagger.hilt.components.SingletonComponent
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
 import javax.inject.Singleton
+
+
+
 
 
 @Module
@@ -92,5 +91,19 @@ object ViewModelModule {
         billingClient.startBillingConnection(billingConnectionState = _billingConnectionState)
         return billingClient
     }
+
+
+
+
 }
 
+
+
+@Module
+@InstallIn(ServiceComponent::class)
+object ServiceModule {
+
+
+
+
+}

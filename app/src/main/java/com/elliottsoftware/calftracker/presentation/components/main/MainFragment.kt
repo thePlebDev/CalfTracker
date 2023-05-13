@@ -13,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material.*
 //import androidx.compose.material.AppBar
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -29,7 +30,9 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.MutableLiveData
 import com.elliottsoftware.calftracker.background.BillingService
+import com.elliottsoftware.calftracker.presentation.components.billing.BillingClientWrapper
 import com.elliottsoftware.calftracker.presentation.components.subscription.BillingViewModel
 import com.elliottsoftware.calftracker.presentation.components.subscription.SubscriptionViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.MainUIState
@@ -37,6 +40,7 @@ import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
 import com.elliottsoftware.calftracker.util.findActivity
 import kotlinx.coroutines.flow.flow
 import timber.log.Timber
+import javax.inject.Inject
 
 
 /**
@@ -45,9 +49,12 @@ import timber.log.Timber
  * create an instance of this fragment.
  */
 @AndroidEntryPoint
-class MainFragment : Fragment() {
+class MainFragment() : Fragment() {
     private var _binding:FragmentMainBinding? = null
     private val binding get() = _binding!!
+
+
+
 
 
 
@@ -56,7 +63,6 @@ class MainFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
 
     }
 
@@ -83,16 +89,23 @@ class MainFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
 
-//                MainView(
-//                    viewModel = mainViewModel,
-//                    onNavigate = { dest -> findNavController().navigate(dest) },
-//                    sharedViewModel = sharedViewModel,
-//                    billingViewModel = billingViewModel,
-//                    newCalfViewModel = newCalfViewModel
-//                )
+                MainView(
+                    viewModel = mainViewModel,
+                    onNavigate = { dest -> findNavController().navigate(dest) },
+                    sharedViewModel = sharedViewModel,
+                    billingViewModel = billingViewModel,
+                    newCalfViewModel = newCalfViewModel
+                )
+//                Column() {
+//                    val data =subscriptionViewModel.state.value
+//                    Text("$data", fontSize = 60.sp)
+//                    Button(onClick = { /*TODO*/ }) {
+//                        Text("Make the button move up")
+//                    }
+//
+//                }
 
-                    val data =subscriptionViewModel.state.value
-                    Text("$data", fontSize = 60.sp)
+
 
 
             }
@@ -115,14 +128,14 @@ class MainFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         // Bind to LocalService.
-        Intent(this.requireContext(), BillingService::class.java).also { intent ->
-            activity?.bindService(intent, subscriptionViewModel.serviceConnection(), Context.BIND_AUTO_CREATE)
-        }
+//        Intent(this.requireContext(), BillingService::class.java).also { intent ->
+//            activity?.bindService(intent, subscriptionViewModel.serviceConnection(), Context.BIND_AUTO_CREATE)
+//        }
 
     }
     override fun onStop() {
         super.onStop()
-        activity?.unbindService(subscriptionViewModel.serviceConnection())
+       // activity?.unbindService(subscriptionViewModel.serviceConnection())
 
     }
 

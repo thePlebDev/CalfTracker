@@ -29,7 +29,10 @@ class SubscriptionDataRepository(
 
         MutableStateFlow(Response.Failure(e))
     }
+
     val subscribedObject: Flow<Response<List<Purchase>>> = try{
+
+
         billingClientWrapper.purchases.map { value: List<Purchase> ->
             val value = value.filter { purchase: Purchase ->  purchase.products.contains(PREMIUM_SUB) && purchase.isAutoRenewing}
             Response.Success(value)
@@ -65,13 +68,13 @@ class SubscriptionDataRepository(
 
     //terminate the connection
     override fun terminateConnection(){
-        billingClientWrapper.terminateBillingConnection()
+       // billingClientWrapper.terminateBillingConnection()
     }
     override fun launchBillingFlow(activity: Activity, params: BillingFlowParams){
-        billingClientWrapper.launchBillingFlow(
-            activity,
-            params
-        )
+//        billingClientWrapper.launchBillingFlow(
+//            activity,
+//            params
+//        )
     }
 
     override suspend fun premiumProductDetails() = flow {
@@ -89,9 +92,6 @@ class SubscriptionDataRepository(
             }.collect{
                 emit(it)
         }
-
-
-
 
     }
 
@@ -112,6 +112,10 @@ class SubscriptionDataRepository(
         }.collect{
             emit(it)
         }
+    }
+
+    override fun getBillingClient(): BillingClientWrapper {
+        return billingClientWrapper
     }
 
     override fun queryPurchases(){

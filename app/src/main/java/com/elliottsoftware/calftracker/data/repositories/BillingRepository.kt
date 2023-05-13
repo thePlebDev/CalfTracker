@@ -12,12 +12,15 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import timber.log.Timber
 
+
 class BillingRepository(
     private val externalScope: CoroutineScope = CoroutineScope(SupervisorJob()) //when injected make this a singleton
 ) {
 
     private lateinit var mService: BillingService
      val mBound = MutableStateFlow(false)
+
+
 
 
 
@@ -32,6 +35,7 @@ class BillingRepository(
 
                 mBound.emit(true)
 
+
             }
         }
 
@@ -45,8 +49,14 @@ class BillingRepository(
 
      fun getStuff(): Flow<Int> = flow{
          mBound.collect{ serviceConnected ->
+
              if(serviceConnected){
                  emit(mService.randomNumber)
+
+                 mService.premiumProductDetails().collect{
+                     Timber.tag("meatballsP").d(it.toString())
+                 }
+
              }else{
                  emit(999)
              }
