@@ -320,10 +320,10 @@ class BillingViewModel @Inject constructor(
 //                    activity,
 //                    billingParams
 //                )
-                repo.launchBillingFlow(
-                    activity,
-                    billingParams
-                )
+//                repo.launchBillingFlow(
+//                    activity,
+//                    billingParams
+//                )
             }
             /************THIS GET RUNS************/
         } else if (currentPurchases == null) {
@@ -339,10 +339,11 @@ class BillingViewModel @Inject constructor(
 
 
             if (billingParams != null) {
-//                billingClient.launchBillingFlow(
-//                    activity,
-//                    billingParams.build()
-//                )
+                repo.getBillingClient()
+                    .launchBillingFlow(
+                    activity,
+                    billingParams.build()
+                )
                 repo.launchBillingFlow(
                     activity,
                     billingParams.build()
@@ -362,7 +363,7 @@ class BillingViewModel @Inject constructor(
     // When an activity is destroyed the viewModel's onCleared is called, so we terminate the
     // billing connection.
     override fun onCleared() {
-        repo.terminateConnection()
+       // repo.terminateConnection()
     }
 
     /******* I THINK I WANT TO PUT THIS AS A USECASE**********/

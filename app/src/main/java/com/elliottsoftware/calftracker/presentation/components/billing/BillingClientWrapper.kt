@@ -5,13 +5,17 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.*
+import dagger.hilt.android.qualifiers.ActivityContext
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import timber.log.Timber
+import javax.inject.Inject
 
-class BillingClientWrapper(
-    context: Context
-) : PurchasesUpdatedListener,ProductDetailsResponseListener {
+class BillingClientWrapper @Inject constructor(
+    @ApplicationContext context: Context,
+
+    ) : PurchasesUpdatedListener,ProductDetailsResponseListener {
 
     // New Subscription ProductDetails
     private val _productWithProductDetails =
@@ -194,6 +198,7 @@ class BillingClientWrapper(
         billingResult: BillingResult,
         productDetailsList: MutableList<ProductDetails>
     ) {
+        Timber.tag("BILLINGR").i("onProductDetailsResponse")
         val responseCode = billingResult.responseCode
         val debugMessage = billingResult.debugMessage
         when (responseCode) {
@@ -208,6 +213,7 @@ class BillingClientWrapper(
                         it.productId //This is going to be the key fo the map. the key is calf_tracker_premium_10
                     }
                 }
+                Timber.tag("BILLINGR").i(newMap.toString())
 
                 _productWithProductDetails.value = newMap
             }
