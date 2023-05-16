@@ -64,6 +64,17 @@ class BillingRepository @Inject constructor(
 
         }
     }
+    fun isUserSubscribed():Flow<Boolean> = flow{
+        Timber.tag("ANOTHERSONE").d("BillingRepository isUserSubscribed()")
+        if(mBound.value){
+            mService
+                .isUserSubscribed()
+                .collect{emit(it)}
+
+        }else{
+
+        }
+    }
 
     fun fetchProductDetails(): Flow<Response<ProductDetails>> = flow {
         mBound.collect{ serviceConnected ->

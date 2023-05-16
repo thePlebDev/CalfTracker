@@ -91,14 +91,14 @@ object ViewModelModule {
     @InstallIn(SingletonComponent::class)
     object SingletonModule {
 
-//        @Provides
-//        fun provideSubscriptionDataRepository(
-//            billingClient: BillingClientWrapper
-//        ): SubscriptionRepository {
-//            // billingClientWrapper = billingClient
-//            Timber.tag("detailsd").d( "provideSubscriptionDataRepository ${ billingClient.hashCode().toString() }")
-//            return SubscriptionDataRepository(billingClient)
-//        }
+        @Provides
+        fun provideSubscriptionDataRepository(
+            billingClient: BillingClientWrapper
+        ): SubscriptionRepository {
+            // billingClientWrapper = billingClient
+
+            return SubscriptionDataRepository(billingClient)
+        }
 
 //        @Provides
 //        fun provideBillingClientWrapper(

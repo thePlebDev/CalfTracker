@@ -54,12 +54,7 @@ class MainFragment() : Fragment() {
     private var _binding:FragmentMainBinding? = null
     private val binding get() = _binding!!
 
-
-
-
-
-
-   private val subscriptionViewModel: SubscriptionViewModel by activityViewModels()
+    
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,9 +74,9 @@ class MainFragment() : Fragment() {
 
         _binding = FragmentMainBinding.inflate(inflater,container,false)
         val view = binding.root
-//        val sharedViewModel: EditCalfViewModel by activityViewModels()
-//        val mainViewModel: MainViewModel by activityViewModels()
-//        val newCalfViewModel: NewCalfViewModel by activityViewModels()
+        val sharedViewModel: EditCalfViewModel by activityViewModels()
+        val mainViewModel: MainViewModel by activityViewModels()
+        val newCalfViewModel: NewCalfViewModel by activityViewModels()
 //        (activity as AppCompatActivity?)!!.supportActionBar!!.hide()
 
         val activity = activity?.findActivity()!!
@@ -90,44 +85,14 @@ class MainFragment() : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
 
-//                MainView(
-//                    viewModel = mainViewModel,
-//                    onNavigate = { dest -> findNavController().navigate(dest) },
-//                    sharedViewModel = sharedViewModel,
-//                    billingViewModel = billingViewModel,
-//                    newCalfViewModel = newCalfViewModel
-//                )
-                Column() {
-                    when(val response =subscriptionViewModel.state.value){
-                        is Response.Loading ->{
-                            Text("LOADING",fontSize = 60.sp)
-                        }
-                        is Response.Success ->{
-                            Column() {
-                                Text(response.data.name,fontSize = 60.sp)
-                                Button(
-                                    onClick = {
-                                        subscriptionViewModel.buy(
-                                        productDetails = response.data,
-                                        currentPurchases = null,
-                                        activity = activity,
-                                        tag = "calf_tracker_premium"
-                                    ) }
-                                ) {
-                                    Text("BUY THINGS")
+                MainView(
+                    viewModel = mainViewModel,
+                    onNavigate = { dest -> findNavController().navigate(dest) },
+                    sharedViewModel = sharedViewModel,
+                    billingViewModel = billingViewModel,
+                    newCalfViewModel = newCalfViewModel
+                )
 
-                                }
-                            }
-
-                        }
-                        is Response.Failure ->{
-                            Text("FAILURE",fontSize = 60.sp)
-                        }
-                    }
-
-
-
-                }
 
 
 

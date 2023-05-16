@@ -52,7 +52,7 @@ data class BillingUiState(
 @HiltViewModel
 class BillingViewModel @Inject constructor(
     application: Application,
-  //  private val repo: SubscriptionRepository //Keep doing this
+    private val repo: SubscriptionRepository //Keep doing this
 ): AndroidViewModel(application),DefaultLifecycleObserver {
 
     private val dispatcherIO: CoroutineDispatcher = Dispatchers.IO
