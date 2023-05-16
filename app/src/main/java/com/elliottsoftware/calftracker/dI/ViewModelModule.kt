@@ -3,6 +3,7 @@ package com.elliottsoftware.calftracker.dI
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.BillingClient
+import com.elliottsoftware.calftracker.background.ServiceUtil
 import com.elliottsoftware.calftracker.data.remote.WeatherApi
 import com.elliottsoftware.calftracker.data.remote.WeatherRetrofitInstance
 import com.elliottsoftware.calftracker.data.repositories.*
@@ -21,6 +22,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
 import dagger.hilt.android.components.ServiceComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import timber.log.Timber
 import javax.inject.Singleton
 
@@ -72,31 +76,64 @@ object ViewModelModule {
     }
 
 
-    @Provides
-    fun provideSubscriptionDataRepository(
-        billingClient: BillingClientWrapper
-    ): SubscriptionRepository {
-    // billingClientWrapper = billingClient
-        return SubscriptionDataRepository(billingClient)
-    }
 
-    @Provides
-    fun provideBillingClientWrapper(
-        @ApplicationContext context:Context
-    ):BillingClientWrapper{
-        val _billingConnectionState = MutableLiveData(false)
-        Timber.tag("BillingClientWrapper").d("Created dependency injection")
 
-        var billingClient: BillingClientWrapper = BillingClientWrapper(context.applicationContext)
-        billingClient.startBillingConnection(billingConnectionState = _billingConnectionState)
-        return billingClient
-    }
+
 
 
 
 
 }
 
+
+
+    @Module
+    @InstallIn(SingletonComponent::class)
+    object SingletonModule {
+
+//        @Provides
+//        fun provideSubscriptionDataRepository(
+//            billingClient: BillingClientWrapper
+//        ): SubscriptionRepository {
+//            // billingClientWrapper = billingClient
+//            Timber.tag("detailsd").d( "provideSubscriptionDataRepository ${ billingClient.hashCode().toString() }")
+//            return SubscriptionDataRepository(billingClient)
+//        }
+
+//        @Provides
+//        fun provideBillingClientWrapper(
+//            @ApplicationContext context:Context
+//        ):BillingClientWrapper{
+//            val _billingConnectionState = MutableLiveData(false)
+//            Timber.tag("BillingClientWrapper").d("Created dependency injection")
+//
+//            var billingClient: BillingClientWrapper = BillingClientWrapper(context.applicationContext)
+//            Timber.tag("BillingClientWrapper").d(billingClient.hashCode().toString())
+//            billingClient.startBillingConnection(billingConnectionState = _billingConnectionState)
+//            return billingClient
+//        }
+
+        @Provides
+        fun provideServiceUtil(
+            externalScope: CoroutineScope
+        ): ServiceUtil {
+            // billingClientWrapper = billingClient
+
+            return ServiceUtil(externalScope)
+        }
+//
+        @Provides
+        fun provideScoping():CoroutineScope{
+            return CoroutineScope(SupervisorJob())
+        }
+//
+        @Provides
+        fun provideBillingRepository(externalScope: CoroutineScope):BillingRepository{
+            return BillingRepository(externalScope)
+        }
+
+
+    }
 
 
 @Module

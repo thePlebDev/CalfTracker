@@ -1,74 +1,84 @@
 package com.elliottsoftware.calftracker.data.repositories
 
+import android.app.Activity
 import android.content.ComponentName
 import android.content.ServiceConnection
 import android.os.IBinder
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.android.billingclient.api.BillingFlowParams
+import com.android.billingclient.api.ProductDetails
 import com.elliottsoftware.calftracker.background.BillingService
+import com.elliottsoftware.calftracker.background.ServiceUtil
 import com.elliottsoftware.calftracker.domain.models.Response
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import timber.log.Timber
+import javax.inject.Inject
 
 
-class BillingRepository(
-    private val externalScope: CoroutineScope = CoroutineScope(SupervisorJob()) //when injected make this a singleton
+class BillingRepository @Inject constructor(
+    private val externalScope: CoroutineScope
 ) {
-
+    val isServiceBound = MutableStateFlow(false)
     private lateinit var mService: BillingService
-     val mBound = MutableStateFlow(false)
+    val mBound = MutableStateFlow(false)
 
 
 
 
-
-    fun getServiceConnection() = object : ServiceConnection {
-
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance.
+    fun getServiceConnection() = object :ServiceConnection{
+        override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
             val binder = service as BillingService.LocalBinder
             mService =binder.getService()
 
             externalScope.launch {
 
+
+                isServiceBound.emit(true)
                 mBound.emit(true)
 
-
             }
         }
 
-        override fun onServiceDisconnected(arg0: ComponentName) {
+        override fun onServiceDisconnected(p0: ComponentName?) {
             externalScope.launch {
-                mBound.emit(false)
 
+                isServiceBound.emit(false)
             }
+        }
+
+    }
+    fun launchBillingFlow(
+        activity:Activity,
+        params: BillingFlowParams
+    ){
+
+        if(mBound.value){
+            mService.launchFlow(
+                activity,
+                params
+            )
+        }else{
+
         }
     }
 
-     fun getStuff(): Flow<Int> = flow{
-         mBound.collect{ serviceConnected ->
+    fun fetchProductDetails(): Flow<Response<ProductDetails>> = flow {
+        mBound.collect{ serviceConnected ->
+            if(serviceConnected){
+                mService.premiumProductDetails().collect{
+                    emit(Response.Success(it))
+                }
 
-             if(serviceConnected){
-                 emit(mService.randomNumber)
-
-                 mService.premiumProductDetails().collect{
-                     Timber.tag("meatballsP").d(it.toString())
-                 }
-
-             }else{
-                 emit(999)
-             }
-
-         }
-    }
-    fun getMoreStuff(): Flow<Int> = flow{
-            if(mBound.value){
-                emit(mService.randomNumber)
             }else{
-                emit(999)
+                Response.Loading
+
             }
+
+        }
+
     }
 
 }
