@@ -135,6 +135,14 @@ class BillingService: Service() {
 
         MutableStateFlow(Response.Failure(e))
     }
+    fun isUserSubscribed():Flow<Boolean> = flow{
+        billingClientWrapper.purchases.map { value: List<Purchase> ->
+            val returnValue = value.any { purchase: Purchase ->  purchase.products.contains(PREMIUM_SUB) && purchase.isAutoRenewing}
+            Timber.tag("ANOTHERSONE").d("BillingService $returnValue")
+            emit(returnValue)
+        }
+
+    }
 
 
     companion object {

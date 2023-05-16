@@ -43,26 +43,12 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    private val subscriptionViewModel: SubscriptionViewModel by viewModels()
-
-    override fun onStart() {
-        super.onStart()
-        // Bind to LocalService.
-
-
-    }
-
     override fun onStop() {
         super.onStop()
 
 
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        unbindService(subscriptionViewModel.serviceConnection())
-        Timber.tag("CLOSINGT").d("ACTIVITY DESTROYED")
-    }
 
 
     @RequiresApi(Build.VERSION_CODES.S)
@@ -74,9 +60,7 @@ class MainActivity : AppCompatActivity() {
         )
         installSplashScreen()
         super.onCreate(savedInstanceState)
-        Intent(this, BillingService::class.java).also { intent ->
-            bindService(intent, subscriptionViewModel.serviceConnection(), Context.BIND_AUTO_CREATE)
-        }
+
         supportActionBar!!.hide()
        setContentView(R.layout.activity_main)
 

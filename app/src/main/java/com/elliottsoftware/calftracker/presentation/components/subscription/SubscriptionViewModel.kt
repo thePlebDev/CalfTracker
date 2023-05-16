@@ -7,10 +7,7 @@ import androidx.annotation.WorkerThread
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
@@ -28,33 +25,50 @@ import timber.log.Timber
 import javax.inject.Inject
 
 data class SubscriptionUiState(
-    val isPremium: Boolean = false,
-    val textData: List<String> = listOf("Unlimited calf storage. Offline usage. Cloud database backup")
+    val productDetails: Response<ProductDetails> = Response.Loading,
+    val isUserSubscribed:Boolean = false
 )
 
 @HiltViewModel
 class SubscriptionViewModel @Inject constructor(
     val billingRepository: BillingRepository
-): ViewModel() {
+): ViewModel(), DefaultLifecycleObserver {
 
-//    private var _uiState: MutableState<SubscriptionUiState> = mutableStateOf(SubscriptionUiState())
-//    val state: State<SubscriptionUiState> = _uiState
 
-    private var _uiState: MutableState<Response<ProductDetails>> = mutableStateOf(Response.Loading)
-    val state: State<Response<ProductDetails>> = _uiState
+
+    private var _uiState: MutableState<SubscriptionUiState> = mutableStateOf(SubscriptionUiState())
+    val state:State<SubscriptionUiState> = _uiState
 
 
     init{
         getProductDetails()
     }
+    init{
+        isUserSubscribed()
+    }
 
     fun serviceConnection():ServiceConnection{
         return billingRepository.getServiceConnection()
     }
+    fun isUserSubscribed() = viewModelScope.launch{
+        billingRepository.isUserSubscribed().collect{ response ->
+            _uiState.value = _uiState.value.copy(
+                isUserSubscribed = response
+            )
 
+
+        }
+    }
+
+    /**
+     * Used to get the product details for our specified virtual product, calf_tracker_premium_10
+     *
+     */
     fun getProductDetails() = viewModelScope.launch(Dispatchers.IO) {
         billingRepository.fetchProductDetails().collect{ response ->
-            _uiState.value = response
+            _uiState.value = _uiState.value.copy(
+                productDetails = response
+            )
         }
     }
 
@@ -109,14 +123,11 @@ class SubscriptionViewModel @Inject constructor(
             }
 
             if (billingParams != null) {
-//                billingClient.launchBillingFlow(
-//                    activity,
-//                    billingParams
-//                )
-//                repo.launchBillingFlow(
-//                    activity,
-//                    billingParams
-//                )
+
+                billingRepository.launchBillingFlow(
+                    activity,
+                    billingParams
+                )
             }
             /************THIS GET RUNS************/
         } else if (currentPurchases == null) {
@@ -136,6 +147,7 @@ class SubscriptionViewModel @Inject constructor(
                     activity,
                     billingParams.build()
                 )
+
             }
         } else if (!currentPurchases.isNullOrEmpty() &&
             currentPurchases.size > MAX_CURRENT_PURCHASES_ALLOWED
@@ -234,6 +246,11 @@ class SubscriptionViewModel @Inject constructor(
                 )
                 .build()
         ).build()
+    }
+    override fun onResume(owner: LifecycleOwner) {
+       Timber.tag("ANOTHERSONE").d("SubscriptionViewModel ONRESUME CALLED")
+        isUserSubscribed()
+
     }
 
     companion object {
