@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import com.elliottsoftware.calftracker.background.BillingService
+import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.presentation.components.billing.BillingClientWrapper
 import com.elliottsoftware.calftracker.presentation.components.subscription.BillingViewModel
 import com.elliottsoftware.calftracker.presentation.components.subscription.SubscriptionViewModel
@@ -58,7 +59,7 @@ class MainFragment() : Fragment() {
 
 
 
-   private val subscriptionViewModel: SubscriptionViewModel by viewModels()
+   private val subscriptionViewModel: SubscriptionViewModel by activityViewModels()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,9 +79,9 @@ class MainFragment() : Fragment() {
 
         _binding = FragmentMainBinding.inflate(inflater,container,false)
         val view = binding.root
-        val sharedViewModel: EditCalfViewModel by activityViewModels()
-        val mainViewModel: MainViewModel by activityViewModels()
-        val newCalfViewModel: NewCalfViewModel by activityViewModels()
+//        val sharedViewModel: EditCalfViewModel by activityViewModels()
+//        val mainViewModel: MainViewModel by activityViewModels()
+//        val newCalfViewModel: NewCalfViewModel by activityViewModels()
 //        (activity as AppCompatActivity?)!!.supportActionBar!!.hide()
 
         val activity = activity?.findActivity()!!
@@ -89,21 +90,44 @@ class MainFragment() : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
 
-                MainView(
-                    viewModel = mainViewModel,
-                    onNavigate = { dest -> findNavController().navigate(dest) },
-                    sharedViewModel = sharedViewModel,
-                    billingViewModel = billingViewModel,
-                    newCalfViewModel = newCalfViewModel
-                )
-//                Column() {
-//                    val data =subscriptionViewModel.state.value
-//                    Text("$data", fontSize = 60.sp)
-//                    Button(onClick = { /*TODO*/ }) {
-//                        Text("Make the button move up")
-//                    }
-//
-//                }
+//                MainView(
+//                    viewModel = mainViewModel,
+//                    onNavigate = { dest -> findNavController().navigate(dest) },
+//                    sharedViewModel = sharedViewModel,
+//                    billingViewModel = billingViewModel,
+//                    newCalfViewModel = newCalfViewModel
+//                )
+                Column() {
+                    when(val response =subscriptionViewModel.state.value){
+                        is Response.Loading ->{
+                            Text("LOADING",fontSize = 60.sp)
+                        }
+                        is Response.Success ->{
+                            Column() {
+                                Text(response.data.name,fontSize = 60.sp)
+                                Button(
+                                    onClick = {
+                                        subscriptionViewModel.buy(
+                                        productDetails = response.data,
+                                        currentPurchases = null,
+                                        activity = activity,
+                                        tag = "calf_tracker_premium"
+                                    ) }
+                                ) {
+                                    Text("BUY THINGS")
+
+                                }
+                            }
+
+                        }
+                        is Response.Failure ->{
+                            Text("FAILURE",fontSize = 60.sp)
+                        }
+                    }
+
+
+
+                }
 
 
 
@@ -125,19 +149,6 @@ class MainFragment() : Fragment() {
         //lifecycle.removeObserver(billingViewModel)
     }
 
-    override fun onStart() {
-        super.onStart()
-        // Bind to LocalService.
-//        Intent(this.requireContext(), BillingService::class.java).also { intent ->
-//            activity?.bindService(intent, subscriptionViewModel.serviceConnection(), Context.BIND_AUTO_CREATE)
-//        }
-
-    }
-    override fun onStop() {
-        super.onStop()
-       // activity?.unbindService(subscriptionViewModel.serviceConnection())
-
-    }
 
 
 }

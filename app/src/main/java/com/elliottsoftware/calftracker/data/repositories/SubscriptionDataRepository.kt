@@ -77,6 +77,16 @@ class SubscriptionDataRepository(
 //        )
     }
 
+
+    /**
+     * Will run in the main thread and has a main goal of
+     * returning a flow containing a
+     * [ProductDetails](https://developer.android.com/reference/com/android/billingclient/api/ProductDetails)
+     * object, which is needed for the
+     * [buy][com.elliottsoftware.calftracker.presentation.components.subscription.BillingViewModel.buy] method
+     *
+     *
+     */
     override suspend fun premiumProductDetails() = flow {
 
         billingClientWrapper.productWithProductDetails.filter {

@@ -42,6 +42,7 @@ class BillingClientWrapper @Inject constructor(
 
 
 
+
     override fun onPurchasesUpdated(
         billingResult: BillingResult, //contains the response code from the In-App billing API
         purchases: List<Purchase>? // a list of objects representing in-app purchases
@@ -166,6 +167,14 @@ class BillingClientWrapper @Inject constructor(
 
     /*****THE .setProductId(product) IS FOUND IN THE GOOGLE CONSOLE********/
     // Query Google Play Billing for products available to sell and present them in the UI
+    /**
+     * Function which is called to return the
+     * [ProductDetails](https://developer.android.com/reference/com/android/billingclient/api/ProductDetails)
+     * which is necessary to allow the user to buy a product. This function is called
+     * inside of [startBillingConnection()][startBillingConnection]
+     *
+     *
+     */
     fun queryProductDetails() {
         val params = QueryProductDetailsParams.newBuilder()
         val productList = mutableListOf<QueryProductDetailsParams.Product>()
@@ -194,6 +203,12 @@ class BillingClientWrapper @Inject constructor(
 
     }
 
+    /**
+     * - This function is used to update the [_productWithProductDetails][_productWithProductDetails] with values returned from
+     * [queryProductDetailsAsync](https://developer.android.com/reference/com/android/billingclient/api/BillingClient#queryProductDetailsAsync(com.android.billingclient.api.QueryProductDetailsParams,%20com.android.billingclient.api.ProductDetailsResponseListener))
+     *
+     * - Specified by onProductDetailsResponse in interface [ProductDetailsResponseListener](https://developer.android.com/reference/com/android/billingclient/api/ProductDetailsResponseListener)
+     */
     override fun onProductDetailsResponse(
         billingResult: BillingResult,
         productDetailsList: MutableList<ProductDetails>
@@ -213,7 +228,9 @@ class BillingClientWrapper @Inject constructor(
                         it.productId //This is going to be the key fo the map. the key is calf_tracker_premium_10
                     }
                 }
-                Timber.tag("BILLINGR").i(newMap.toString())
+                Timber.tag("BILLINGRmeat").i(newMap.toString())
+                Timber.tag("detailsd").d(this.toString())
+                Timber.tag("detailsd").d(newMap.toString())
 
                 _productWithProductDetails.value = newMap
             }
@@ -222,6 +239,10 @@ class BillingClientWrapper @Inject constructor(
                 Timber.tag("BILLINGR").i("onProductDetailsResponse: $responseCode $debugMessage")
             }
         }
+    }
+    fun returnDetails():Map<String, ProductDetails>{
+        Timber.tag("detailsd").d(this.toString())
+        return productWithProductDetails.value
     }
 
     /**

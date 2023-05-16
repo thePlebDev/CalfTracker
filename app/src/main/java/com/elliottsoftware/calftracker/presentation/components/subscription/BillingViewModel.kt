@@ -52,7 +52,7 @@ data class BillingUiState(
 @HiltViewModel
 class BillingViewModel @Inject constructor(
     application: Application,
-    private val repo: SubscriptionRepository //Keep doing this
+  //  private val repo: SubscriptionRepository //Keep doing this
 ): AndroidViewModel(application),DefaultLifecycleObserver {
 
     private val dispatcherIO: CoroutineDispatcher = Dispatchers.IO
@@ -76,21 +76,27 @@ class BillingViewModel @Inject constructor(
      * */
     init{
         Timber.tag("subscribedP").d("initialized")
-        testingCollectingRepoInfo()
+        getProductDetails()
         viewModelScope.launch {
             getPurchases()
 
         }
     }
 
-    /// TODO:  THIS NEEDS TO BE LOOKED INTO SOME MORE
-    private fun testingCollectingRepoInfo() =viewModelScope.launch{
+    /**
+     * This function do will run in the main thread and has a main goal of
+     * returning the [ProductDetails](https://developer.android.com/reference/com/android/billingclient/api/ProductDetails)
+     * Which is needed for the [buy][buy] method
+     *
+     *
+     */
+    private fun getProductDetails() =viewModelScope.launch{
 
-        repo.premiumProductDetails().collect{
-            _uiState.value = _uiState.value.copy(
-                subscriptionProduct = Response.Success(it)
-            )
-        }
+//        repo.premiumProductDetails().collect{
+//            _uiState.value = _uiState.value.copy(
+//                subscriptionProduct = Response.Success(it)
+//            )
+//        }
     }
     fun updateCalfListSize(size:Int){
         _uiState.value = _uiState.value.copy(
@@ -115,59 +121,59 @@ class BillingViewModel @Inject constructor(
      */
      fun refreshPurchases(){
 
-        viewModelScope.launch {
-            repo.queryPurchases()
-            repo.hasRenewablePremium()
-                .flowOn(dispatcherIO)
-                .collect { collectedSubscriptions ->
-
-                    when(collectedSubscriptions){
-                        is Response.Loading -> {
-                            _uiState.value = _uiState.value.copy(
-
-                                subscribedInfo = SubscriptionValues(
-                                    description = "Fetching Subscription",
-                                    title= "Loading...",
-                                    items= "....",
-                                    price = "....",
-                                    icon = Icons.Default.Autorenew
-                                )
-                            )
-                        }
-                        is Response.Success ->{
-                            if(collectedSubscriptions.data){
-                                _uiState.value = _uiState.value.copy(
-
-                                    subscribedInfo = SubscriptionValues(
-                                        description = "Premium subscription",
-                                        title= "Premium subscription",
-                                        items= "Unlimited calf storage",
-                                        price = "$10.00",
-                                        icon = Icons.Default.MonetizationOn
-                                    ),
-                                    subscribed = true
-                                )
-                            }else{
-                                _uiState.value = _uiState.value.copy(
-
-                                    subscribedInfo = SubscriptionValues(
-                                        description = "Basic subscription",
-                                        title= "Basic subscription",
-                                        items= "50 calf limit",
-                                        price = "$0.00",
-                                        icon = Icons.Default.CrueltyFree
-                                    ),
-                                    subscribed = false
-                                )
-
-                            }
-
-                        }
-                        is Response.Failure -> {}
-                    }
-
-            }
-        }
+//        viewModelScope.launch {
+//            repo.queryPurchases()
+//            repo.hasRenewablePremium()
+//                .flowOn(dispatcherIO)
+//                .collect { collectedSubscriptions ->
+//
+//                    when(collectedSubscriptions){
+//                        is Response.Loading -> {
+//                            _uiState.value = _uiState.value.copy(
+//
+//                                subscribedInfo = SubscriptionValues(
+//                                    description = "Fetching Subscription",
+//                                    title= "Loading...",
+//                                    items= "....",
+//                                    price = "....",
+//                                    icon = Icons.Default.Autorenew
+//                                )
+//                            )
+//                        }
+//                        is Response.Success ->{
+//                            if(collectedSubscriptions.data){
+//                                _uiState.value = _uiState.value.copy(
+//
+//                                    subscribedInfo = SubscriptionValues(
+//                                        description = "Premium subscription",
+//                                        title= "Premium subscription",
+//                                        items= "Unlimited calf storage",
+//                                        price = "$10.00",
+//                                        icon = Icons.Default.MonetizationOn
+//                                    ),
+//                                    subscribed = true
+//                                )
+//                            }else{
+//                                _uiState.value = _uiState.value.copy(
+//
+//                                    subscribedInfo = SubscriptionValues(
+//                                        description = "Basic subscription",
+//                                        title= "Basic subscription",
+//                                        items= "50 calf limit",
+//                                        price = "$0.00",
+//                                        icon = Icons.Default.CrueltyFree
+//                                    ),
+//                                    subscribed = false
+//                                )
+//
+//                            }
+//
+//                        }
+//                        is Response.Failure -> {}
+//                    }
+//
+//            }
+//        }
 
     }
 
@@ -284,14 +290,11 @@ class BillingViewModel @Inject constructor(
                     offerDetails = it,
                     tag = tag.lowercase()
                 )
-            } // is a List<ProductDetails.SubscriptionOfferDetails>
-//        Timber.tag("offers").d(offers?.size?.toString() ?: "NOTHING IN OFFERS")
-
-        //offers is an empty list
+            }
 
         val offerToken = offers?.let { leastPricedOfferToken(it) } //offerToken gives us ""
 
-//        Timber.tag("offers").d(offerToken ?: "NOTHING IN OFFER TOKENS")
+
         val oldPurchaseToken: String
 
         // THIS WONT RUN
@@ -339,15 +342,16 @@ class BillingViewModel @Inject constructor(
 
 
             if (billingParams != null) {
-                repo.getBillingClient()
-                    .launchBillingFlow(
-                    activity,
-                    billingParams.build()
-                )
-                repo.launchBillingFlow(
-                    activity,
-                    billingParams.build()
-                )
+                //ONLY COMMENTED OUT BECAUSE SO I CAN RUN THE CODE
+//                repo.getBillingClient()
+//                    .launchBillingFlow(
+//                    activity,
+//                    billingParams.build()
+//                )
+//                repo.launchBillingFlow(
+//                    activity,
+//                    billingParams.build()
+//                )
             }
         } else if (!currentPurchases.isNullOrEmpty() &&
             currentPurchases.size > MAX_CURRENT_PURCHASES_ALLOWED
@@ -370,39 +374,39 @@ class BillingViewModel @Inject constructor(
     // THIS SHOULD BE CLEANED UP A BIT INTO UTIL METHODS
     private fun subscribedPurchases(){
 
-        viewModelScope.launch {
-            repo.subscribedObject()
-                .flowOn(dispatcherIO)
-                .collect{item ->
-                when(val response = item){
-                    is Response.Success ->{
-                        val list = response.data
-
-                        //todo: THE PURCHASES NEEDS TO BE CREATED INTO ITS OWN PRODUCT OBJECT FOR DETERMINING THE GRACE PERIOD
-                        if(list.isNotEmpty()){
-                            setDate(
-                                purchase = list[0], numberOfDays = 30
-                            )
-                        }else{
-                            _uiState.value = _uiState.value.copy(
-                                nextBillingPeriod = "None"
-                            )
-                        }
-                    }
-                    is Response.Loading ->{
-                        _uiState.value = _uiState.value.copy(
-                            nextBillingPeriod = "None"
-                        )
-                    }
-                    is Response.Failure ->{
-                        _uiState.value = _uiState.value.copy(
-                            nextBillingPeriod = "None"
-                        )
-                    }
-                }
-
-            }
-        }
+//        viewModelScope.launch {
+//            repo.subscribedObject()
+//                .flowOn(dispatcherIO)
+//                .collect{item ->
+//                when(val response = item){
+//                    is Response.Success ->{
+//                        val list = response.data
+//
+//                        //todo: THE PURCHASES NEEDS TO BE CREATED INTO ITS OWN PRODUCT OBJECT FOR DETERMINING THE GRACE PERIOD
+//                        if(list.isNotEmpty()){
+//                            setDate(
+//                                purchase = list[0], numberOfDays = 30
+//                            )
+//                        }else{
+//                            _uiState.value = _uiState.value.copy(
+//                                nextBillingPeriod = "None"
+//                            )
+//                        }
+//                    }
+//                    is Response.Loading ->{
+//                        _uiState.value = _uiState.value.copy(
+//                            nextBillingPeriod = "None"
+//                        )
+//                    }
+//                    is Response.Failure ->{
+//                        _uiState.value = _uiState.value.copy(
+//                            nextBillingPeriod = "None"
+//                        )
+//                    }
+//                }
+//
+//            }
+//        }
 
 
 

@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.os.IBinder
 import android.view.View
 import android.view.animation.AnticipateInterpolator
+
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.animation.doOnEnd
@@ -26,18 +27,40 @@ import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import timber.log.Timber.*
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.fragment.app.activityViewModels
 import com.elliottsoftware.calftracker.background.BillingService
+import com.elliottsoftware.calftracker.background.ServiceUtil
+import com.elliottsoftware.calftracker.data.repositories.BillingRepository
+import com.elliottsoftware.calftracker.presentation.components.subscription.SubscriptionViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import timber.log.Timber.Forest.plant
+import javax.inject.Inject
+
 
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
+    private val subscriptionViewModel: SubscriptionViewModel by viewModels()
+
+    override fun onStart() {
+        super.onStart()
+        // Bind to LocalService.
+
+
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+
+    }
 
     override fun onDestroy() {
         super.onDestroy()
+        unbindService(subscriptionViewModel.serviceConnection())
         Timber.tag("CLOSINGT").d("ACTIVITY DESTROYED")
     }
 
@@ -50,8 +73,10 @@ class MainActivity : AppCompatActivity() {
             PlayIntegrityAppCheckProviderFactory.getInstance()
         )
         installSplashScreen()
-
         super.onCreate(savedInstanceState)
+        Intent(this, BillingService::class.java).also { intent ->
+            bindService(intent, subscriptionViewModel.serviceConnection(), Context.BIND_AUTO_CREATE)
+        }
         supportActionBar!!.hide()
        setContentView(R.layout.activity_main)
 
