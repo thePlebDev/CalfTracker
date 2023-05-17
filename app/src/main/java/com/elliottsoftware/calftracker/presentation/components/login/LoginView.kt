@@ -1,16 +1,25 @@
 package com.elliottsoftware.calftracker.presentation.components.login
 
-import androidx.compose.animation.*
+import android.app.Activity
+import android.content.pm.ActivityInfo
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Person
 import com.elliottsoftware.calftracker.R
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,23 +30,134 @@ import com.elliottsoftware.calftracker.presentation.sharedViews.PasswordInput
 import com.elliottsoftware.calftracker.presentation.sharedViews.RegisterInput
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.LoginViewModel
+import com.elliottsoftware.calftracker.util.findActivity
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LoginViews(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit = {}){
+    val context = LocalContext.current
+    val activity = context.findActivity()
+    activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
+
+
+
+    val bottomModalState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Expanded,
+        skipHalfExpanded = true
+    )
+
     AppTheme(false){
-        LoginView( viewModel = viewModel,onNavigate= onNavigate)
+
+            ModalBottomSheetLayout(
+                sheetState = bottomModalState,
+                sheetShape = RoundedCornerShape(topEnd = 16.dp, topStart = 16.dp),
+                sheetContent = {
+                    ModalContentView(
+                        bottomModalState = bottomModalState
+                    )
+                }
+            ) {
+                    LoginView(
+                        viewModel = viewModel,
+                        onNavigate = onNavigate,
+                        bottomModalState = bottomModalState
+                    )
+
+            }
+
+
+    }
+}
+
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ModalContentView(bottomModalState: ModalBottomSheetState) {
+    val scope = rememberCoroutineScope()
+    val screenHeight = LocalConfiguration.current.screenHeightDp
+    val almostFullHeight = (screenHeight * 0.8).dp
+    Box(modifier =
+    Modifier
+        .height(almostFullHeight)
+        .padding(10.dp)
+        .fillMaxWidth()
+
+    ){
+        Column(
+            modifier = Modifier.matchParentSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+
+        ) {
+            Row(modifier = Modifier.fillMaxWidth().padding(bottom =30.dp)){
+                Icon(
+                    Icons.Filled.Close,
+                    contentDescription = "Close the modal",
+                    modifier = Modifier.clickable {
+                        scope.launch{
+                            bottomModalState.hide()
+                        }
+                    }
+                )
+            }
+            Text("Log in to Calf Tracker",
+                style = MaterialTheme.typography.h5,
+                modifier =Modifier.padding(bottom =5.dp),
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                modifier =Modifier.alpha(0.8f),
+                text = "Manage your calves, herds and much more coming",
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.subtitle1
+            )
+            LoginBoxes()
+            LoginBoxes()
+            LoginBoxes()
+        }
+
     }
 }
 
 @Composable
+fun LoginBoxes(){
+    Box(modifier =Modifier.alpha(0.8f).padding(top =15.dp)){
+        Row(
+            modifier = Modifier.border(1.dp, Color.Gray).padding(10.dp).fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start
+        ){
+            Icon(
+                Icons.Filled.Person,
+                contentDescription = "Close the modal",
+                Modifier.padding(end=40.dp)
+            )
+            Text(
+                " Use email / username",
+                fontWeight = FontWeight.Bold
+            )
+
+        }
+    }
+
+}
+
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
 fun LoginView(
     viewModel: LoginViewModel = viewModel(),
     onNavigate: (Int) -> Unit,
+    bottomModalState: ModalBottomSheetState,
 
-) {
+    ) {
+    val scope = rememberCoroutineScope()
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+
+        ) {
             BannerCard("Calf Tracker", "Powered by Elliott Software")
 
             RegisterInput(
@@ -57,7 +177,12 @@ fun LoginView(
 
             )
             SubmitButton(
-                submit = {viewModel.submitButton()}
+                submit = {
+                    //viewModel.submitButton()
+                    scope.launch {
+                        bottomModalState.show()
+                    }
+                }
             )
             SignUpForgotPassword(onNavigate)
             when(val response = viewModel.state.value.loginStatus){
