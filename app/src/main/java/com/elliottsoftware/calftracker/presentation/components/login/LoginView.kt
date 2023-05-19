@@ -1,6 +1,5 @@
 package com.elliottsoftware.calftracker.presentation.components.login
 
-import android.app.Activity
 import android.content.pm.ActivityInfo
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -8,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Person
 import com.elliottsoftware.calftracker.R
@@ -40,6 +40,7 @@ fun LoginViews(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit
     val context = LocalContext.current
     val activity = context.findActivity()
     activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+    var visible by remember { mutableStateOf(false) }
 
 
 
@@ -48,25 +49,45 @@ fun LoginViews(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit
         initialValue = ModalBottomSheetValue.Expanded,
         skipHalfExpanded = true
     )
+    val sheetState = rememberModalSideSheetState(initialValue = ModalSideSheetValue.Hidden)
+
 
     AppTheme(false){
 
+
+
+        ModalSideSheetLayout(
+            modifier = Modifier.fillMaxWidth(),
+            isVisible = visible,
+            sheetState = sheetState,
+            sheetContent = {
+                ModalSideSheetLayoutSheetContent(
+                    sheetState = sheetState
+                )
+            }
+        ){
             ModalBottomSheetLayout(
+                sheetElevation = 0.dp,
                 sheetState = bottomModalState,
                 sheetShape = RoundedCornerShape(topEnd = 16.dp, topStart = 16.dp),
                 sheetContent = {
                     ModalContentView(
-                        bottomModalState = bottomModalState
+                        bottomModalState = bottomModalState,
+                        onClick={ visible = !visible},
+                        sheetState= sheetState
                     )
                 }
             ) {
-                    LoginView(
-                        viewModel = viewModel,
-                        onNavigate = onNavigate,
-                        bottomModalState = bottomModalState
-                    )
+                LoginView(
+                    viewModel = viewModel,
+                    onNavigate = onNavigate,
+                    bottomModalState = bottomModalState
+                )
 
             }
+
+        }
+
 
 
     }
@@ -75,15 +96,15 @@ fun LoginViews(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ModalContentView(bottomModalState: ModalBottomSheetState) {
+fun ModalSideSheetLayoutSheetContent(
+    sheetState: ModalSideSheetState
+){
     val scope = rememberCoroutineScope()
-    val screenHeight = LocalConfiguration.current.screenHeightDp
-    val almostFullHeight = (screenHeight * 0.8).dp
-    Box(modifier =
-    Modifier
-        .height(almostFullHeight)
-        .padding(10.dp)
-        .fillMaxWidth()
+    Box(
+        modifier = Modifier
+            .height(300.dp)
+            .padding(10.dp)
+            .fillMaxWidth()
 
     ){
         Column(
@@ -91,7 +112,70 @@ fun ModalContentView(bottomModalState: ModalBottomSheetState) {
             horizontalAlignment = Alignment.CenterHorizontally
 
         ) {
-            Row(modifier = Modifier.fillMaxWidth().padding(bottom =30.dp)){
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 30.dp)
+            ){
+                Icon(
+                    Icons.Filled.ArrowBack,
+                    contentDescription = "Close the modal",
+                    modifier = Modifier.clickable {
+                        scope.launch {
+                            sheetState.hide()
+                        }
+
+                    }
+                        .size(30.dp)
+                )
+            }
+            Text("Log in to Calf Tracker",
+                style = MaterialTheme.typography.h5,
+                modifier =Modifier.padding(bottom =5.dp),
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                modifier =Modifier.alpha(0.8f),
+                text = "Manage your calves, herds and much more coming",
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.subtitle1
+            )
+
+
+        }
+
+    }
+
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ModalContentView(
+    bottomModalState: ModalBottomSheetState,
+    onClick:()-> Unit,
+    sheetState: ModalSideSheetState,
+
+) {
+    val scope = rememberCoroutineScope()
+    val screenHeight = LocalConfiguration.current.screenHeightDp
+    val almostFullHeight = (screenHeight * 0.8).dp
+    Box(
+        modifier = Modifier
+            .height(almostFullHeight)
+            .padding(10.dp)
+            .fillMaxWidth()
+
+    ){
+        Column(
+            modifier = Modifier.matchParentSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 30.dp)
+            ){
                 Icon(
                     Icons.Filled.Close,
                     contentDescription = "Close the modal",
@@ -113,19 +197,40 @@ fun ModalContentView(bottomModalState: ModalBottomSheetState) {
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.subtitle1
             )
-            LoginBoxes()
-            LoginBoxes()
-            LoginBoxes()
+            LoginBoxes(
+                onClick ={ onClick()},
+                sheetState = sheetState
+            )
+
+
         }
 
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun LoginBoxes(){
-    Box(modifier =Modifier.alpha(0.8f).padding(top =15.dp)){
+fun LoginBoxes(
+    onClick:()-> Unit,
+    sheetState: ModalSideSheetState,
+){
+    val scope = rememberCoroutineScope()
+    Box(modifier = Modifier
+        .alpha(0.8f)
+        .padding(top = 15.dp)){
         Row(
-            modifier = Modifier.border(1.dp, Color.Gray).padding(10.dp).fillMaxWidth(),
+            modifier = Modifier
+                .border(1.dp, Color.Gray)
+                .clickable {
+
+                    scope.launch {
+                        sheetState.show()
+                    }
+                }
+                .padding(10.dp)
+                .fillMaxWidth()
+
+            ,
             horizontalArrangement = Arrangement.Start
         ){
             Icon(
@@ -228,7 +333,9 @@ fun SubmitButton(
 fun SignUpForgotPassword(onNavigate: (Int) -> Unit){
     Row(verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly,
-        modifier = Modifier.padding(start = 0.dp,25.dp,0.dp,0.dp).fillMaxWidth()) {
+        modifier = Modifier
+            .padding(start = 0.dp, 25.dp, 0.dp, 0.dp)
+            .fillMaxWidth()) {
         Text("Forgot Password",
             fontSize = 16.sp,
             modifier = Modifier.clickable(enabled = true) {
@@ -251,4 +358,7 @@ fun LinearLoadingBar(){
         .padding(start = 0.dp, 16.dp, 0.dp, 0.dp))
 
 }
+
+
+
 
