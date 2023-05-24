@@ -71,7 +71,11 @@ fun LoginViews(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit
                     passwordText = viewModel.state.value.password,
                     passwordErrorMessage= viewModel.state.value.passwordError,
                     updatePassword = {password -> viewModel.updatePassword(password) },
-                    updatePasswordIconPressed = {pressed -> viewModel.passwordIconChecked(pressed)}
+                    updatePasswordIconPressed = {pressed -> viewModel.passwordIconChecked(pressed)},
+                    submit={viewModel.submitButton()},
+                    enabled = viewModel.state.value.buttonEnabled,
+                    loginStatus = viewModel.state.value.loginStatus,
+                    onNavigate = onNavigate
 
                 )
             }
@@ -115,7 +119,11 @@ fun ModalSideSheetLayoutSheetContent(
     passwordText:String,
     passwordErrorMessage:String?,
     updatePassword:(String)->Unit,
-    updatePasswordIconPressed:(Boolean)->Unit
+    updatePasswordIconPressed:(Boolean)->Unit,
+    submit:()->Unit,
+    enabled:Boolean,
+    loginStatus:Response<Boolean>,
+    onNavigate: (Int) -> Unit
 ){
     val scope = rememberCoroutineScope()
     Box(
@@ -176,10 +184,25 @@ fun ModalSideSheetLayoutSheetContent(
                 updatePassword = updatePassword,
                 updatePasswordIconPressed = updatePasswordIconPressed
             )
+            when(val response = loginStatus){
+                is Response.Loading -> {}
+                is Response.Success -> {
+                    if(response.data){
+                        //THIS IS WHERE WE WOULD DO THE NAVIGATION
+
+                        onNavigate(R.id.action_loginFragment_to_mainFragment2)
+                    }
+                }
+                is Response.Failure -> {
+                    //should probably show a snackbar
+                    Text( "Username or Password incorrect", color = MaterialTheme.colors.error)
+                }
+
+            }
             SubmitButton(
-                enabled = false,
+                enabled = enabled,
                 submit = {
-                    //viewModel.submitButton()
+                    submit()
 //
                 }
             )
@@ -325,22 +348,22 @@ fun LoginView(
                 }
             )
             SignUpForgotPassword(onNavigate)
-            when(val response = viewModel.state.value.loginStatus){
-                is Response.Loading -> LinearLoadingBar()
-                is Response.Success -> {
-                    if(response.data){
-                        //THIS IS WHERE WE WOULD DO THE NAVIGATION
-
-                        onNavigate(R.id.action_loginFragment_to_mainFragment2)
-                    }
-                }
-                is Response.Failure -> {
-                    //should probably show a snackbar
-                    Text( "Username or Password incorrect", color = MaterialTheme.colors.error)
-                    Timber.tag("LoginError").d(response.e.message.toString())
-                }
-
-            }
+//            when(val response = viewModel.state.value.loginStatus){
+//                is Response.Loading -> LinearLoadingBar()
+//                is Response.Success -> {
+//                    if(response.data){
+//                        //THIS IS WHERE WE WOULD DO THE NAVIGATION
+//
+//                        onNavigate(R.id.action_loginFragment_to_mainFragment2)
+//                    }
+//                }
+//                is Response.Failure -> {
+//                    //should probably show a snackbar
+//                    Text( "Username or Password incorrect", color = MaterialTheme.colors.error)
+//                    Timber.tag("LoginError").d(response.e.message.toString())
+//                }
+//
+//            }
 
         }
 
