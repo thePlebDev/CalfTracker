@@ -57,7 +57,9 @@ class LoginViewModel @Inject constructor(
 
     }
     fun updatePassword(password:String){
+
         _uiState.value = _uiState.value.copy(password = password)
+
     }
 
 
