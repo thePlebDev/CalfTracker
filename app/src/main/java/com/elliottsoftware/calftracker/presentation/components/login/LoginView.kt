@@ -1,5 +1,6 @@
 package com.elliottsoftware.calftracker.presentation.components.login
 
+import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -62,7 +63,16 @@ fun LoginViews(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit
             sheetState = sheetState,
             sheetContent = {
                 ModalSideSheetLayoutSheetContent(
-                    sheetState = sheetState
+                    sheetState = sheetState,
+                    emailText= viewModel.state.value.email,
+                    updateEmail = {text -> viewModel.updateEmail(text)},
+                    emailError = viewModel.state.value.emailError,
+                    passwordIconPressed = viewModel.state.value.passwordIconChecked,
+                    passwordText = viewModel.state.value.password,
+                    passwordErrorMessage= viewModel.state.value.passwordError,
+                    updatePassword = {password -> viewModel.updatePassword(password) },
+                    updatePasswordIconPressed = {pressed -> viewModel.passwordIconChecked(pressed)}
+
                 )
             }
         ){
@@ -97,14 +107,22 @@ fun LoginViews(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ModalSideSheetLayoutSheetContent(
-    sheetState: ModalSideSheetState
+    sheetState: ModalSideSheetState,
+    emailText:String,
+    updateEmail:(String)->Unit,
+    emailError:String?,
+    passwordIconPressed:Boolean,
+    passwordText:String,
+    passwordErrorMessage:String?,
+    updatePassword:(String)->Unit,
+    updatePasswordIconPressed:(Boolean)->Unit
 ){
     val scope = rememberCoroutineScope()
     Box(
         modifier = Modifier
-            .height(300.dp)
+            //.height(300.dp)
             .padding(10.dp)
-            .fillMaxWidth()
+            .fillMaxSize()
 
     ){
         Column(
@@ -120,12 +138,13 @@ fun ModalSideSheetLayoutSheetContent(
                 Icon(
                     Icons.Filled.ArrowBack,
                     contentDescription = "Close the modal",
-                    modifier = Modifier.clickable {
-                        scope.launch {
-                            sheetState.hide()
-                        }
+                    modifier = Modifier
+                        .clickable {
+                            scope.launch {
+                                sheetState.hide()
+                            }
 
-                    }
+                        }
                         .size(30.dp)
                 )
             }
@@ -141,8 +160,30 @@ fun ModalSideSheetLayoutSheetContent(
                 style = MaterialTheme.typography.subtitle1
             )
 
+                RegisterInput(
+                    textState = emailText,
+                    updateTextState = updateEmail,
+                    textStateError = emailError,
+                    keyboardType = KeyboardType.Email,
+                    placeHolderText= "Email",
+                    modifier = Modifier.padding(start = 0.dp,40.dp,0.dp,0.dp)
+                )
 
-        }
+            PasswordInput(
+                passwordIconPressed = passwordIconPressed,
+                password = passwordText,
+                passwordErrorMessage = passwordErrorMessage,
+                updatePassword = updatePassword,
+                updatePasswordIconPressed = updatePasswordIconPressed
+            )
+            SubmitButton(
+                enabled = false,
+                submit = {
+                    //viewModel.submitButton()
+//
+                }
+            )
+            }
 
     }
 
@@ -249,6 +290,7 @@ fun LoginBoxes(
 }
 
 
+@SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LoginView(
@@ -257,30 +299,23 @@ fun LoginView(
     bottomModalState: ModalBottomSheetState,
 
     ) {
-    val scope = rememberCoroutineScope()
+     val scope = rememberCoroutineScope()
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
 
         ) {
+            Spacer(modifier = Modifier.padding(10.dp))
             BannerCard("Calf Tracker", "Powered by Elliott Software")
 
-            RegisterInput(
-                textState = viewModel.state.value.email,
-                updateTextState = {text -> viewModel.updateEmail(text)},
-                textStateError = viewModel.state.value.emailError,
-                keyboardType = KeyboardType.Email,
-                placeHolderText= "Email",
-                modifier = Modifier.padding(start = 0.dp,40.dp,0.dp,0.dp)
-            )
-            PasswordInput(
-                passwordIconPressed = viewModel.state.value.passwordIconChecked,
-                password = viewModel.state.value.password,
-                passwordErrorMessage = viewModel.state.value.passwordError,
-                updatePassword = {password -> viewModel.updatePassword(password) },
-                updatePasswordIconPressed = {pressed -> viewModel.passwordIconChecked(pressed)}
 
+
+            Spacer(modifier = Modifier.padding(30.dp))
+            Icon(Icons.Filled.Person,
+                "contentDescription",
+                modifier = Modifier.size(128.dp)
             )
+            Spacer(modifier = Modifier.padding(10.dp))
             SubmitButton(
                 submit = {
                     //viewModel.submitButton()
@@ -318,15 +353,35 @@ fun LoginView(
 
 @Composable
 fun SubmitButton(
-    submit:()->Unit
+    submit:()->Unit,
+    enabled:Boolean = true
 ){
-    Button(onClick = {submit()},
+    Button(
+        onClick = {
+            if(enabled){
+                submit()
+            }
+
+                  },
         modifier = Modifier
             .height(80.dp)
             .width(280.dp)
             .padding(start = 0.dp, 20.dp, 0.dp, 0.dp)) {
+        Box(modifier = Modifier.fillMaxSize()){
+            Text(text="Login",fontSize = 26.sp,modifier = Modifier.align(Alignment.Center))
+            if(!enabled){
+                CircularProgressIndicator(
+                    color=Color.Black,
+                    modifier= Modifier
+                        .size(26.dp)
+                        .align(Alignment.CenterEnd)
+                )
+            }
 
-        Text(text="Login",fontSize = 26.sp)
+        }
+
+
+
     }
 }
 @Composable
