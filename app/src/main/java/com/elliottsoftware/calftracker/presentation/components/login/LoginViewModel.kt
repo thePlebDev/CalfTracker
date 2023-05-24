@@ -32,6 +32,7 @@ data class LoginUIState(
     val showProgressBar:Boolean = false,
 //    val isUserLoggedIn:Boolean = false,
     val loginStatus: Response<Boolean> = Response.Success(false),
+    val buttonEnabled:Boolean = true
 )
 
 @HiltViewModel
@@ -48,6 +49,17 @@ class LoginViewModel @Inject constructor(
     private fun loginUser(email: String,password:String)= viewModelScope.launch{
         loginUseCase.execute(Credentials(Email(email), Password( password))).collect{ response ->
             _uiState.value = _uiState.value.copy(loginStatus = response)
+            when(response){
+                is Response.Loading -> {
+                    _uiState.value = _uiState.value.copy(buttonEnabled = false)
+                }
+                is Response.Success -> {
+                    _uiState.value = _uiState.value.copy(buttonEnabled = true)
+                }
+                is Response.Failure -> {
+                    _uiState.value = _uiState.value.copy(buttonEnabled = true)
+                }
+            }
         }
     }
 
@@ -76,6 +88,7 @@ class LoginViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(emailError = verifyEmail, passwordError = verifyPassword)
 
         if(_uiState.value.emailError == null && _uiState.value.passwordError == null){
+            //_uiState.value = _uiState.value.copy(buttonEnabled = false)
             loginUser(_uiState.value.email,_uiState.value.password)
         }
     }
