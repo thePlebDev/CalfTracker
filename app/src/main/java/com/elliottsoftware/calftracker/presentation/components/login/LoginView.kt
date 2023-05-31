@@ -5,14 +5,8 @@ import android.content.pm.ActivityInfo
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,7 +18,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Smartphone
 import com.elliottsoftware.calftracker.R
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -44,7 +37,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.presentation.sharedViews.BannerCard
@@ -54,7 +46,6 @@ import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.LoginViewModel
 import com.elliottsoftware.calftracker.util.findActivity
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -63,6 +54,7 @@ fun LoginViews(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit
     val activity = context.findActivity()
     activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     var visible by remember { mutableStateOf(false) }
+    var sheetContentUI by remember { mutableStateOf(true) }
 
 
 
@@ -83,22 +75,28 @@ fun LoginViews(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit
             isVisible = visible,
             sheetState = sheetState,
             sheetContent = {
-                ModalSideSheetLayoutSheetContent(
-                    sheetState = sheetState,
-                    emailText= viewModel.state.value.email,
-                    updateEmail = {text -> viewModel.updateEmail(text)},
-                    emailError = viewModel.state.value.emailError,
-                    passwordIconPressed = viewModel.state.value.passwordIconChecked,
-                    passwordText = viewModel.state.value.password,
-                    passwordErrorMessage= viewModel.state.value.passwordError,
-                    updatePassword = {password -> viewModel.updatePassword(password) },
-                    updatePasswordIconPressed = {pressed -> viewModel.passwordIconChecked(pressed)},
-                    submit={viewModel.submitButton()},
-                    enabled = viewModel.state.value.buttonEnabled,
-                    loginStatus = viewModel.state.value.loginStatus,
-                    onNavigate = onNavigate
+                if(sheetContentUI){
+                    ModalSideSheetLayoutSheetContent(
+                        sheetState = sheetState,
+                        emailText= viewModel.state.value.email,
+                        updateEmail = {text -> viewModel.updateEmail(text)},
+                        emailError = viewModel.state.value.emailError,
+                        passwordIconPressed = viewModel.state.value.passwordIconChecked,
+                        passwordText = viewModel.state.value.password,
+                        passwordErrorMessage= viewModel.state.value.passwordError,
+                        updatePassword = {password -> viewModel.updatePassword(password) },
+                        updatePasswordIconPressed = {pressed -> viewModel.passwordIconChecked(pressed)},
+                        submit={viewModel.submitButton()},
+                        enabled = viewModel.state.value.buttonEnabled,
+                        loginStatus = viewModel.state.value.loginStatus,
+                        onNavigate = onNavigate
 
-                )
+                    )
+                }else{
+                    Text("Sign up stuff", fontSize = 30.sp)
+
+                }
+
             }
         ){
             ModalBottomSheetLayout(
@@ -108,13 +106,13 @@ fun LoginViews(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit
                 sheetContent = {
                     ModalContentView(
                         bottomModalState = bottomModalState,
-                        onClick={ visible = !visible},
-                        sheetState= sheetState
+                        sheetState= sheetState,
+                        changeSheetContent = { booleanItem -> sheetContentUI = booleanItem }
+
                     )
                 }
             ) {
                 LoginView(
-                    viewModel = viewModel,
                     onNavigate = onNavigate,
                     bottomModalState = bottomModalState
                 )
@@ -237,11 +235,9 @@ fun ModalSideSheetLayoutSheetContent(
 @Composable
 fun ModalContentView(
     bottomModalState: ModalBottomSheetState,
-    onClick:()-> Unit,
     sheetState: ModalSideSheetState,
-    bottomTextBackgroundColor:Color = Color(0xFFededed)
-
-
+    bottomTextBackgroundColor: Color = Color(0xFFededed),
+    changeSheetContent: (Boolean) -> Unit
 ) {
     val animationTime = 100
 
@@ -251,7 +247,6 @@ fun ModalContentView(
     val screenHeight = LocalConfiguration.current.screenHeightDp
     val almostFullHeight = (screenHeight * 0.8).dp
     val scope = rememberCoroutineScope()
-    val screenWidth = LocalConfiguration.current.screenWidthDp
 
     Box(modifier = Modifier
         .height(almostFullHeight)
@@ -282,282 +277,115 @@ fun ModalContentView(
                     }
                 )
             }
-            AnimatedVisibility(
-                visible = visible,
-                enter = slideInHorizontally(
-                    initialOffsetX = { it }, // it == fullWidth
-                    animationSpec = tween(
-                        durationMillis = animationTime,
-                        easing = LinearEasing
-                    )
-                ),
-                exit = slideOutHorizontally(
-                    targetOffsetX = { it },
-                    animationSpec = tween(
-                        durationMillis = animationTime,
-                        easing = LinearEasing
-                    )
-                )
-            ) {
-                LoginScreen(
-                    sheetState = sheetState,
-                    changeVisiblility = { visible = false }
-                )
+
+            val highLightedTexst = buildAnnotatedString {
+                append("Don't have an account?")
+                withStyle(style= SpanStyle(color= Color(0xFFe63946))){
+                    append(" Sign up")
+                }
             }
-            AnimatedVisibility(
-                !visible,
-                modifier = Modifier.fillMaxSize(),
-                enter = slideInHorizontally(
-                    initialOffsetX = { -it }, // it == screen fullWidth
-                    animationSpec = tween(
-                        durationMillis = animationTime,
-                        easing = LinearEasing // interpolator
-                    )
+            val listLoginBoxDatas = listOf(
+                LoginBoxData(
+                    "Use email / username",
+                    icon = Icons.Filled.Person,
+                    iconDescription = "Close the modal",
                 ),
-                exit = slideOutHorizontally(
-                    targetOffsetX = { -it },
-                    animationSpec = tween(
-                        durationMillis = animationTime,
-                        easing = LinearEasing
-                    )
-                )
-            ) {
-                Signup(
-                    sheetState = sheetState,
-                    changeVisiblility = { visible = true }
-                )
+            )
+
+            LoginAnimation(
+                visible =visible,
+                animationTime = animationTime,
+                sheetState = sheetState,
+                changeSheetContent = {  changeSheetContent(true) },
+                changeVisibility = {visible = false},
+                titleText = "Login to Calf Tracker",
+                annotatedText = highLightedTexst,
+                listLoginBoxData = listLoginBoxDatas,
+                animationDirection = 1
+
+            )
+            val highlightedText = buildAnnotatedString {
+                append("Already have an account?")
+                withStyle(style= SpanStyle(color= Color(0xFFe63946))){
+                    append(" Login")
+                }
             }
+            val listLoginBoxData = listOf(
+                LoginBoxData(
+                    "Use username and email",
+                    icon = Icons.Filled.Person,
+                    iconDescription = "Close the modal",
+                ),
+            )
+            LoginAnimation(
+                visible =!visible,
+                animationTime = animationTime,
+                sheetState = sheetState,
+                changeSheetContent = {  changeSheetContent(false) },
+                changeVisibility = {visible = true},
+                titleText = "Sign up for Calf Tracker",
+                annotatedText = highlightedText,
+                listLoginBoxData = listLoginBoxData,
+                animationDirection = -1
+
+            )
+
         } // end of the column
 
     } // end of the box scope
 
 }
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun LoginScreen(
-    modifier:Modifier = Modifier,
-    sheetState: ModalSideSheetState,
-    changeVisiblility: () -> Unit,
-    ){
-    val loginText = "Login to Calf Tracker"
-    val highLightedText = buildAnnotatedString {
-        append("Don't have an account?")
-        withStyle(style= SpanStyle(color= Color(0xFFe63946))){
-            append(" Sign up")
-        }
-    }
-    val listLoginBoxData = listOf(
-        LoginBoxData(
-            "Use email / username",
-            icon = Icons.Filled.Person,
-            iconDescription = "Close the modal",
-        ),
-    )
+fun LoginAnimation(
+    visible:Boolean,
+    animationTime:Int,
+    sheetState:ModalSideSheetState,
+    changeSheetContent: (Boolean) -> Unit,
+    changeVisibility: () -> Unit,
+    titleText:String,
+    annotatedText:AnnotatedString,
+    listLoginBoxData:List<LoginBoxData>,
+    animationDirection:Int,
 
-    Box(modifier = modifier
-        .fillMaxSize()
-    ){
-        LoginBody(
-                sheetState = sheetState,
-                loginText = loginText,
-                listLoginBoxData = listLoginBoxData
+){
+    AnimatedVisibility(
+        visible,
+        modifier = Modifier.fillMaxSize(),
+        enter = slideInHorizontally(
+            initialOffsetX = { it * animationDirection}, // it == screen fullWidth
+            animationSpec = tween(
+                durationMillis = animationTime,
+                easing = LinearEasing // interpolator
             )
-
-        LoginBottomText(
-            changeVisiblility = {changeVisiblility()},
-            highlightedText = highLightedText
-        )
-
-
-
-    } //END OF OUTER BOX
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun Signup(
-    modifier:Modifier = Modifier,
-    sheetState: ModalSideSheetState,
-    changeVisiblility: () -> Unit,
-){
-    val signupText = "Sign up for Calf Tracker"
-    val highlightedText = buildAnnotatedString {
-        append("Already have an account?")
-        withStyle(style= SpanStyle(color= Color(0xFFe63946))){
-            append(" Login")
-        }
-    }
-    val listLoginBoxData = listOf(
-        LoginBoxData(
-            "Use username and email",
-            icon = Icons.Filled.Person,
-            iconDescription = "Close the modal",
         ),
-    )
-
-    Box(modifier = modifier
-        .fillMaxSize()
-    ){
-        LoginBody(
-            sheetState = sheetState,
-            loginText = signupText,
-            listLoginBoxData = listLoginBoxData
+        exit = slideOutHorizontally(
+            targetOffsetX = { it * animationDirection},
+            animationSpec = tween(
+                durationMillis = animationTime,
+                easing = LinearEasing
+            )
         )
-
-        LoginBottomText(
-            changeVisiblility = {changeVisiblility()},
-            highlightedText =highlightedText
-        )
-
-
-
-    } //END OF OUTER BOX
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun BoxScope.LoginBody(
-    modifier:Modifier = Modifier,
-    sheetState: ModalSideSheetState,
-    loginText: String,
-    listLoginBoxData:List<LoginBoxData>
-
-){
-    Box(
-        modifier = modifier
-            .matchParentSize()
-            .padding(10.dp)
-
-    ){
-        LoginHeader(
-            sheetState = sheetState,
-            loginText = loginText,
-            listLoginBoxData = listLoginBoxData
-
-        )
-
-    }
-
-}
-
-@Composable
-fun BoxScope.LoginBottomText(
-    modifier:Modifier = Modifier,
-    changeVisiblility: () -> Unit,
-    highlightedText:AnnotatedString
-){
-    Column(modifier = modifier
-        .align(Alignment.BottomCenter)
-
-        .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ){
-        Spacer(modifier = Modifier.padding(10.dp))
-        ClickableText(
-            modifier = Modifier.alpha(1f),
-            onClick ={ offset ->
-
-                if(offset >=20){
-                    changeVisiblility()
-                }
-                     },
-            text = highlightedText,
-            style = MaterialTheme.typography.subtitle1
-        )
-        Spacer(modifier = Modifier.padding(15.dp))
-    }
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun LoginHeader(
-    sheetState: ModalSideSheetState,
-    loginText:String,
-    listLoginBoxData:List<LoginBoxData>
-){
-    Column(
-        modifier = Modifier.fillMaxWidth().fillMaxHeight(),
-        horizontalAlignment = Alignment.CenterHorizontally
-
     ) {
-
-        Text(loginText,
-            style = MaterialTheme.typography.h5,
-            modifier =Modifier.padding(bottom =5.dp),
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            modifier =Modifier.alpha(0.8f),
-            text = "Manage your calves, herds and much more coming",
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.subtitle1
-        )
-        LoginBoxes(
+        BottomModalScreen(
             sheetState = sheetState,
-            listLoginBoxData = listLoginBoxData
+            changeVisiblility = { changeVisibility() },
+            changeSheetContent = { changeSheetContent(false) },
+            titleText = titleText,
+            annotatedText = annotatedText,
+            boxDataList = listLoginBoxData
         )
-
-
-    } // END OF COLUMN
-}
-
-data class LoginBoxData(
-    val title:String,
-    val icon: ImageVector,
-    val iconDescription:String,
-)
-
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun LoginBoxes(
-    sheetState: ModalSideSheetState,
-    listLoginBoxData:List<LoginBoxData>
-){
-    val scope = rememberCoroutineScope()
-    Column(modifier = Modifier
-        .alpha(0.8f)
-        .padding(top = 15.dp)){
-        for(item in listLoginBoxData){
-            Row(
-                modifier = Modifier
-                    .border(1.dp, Color.Gray)
-                    .clickable {
-
-                        scope.launch {
-                            sheetState.show()
-                        }
-                    }
-                    .padding(10.dp)
-                    .fillMaxWidth()
-
-                ,
-                horizontalArrangement = Arrangement.Start
-            ){
-                Icon(
-                    item.icon,
-                    contentDescription = item.iconDescription,
-                    Modifier.padding(end=40.dp)
-                )
-                Text(
-                    item.title,
-                    fontWeight = FontWeight.Bold
-                )
-
-            }
-            Spacer(modifier = Modifier.padding(5.dp))
-        }
-
     }
-
 }
+
+
 
 
 @SuppressLint("SuspiciousIndentation")
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LoginView(
-    viewModel: LoginViewModel = viewModel(),
     onNavigate: (Int) -> Unit,
     bottomModalState: ModalBottomSheetState,
 
@@ -581,29 +409,12 @@ fun LoginView(
             Spacer(modifier = Modifier.padding(10.dp))
             SubmitButton(
                 submit = {
-                    //viewModel.submitButton()
                     scope.launch {
                         bottomModalState.show()
                     }
                 }
             )
             SignUpForgotPassword(onNavigate)
-//            when(val response = viewModel.state.value.loginStatus){
-//                is Response.Loading -> LinearLoadingBar()
-//                is Response.Success -> {
-//                    if(response.data){
-//                        //THIS IS WHERE WE WOULD DO THE NAVIGATION
-//
-//                        onNavigate(R.id.action_loginFragment_to_mainFragment2)
-//                    }
-//                }
-//                is Response.Failure -> {
-//                    //should probably show a snackbar
-//                    Text( "Username or Password incorrect", color = MaterialTheme.colors.error)
-//                    Timber.tag("LoginError").d(response.e.message.toString())
-//                }
-//
-//            }
 
         }
 
