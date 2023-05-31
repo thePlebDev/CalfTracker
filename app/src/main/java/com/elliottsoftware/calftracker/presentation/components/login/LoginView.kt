@@ -8,11 +8,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -23,8 +21,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -44,8 +42,11 @@ import com.elliottsoftware.calftracker.presentation.sharedViews.PasswordInput
 import com.elliottsoftware.calftracker.presentation.sharedViews.RegisterInput
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import com.elliottsoftware.calftracker.presentation.viewModels.LoginViewModel
+import com.elliottsoftware.calftracker.presentation.viewModels.RegisterViewModel
+import com.elliottsoftware.calftracker.util.Actions
 import com.elliottsoftware.calftracker.util.findActivity
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -93,7 +94,10 @@ fun LoginViews(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit
 
                     )
                 }else{
-                    Text("Sign up stuff", fontSize = 30.sp)
+                    Register(
+                        sheetState = sheetState,
+                        onNavigate = onNavigate
+                    )
 
                 }
 
@@ -126,6 +130,114 @@ fun LoginViews(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun Register(
+    sheetState: ModalSideSheetState,
+    viewModel: RegisterViewModel = viewModel(),
+    onNavigate: (Int) -> Unit
+
+){
+    val scope = rememberCoroutineScope()
+
+    when(val response = viewModel.state.value.signInWithFirebaseResponse){
+        is Response.Loading -> {
+            //NOTHING NEEDS TO BE DONE HERE
+
+        }
+        is Response.Success -> {
+           if(response.data){
+               Timber.tag("testingLogin").d("signInWithFirebaseResponse -> SUCCESS SECOND")
+                   onNavigate(R.id.action_loginFragment_to_mainFragment2)
+           }
+        }
+        is Response.Failure -> {
+            Timber.tag("testingLogin").d("signInWithFirebaseResponse -> FAILED")
+
+        }
+    }
+    Box(
+        modifier = Modifier
+            .padding(10.dp)
+            .fillMaxSize()
+
+    ){
+
+        Column(
+            modifier = Modifier.matchParentSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 30.dp)
+            ) {
+                Icon(
+                    Icons.Filled.ArrowBack,
+                    contentDescription = "Move back to login screen",
+                    modifier = Modifier
+                        .clickable {
+                            scope.launch {
+                                sheetState.hide()
+                            }
+
+                        }
+                        .size(30.dp)
+                )
+            }
+            Text("Signup for Calf Tracker",
+                style = MaterialTheme.typography.h5,
+                modifier =Modifier.padding(bottom =5.dp),
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                modifier =Modifier.alpha(0.8f),
+                text = "Manage your calves, herds and much more coming",
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.subtitle1
+            )
+            //THIS IS THE USERNAME INPUT
+            RegisterInput(
+                textState = viewModel.state.value.username,
+                updateTextState = {text -> viewModel.updateUsername(text)},
+                textStateError = viewModel.state.value.usernameError,
+                keyboardType = KeyboardType.Text,
+                placeHolderText= "Username",
+                modifier = Modifier.padding(start = 0.dp,40.dp,0.dp,0.dp)
+            )
+
+            //THIS IS THE EMAIL INPUT
+            RegisterInput(
+                textState = viewModel.state.value.email,
+                updateTextState = {text -> viewModel.updateEmail(text)},
+                textStateError = viewModel.state.value.emailError,
+                keyboardType = KeyboardType.Email,
+                placeHolderText= "Email",
+                modifier = Modifier.padding(start = 0.dp,10.dp,0.dp,0.dp)
+            )
+            //THIS IS THE PASSWORD INPUT
+            PasswordInput(
+                passwordIconPressed = viewModel.state.value.passwordIconChecked,
+                password = viewModel.state.value.password,
+                passwordErrorMessage = viewModel.state.value.passwordError,
+                updatePassword = {password -> viewModel.updatePassword(password) },
+                updatePasswordIconPressed = {pressed -> viewModel.passwordIconChecked(pressed)}
+
+            )
+
+            SubmitButton(
+                submit={viewModel.submitButton()},
+                title = "Register",
+                enabled= viewModel.state.value.buttonEnabled
+            )
+        }
+
+    }
+
+}
+
+
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -147,7 +259,6 @@ fun ModalSideSheetLayoutSheetContent(
     val scope = rememberCoroutineScope()
     Box(
         modifier = Modifier
-            //.height(300.dp)
             .padding(10.dp)
             .fillMaxSize()
 
@@ -219,11 +330,12 @@ fun ModalSideSheetLayoutSheetContent(
 
             }
             SubmitButton(
-                enabled = enabled,
                 submit = {
                     submit()
 //
-                }
+                },
+                enabled = enabled,
+                title = "Login"
             )
             }
 
@@ -412,7 +524,8 @@ fun LoginView(
                     scope.launch {
                         bottomModalState.show()
                     }
-                }
+                },
+                title = "Login"
             )
             SignUpForgotPassword(onNavigate)
 
@@ -427,8 +540,9 @@ fun LoginView(
 
 @Composable
 fun SubmitButton(
-    submit:()->Unit,
-    enabled:Boolean = true
+    submit: () -> Unit,
+    enabled: Boolean = true,
+    title: String
 ){
     Button(
         onClick = {
@@ -442,7 +556,7 @@ fun SubmitButton(
             .width(280.dp)
             .padding(start = 0.dp, 20.dp, 0.dp, 0.dp)) {
         Box(modifier = Modifier.fillMaxSize()){
-            Text(text="Login",fontSize = 26.sp,modifier = Modifier.align(Alignment.Center))
+            Text(text=title,fontSize = 26.sp,modifier = Modifier.align(Alignment.Center))
             if(!enabled){
                 CircularProgressIndicator(
                     color=Color.Black,
