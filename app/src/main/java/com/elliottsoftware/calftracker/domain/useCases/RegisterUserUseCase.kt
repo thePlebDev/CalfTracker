@@ -9,15 +9,17 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 data class RegisterUserParams(
     val email: String,
+    val username:String,
     val password: String,
+
 )
 
 class RegisterUserUseCase @Inject constructor(
     private val authRepository: AuthRepository
-):UseCase<RegisterUserParams,Flow<Response<Actions>>>() {
+):UseCase<RegisterUserParams,Flow<Response<Boolean>>>() {
 
 
-    override suspend fun execute(params: RegisterUserParams): Flow<Response<Actions>> {
-        return authRepository.authRegister(params.email, params.password)
+    override suspend fun execute(params: RegisterUserParams): Flow<Response<Boolean>> {
+        return authRepository.authRegister(params.email, params.password,params.username)
     }
 }

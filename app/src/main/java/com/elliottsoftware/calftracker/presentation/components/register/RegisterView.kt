@@ -83,17 +83,17 @@ fun RegisterView(viewModel: RegisterViewModel = viewModel(),onNavigate:(Int) -> 
 
             is Response.Success -> {
                 //todo: I think we can change the response data to a more explicit enum
-                if(response.data == Actions.FIRST){
-                    //THIS IS WHERE WE WOULD DO THE NAVIGATION
-                    LinearLoadingBar()
-                    viewModel.createUserDatabase(viewModel.state.value.email,viewModel.state.value.username)
-                }
-                if(response.data == Actions.SECOND){
-                    onNavigate(R.id.action_registerFragment2_to_mainFragment2)
-                }
-                if(response.data == Actions.RESTING){
-
-                }
+//                if(response.data == Actions.FIRST){
+//                    //THIS IS WHERE WE WOULD DO THE NAVIGATION
+//                    LinearLoadingBar()
+//                    viewModel.createUserDatabase(viewModel.state.value.email,viewModel.state.value.username)
+//                }
+//                if(response.data == Actions.SECOND){
+//                    onNavigate(R.id.action_registerFragment2_to_mainFragment2)
+//                }
+//                if(response.data == Actions.RESTING){
+//
+//                }
             }
             is Response.Failure -> {
                 //should probably show a snackbar

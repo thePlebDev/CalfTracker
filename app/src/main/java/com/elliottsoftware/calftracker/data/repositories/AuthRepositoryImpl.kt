@@ -7,8 +7,11 @@ import com.elliottsoftware.calftracker.presentation.components.login.LoginResult
 import com.elliottsoftware.calftracker.util.Actions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
@@ -19,24 +22,81 @@ import javax.inject.Inject
 /**
  * The data layer for any requests related to logging in a user */
 class AuthRepositoryImpl(
-
-    private val auth: FirebaseAuth = Firebase.auth
+    private val auth: FirebaseAuth = Firebase.auth,
+    private val db: FirebaseFirestore = Firebase.firestore,
 ): AuthRepository {
 
 
     //TODO:1) change over to callbackFlow
     //TODO:2) remove the SecondaryResponse (can maybe be replaced with a nested when)(move nested when to function)
-    override suspend fun authRegister(email: String, password: String) = callbackFlow {
+    override suspend fun authRegister(email: String, password: String,username: String): Flow<Response<Boolean>> = callbackFlow {
+        Timber.tag("testingLogin").d("email -> $email")
+        Timber.tag("testingLogin").d("password -> $password")
+        Timber.tag("testingLogin").d("username -> $username")
         try {
+            var create:Boolean = false
             trySend(Response.Loading)
 
-            auth.createUserWithEmailAndPassword(email,password).await() //await() integrates with the Google task API //DONE
-            trySend(Response.Success(Actions.FIRST))
+       //     auth.createUserWithEmailAndPassword(email,password).await() //await() integrates with the Google task API //DONE
+            auth.createUserWithEmailAndPassword(email,password)
+                .addOnCompleteListener { task ->
+
+                    if(task.isSuccessful){
+                        // Task completed successfully
+                       // trySend(Response.Success(true))
+                        create = true
+
+
+
+                    }else{
+                        // Task failed with an exception
+                        Timber.tag("testingLogin").d("createUserWithEmailAndPassword -> FAILED")
+                        Timber.tag("testingLogin").d(task.exception.toString())
+                        trySend(Response.Failure(Exception()))
+                    }
+
+                }.await()
+            if(create){
+                createUser(email,username).collect{ response ->
+                    when(response){
+                        is Response.Loading->{
+                            //Nothing is done because the initial state is loading
+                        }
+                        is Response.Success->{
+                            trySend(Response.Success(true))
+                        }
+                        is Response.Failure->{
+                            Timber.tag("testingLogin").d("create -> FAILED")
+                            trySend(Response.Failure(Exception("Problem creating the User")))
+                        }
+                    }
+
+                }
+            }
+
+
+
         }catch (e:Exception) { //gets triggered on email already in use
             Timber.tag("AuthRepositoryImpl").d(e.message.toString())
             trySend(Response.Failure(e))
         }
         awaitClose()
+    }
+
+      fun createUser(email: String, username: String)= flow{
+        val user = hashMapOf(
+            "email" to email,
+            "username" to username
+        )
+        try{
+            db.collection("users").document(email).set(user).await()
+            emit(Response.Success(true))
+        }catch (e:Exception){
+            Timber.e(e)
+            emit(Response.Failure(e))
+        }
+
+
     }
 
     /**

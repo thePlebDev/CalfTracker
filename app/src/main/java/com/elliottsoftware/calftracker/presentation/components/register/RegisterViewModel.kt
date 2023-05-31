@@ -24,7 +24,8 @@ data class RegisterUIState(
     val passwordIconChecked:Boolean = false,
     val showProgressBar:Boolean = false,
     //todo: CHANGE BOOLEAN TO A MORE EXPLICIT VIEWMODEL
-    val signInWithFirebaseResponse:Response<Actions> =Response.Success(Actions.RESTING),
+    val signInWithFirebaseResponse:Response<Boolean> =Response.Success(false),
+    val buttonEnabled:Boolean = true
 
 )
 
@@ -60,11 +61,22 @@ class RegisterViewModel @Inject constructor(
     }
 
     //goes first
-    private fun signUpUserAuthRepository(email:String, password:String) =viewModelScope.launch{
-         registerUserUseCase.execute(RegisterUserParams(email, password)).collect{response ->
+    private fun signUpUserAuthRepository(email:String, password:String,username:String) =viewModelScope.launch{
+         registerUserUseCase.execute(RegisterUserParams(email, password,username)).collect{response ->
             // signInWithFirebaseResponse = response
 
              _uiState.value = _uiState.value.copy(signInWithFirebaseResponse = response)
+             when(response){
+                 is Response.Loading -> {
+                     _uiState.value = _uiState.value.copy(buttonEnabled = false)
+                 }
+                 is Response.Success -> {
+                     _uiState.value = _uiState.value.copy(buttonEnabled = true)
+                 }
+                 is Response.Failure -> {
+                     _uiState.value = _uiState.value.copy(buttonEnabled = true)
+                 }
+             }
          }
 
     }
@@ -73,7 +85,7 @@ class RegisterViewModel @Inject constructor(
     //Creates the user inside the realtime database.
     fun createUserDatabase(email:String, password:String) = viewModelScope.launch{
         createUserUseCase.execute(CreateUserParams(email,password)).collect{response ->
-            _uiState.value = _uiState.value.copy(signInWithFirebaseResponse = response)
+           // _uiState.value = _uiState.value.copy(signInWithFirebaseResponse = response)
         }
 
     }
@@ -86,7 +98,7 @@ class RegisterViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(emailError = verifyEmail, usernameError = verifyUsername,
             passwordError = verifyPassword)
         if(verifyUsername == null && verifyEmail == null && verifyPassword == null){
-            signUpUserAuthRepository(_uiState.value.email,_uiState.value.password)
+            signUpUserAuthRepository(_uiState.value.email,_uiState.value.password, _uiState.value.username)
         }
     }
 
