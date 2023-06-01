@@ -30,14 +30,11 @@ class AuthRepositoryImpl(
     //TODO:1) change over to callbackFlow
     //TODO:2) remove the SecondaryResponse (can maybe be replaced with a nested when)(move nested when to function)
     override suspend fun authRegister(email: String, password: String,username: String): Flow<Response<Boolean>> = callbackFlow {
-        Timber.tag("testingLogin").d("email -> $email")
-        Timber.tag("testingLogin").d("password -> $password")
-        Timber.tag("testingLogin").d("username -> $username")
+
         try {
             var create:Boolean = false
             trySend(Response.Loading)
 
-       //     auth.createUserWithEmailAndPassword(email,password).await() //await() integrates with the Google task API //DONE
             auth.createUserWithEmailAndPassword(email,password)
                 .addOnCompleteListener { task ->
 
@@ -50,8 +47,6 @@ class AuthRepositoryImpl(
 
                     }else{
                         // Task failed with an exception
-                        Timber.tag("testingLogin").d("createUserWithEmailAndPassword -> FAILED")
-                        Timber.tag("testingLogin").d(task.exception.toString())
                         trySend(Response.Failure(Exception()))
                     }
 
@@ -66,7 +61,7 @@ class AuthRepositoryImpl(
                             trySend(Response.Success(true))
                         }
                         is Response.Failure->{
-                            Timber.tag("testingLogin").d("create -> FAILED")
+
                             trySend(Response.Failure(Exception("Problem creating the User")))
                         }
                     }

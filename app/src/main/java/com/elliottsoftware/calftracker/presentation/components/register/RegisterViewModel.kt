@@ -25,7 +25,8 @@ data class RegisterUIState(
     val showProgressBar:Boolean = false,
     //todo: CHANGE BOOLEAN TO A MORE EXPLICIT VIEWMODEL
     val signInWithFirebaseResponse:Response<Boolean> =Response.Success(false),
-    val buttonEnabled:Boolean = true
+    val buttonEnabled:Boolean = true,
+    val registerError:Boolean = false,
 
 )
 
@@ -68,13 +69,20 @@ class RegisterViewModel @Inject constructor(
              _uiState.value = _uiState.value.copy(signInWithFirebaseResponse = response)
              when(response){
                  is Response.Loading -> {
-                     _uiState.value = _uiState.value.copy(buttonEnabled = false)
+                     _uiState.value = _uiState.value.copy(
+                         buttonEnabled = false,
+                         registerError = false
+                     )
                  }
                  is Response.Success -> {
                      _uiState.value = _uiState.value.copy(buttonEnabled = true)
                  }
                  is Response.Failure -> {
-                     _uiState.value = _uiState.value.copy(buttonEnabled = true)
+                     _uiState.value = _uiState.value.copy(
+                         buttonEnabled = true,
+                         registerError = true
+
+                     )
                  }
              }
          }
