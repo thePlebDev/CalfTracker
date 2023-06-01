@@ -96,7 +96,7 @@ fun LoginViews(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit
                         submit={viewModel.submitButton()},
                         enabled = viewModel.state.value.buttonEnabled,
                         loginStatus = viewModel.state.value.loginStatus,
-                        onNavigate = onNavigate
+                        onNavigate = onNavigate,
 
                     )
                 }else{
@@ -300,7 +300,7 @@ fun ModalSideSheetLayoutSheetContent(
     submit:()->Unit,
     enabled:Boolean,
     loginStatus:Response<Boolean>,
-    onNavigate: (Int) -> Unit
+    onNavigate: (Int) -> Unit,
 ){
     val scope = rememberCoroutineScope()
     Box(
@@ -309,6 +309,7 @@ fun ModalSideSheetLayoutSheetContent(
             .fillMaxSize()
 
     ){
+
         Column(
             modifier = Modifier.matchParentSize(),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -383,6 +384,7 @@ fun ModalSideSheetLayoutSheetContent(
                 enabled = enabled,
                 title = "Login"
             )
+            SignUpForgotPassword(onNavigate)
             }
 
     }
@@ -631,12 +633,6 @@ fun SignUpForgotPassword(onNavigate: (Int) -> Unit){
                 onNavigate(R.id.action_loginFragment_to_forgotPasswordFragment)
             }
         )
-        Text( "Register",
-            fontSize = 16.sp,
-            modifier = Modifier
-                .clickable(enabled = true) {
-                    onNavigate(R.id.action_loginFragment_to_registerFragment2)
-                })
 
     }
 }
