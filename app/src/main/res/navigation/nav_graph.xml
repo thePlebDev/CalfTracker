@@ -64,7 +64,11 @@
         android:id="@+id/forgotPasswordFragment"
         android:name="com.elliottsoftware.calftracker.presentation.components.forgotPassword.ForgotPasswordFragment"
         android:label="fragment_forgot_password"
-        tools:layout="@layout/fragment_forgot_password" />
+        tools:layout="@layout/fragment_forgot_password" >
+        <action
+            android:id="@+id/action_forgotPasswordFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
     <fragment
         android:id="@+id/newCalfFragment"
         android:name="com.elliottsoftware.calftracker.presentation.components.newCalf.NewCalfFragment"

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.navigation.findNavController
 import com.elliottsoftware.calftracker.databinding.FragmentForgotPasswordBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -37,7 +38,9 @@ class ForgotPasswordFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 // In Compose world
-                ForgotPasswordViews()
+                ForgotPasswordViews(
+                    onNavigate = { dest -> findNavController().navigate(dest) }
+                )
             }
         }
         return view

@@ -32,7 +32,7 @@ data class LoginUIState(
     val showProgressBar:Boolean = false,
 //    val isUserLoggedIn:Boolean = false,
     val loginStatus: Response<Boolean> = Response.Success(false),
-    val buttonEnabled:Boolean = true
+    val buttonEnabled:Boolean = true,
 )
 
 @HiltViewModel
@@ -51,13 +51,17 @@ class LoginViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(loginStatus = response)
             when(response){
                 is Response.Loading -> {
-                    _uiState.value = _uiState.value.copy(buttonEnabled = false)
+                    _uiState.value = _uiState.value.copy(
+                        buttonEnabled = false,
+                    )
                 }
                 is Response.Success -> {
                     _uiState.value = _uiState.value.copy(buttonEnabled = true)
                 }
                 is Response.Failure -> {
-                    _uiState.value = _uiState.value.copy(buttonEnabled = true)
+                    _uiState.value = _uiState.value.copy(
+                        buttonEnabled = true,
+                    )
                 }
             }
         }
