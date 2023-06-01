@@ -5,8 +5,14 @@ import android.content.pm.ActivityInfo
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -163,6 +169,14 @@ fun Register(
 
     ){
 
+
+        ErrorMessage(
+            modifier = Modifier.align(Alignment.TopCenter),
+            visible = viewModel.state.value.registerError
+        )
+
+
+
         Column(
             modifier = Modifier.matchParentSize(),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -235,6 +249,38 @@ fun Register(
 
     }
 
+}
+
+@Composable
+fun ErrorMessage(
+    modifier: Modifier,
+    visible: Boolean
+){
+    val density = LocalDensity.current
+    AnimatedVisibility(
+        modifier = modifier,
+        visible = visible,
+        enter = slideInVertically {
+            // Slide in from 40 dp from the top.
+            with(density) { -40.dp.roundToPx() }
+        } + expandVertically(
+            // Expand from the top.
+            expandFrom = Alignment.Top
+        ) + fadeIn(
+            // Fade in with the initial alpha of 0.3f.
+            initialAlpha = 0.3f
+        ),
+        exit = slideOutVertically() + shrinkVertically() + fadeOut()
+    ) {
+        Text("Error with username or password",
+            color = Color.Red,
+            modifier = modifier
+                .clip(shape = RoundedCornerShape(5.dp))
+                .background(Color(0xFFadadad))
+                .padding( 5.dp)
+
+        )
+    }
 }
 
 

@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 data class RegisterUserParams(
     val email: String,
-    val username:String,
     val password: String,
+    val username:String,
 
 )
 
