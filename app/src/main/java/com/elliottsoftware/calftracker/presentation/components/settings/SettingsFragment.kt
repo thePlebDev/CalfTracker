@@ -7,10 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.material.MaterialTheme
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentSettingsBinding
+import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
 
 
 /**
@@ -37,14 +39,19 @@ class SettingsFragment : Fragment() {
     ): View {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         val view = binding.root
+        val mainViewModel: MainViewModel by activityViewModels()
         binding.composeView.apply {
             // Dispose of the Composition when the view's LifecycleOwner
             // is destroyed
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+
             setContent {
                 // In Compose world
                 MaterialTheme {
-                    SettingsView(onNavigate = { dest -> findNavController().navigate(dest) })
+                    SettingsView(
+                        onNavigate = { dest -> findNavController().navigate(dest) },
+                        viewModel = mainViewModel
+                    )
                 }
             }
         }

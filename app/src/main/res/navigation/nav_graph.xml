@@ -17,7 +17,10 @@
             app:popUpToInclusive="true"/>
         <action
             android:id="@+id/action_loginFragment_to_forgotPasswordFragment"
-            app:destination="@id/forgotPasswordFragment" />
+            app:destination="@id/forgotPasswordFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true"
+            />
         <action
             android:id="@+id/action_loginFragment_to_registerFragment2"
             app:destination="@id/registerFragment2" />
@@ -47,8 +50,8 @@
         <action
             android:id="@+id/action_mainFragment2_to_settingsFragment"
             app:destination="@id/settingsFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim" />
+            app:popUpTo="@id/mainFragment2"
+            app:popUpToInclusive="true" />
 
     </fragment>
     <fragment
@@ -116,10 +119,15 @@
         tools:layout="@layout/fragment_subscription" >
         <action
             android:id="@+id/action_subscriptionFragment_to_mainFragment22"
-            app:destination="@id/mainFragment2" />
+            app:destination="@id/mainFragment2"
+            app:popUpTo="@id/subscriptionFragment"
+            app:popUpToInclusive="true"/>
         <action
             android:id="@+id/action_subscriptionFragment_to_settingsFragment"
-            app:destination="@id/settingsFragment" />
+            app:destination="@id/settingsFragment"
+            app:popUpTo="@id/subscriptionFragment"
+            app:popUpToInclusive="true"
+            />
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
@@ -128,10 +136,25 @@
         tools:layout="@layout/fragment_settings" >
         <action
             android:id="@+id/action_settingsFragment_to_subscriptionFragment"
-            app:destination="@id/subscriptionFragment" />
+            app:destination="@id/subscriptionFragment"
+            app:popUpTo="@id/settingsFragment"
+            app:popUpToInclusive="true"
+            />
+        <action
+            android:id="@+id/action_settingsFragment_to_loginFragment2"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/settingsFragment"
+            app:popUpToInclusive="true"
+            />
+
+
         <action
             android:id="@+id/action_settingsFragment_to_mainFragment2"
-            app:destination="@id/mainFragment2" />
+            app:destination="@id/mainFragment2"
+            app:popUpTo="@id/settingsFragment"
+            app:popUpToInclusive="true"/>
+
     </fragment>
+
 
 </navigation>
