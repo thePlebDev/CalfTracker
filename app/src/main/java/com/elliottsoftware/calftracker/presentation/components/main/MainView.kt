@@ -22,6 +22,9 @@ import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Logout
+import androidx.compose.material.icons.outlined.MonetizationOn
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -135,11 +138,20 @@ fun ScaffoldView(
                     NavigationItem(
                         title = "Logout",
                         contentDescription = "Logout Button",
-                        icon = Icons.Default.Logout,
+                        icon = Icons.Outlined.Logout,
                         onClick = {
-                            viewModel.signUserOut()
+                            //viewModel.signUserOut()
                             onNavigate(R.id.action_mainFragment2_to_loginFragment)
                                   },
+                        color = Color.Black
+
+                    ),
+                    NavigationItem(
+                        title = "Home",
+                        contentDescription = "home Button.",
+                        icon = Icons.Default.Home,
+                        onClick = {},
+                        color = Color.Black
 
                     ),
                     NavigationItem(
@@ -151,15 +163,29 @@ fun ScaffoldView(
                                       bottomModalState.show()
                                   }
                         },
+                        weight = 1.3f,
+                        modifier = Modifier.size(45.dp),
+                        color = Color.Black
 
                     ),
                     NavigationItem(
                         title = "Settings",
                         contentDescription = "Subscription Button",
-                        icon = Icons.Default.Settings,
+                        icon = Icons.Outlined.Settings,
                         onClick = {
                                   onNavigate(R.id.action_mainFragment2_to_settingsFragment)
                         },
+                        color = Color.Black
+
+                    ),
+                    NavigationItem(
+                        title = "Features",
+                        contentDescription = "Subscription Button",
+                        icon = Icons.Outlined.MonetizationOn,
+                        onClick = {
+                            // onNavigate(R.id.action_mainFragment2_to_settingsFragment)
+                        },
+                        color = Color.Black
 
                     )
 
@@ -995,6 +1021,9 @@ data class NavigationItem(
     val contentDescription:String,
     val icon: ImageVector,
     val onClick: () -> Unit ={},
+    val color: Color,
+    val weight:Float = 1f,
+    val modifier: Modifier = Modifier
 
 
 )
@@ -1008,36 +1037,55 @@ fun BottomNavigation(navItemList:List<NavigationItem>){
         horizontalArrangement = Arrangement.SpaceAround
 
     ){
+
         navItemList.forEach {
-            BottomNavItem(
-                title = it.title,
-                description = it.contentDescription,
-                icon = it.icon,
-                onNavigate = {
-                    it.onClick()
+            Box(
+                modifier = Modifier.weight(it.weight),
+                contentAlignment = Alignment.Center
+            ){
+                BottomNavItem(
+                    title = it.title,
+                    description = it.contentDescription,
+                    icon = it.icon,
+                    onNavigate = {
+                        it.onClick()
+                    },
+                    color = it.color,
+                    modifier = it.modifier
 
-                }
-
-            )
+                )
+            }
         }
     }
 }
 
 @Composable
-fun BottomNavItem(title:String,description:String,icon:ImageVector,onNavigate: () -> Unit,){
+fun BottomNavItem(
+    title:String,
+    description:String,
+    icon:ImageVector,
+    onNavigate: () -> Unit,
+    color: Color = Color.Black,
+    modifier:Modifier = Modifier.size(34.dp)
+){
+
     Column(
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .padding(16.dp)
-            .clickable { onNavigate() }
+            .padding(8.dp)
+            .clickable {
+                onNavigate()
+            }
+
     ) {
         Icon(
             imageVector = icon,
             contentDescription = description,
-            modifier = Modifier.size(28.dp)
+            modifier = modifier,
+            tint = color
         )
-        Text(title)
+        Text(title, fontSize = 8.sp,)
 
     }
 }
