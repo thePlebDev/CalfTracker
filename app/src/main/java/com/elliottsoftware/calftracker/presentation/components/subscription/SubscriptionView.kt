@@ -56,7 +56,7 @@ fun SubscriptionView(
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun SubscriptionViews(
-    subscriptionViewModel: SubscriptionViewModel = viewModel(),
+   // subscriptionViewModel: SubscriptionViewModel = viewModel(),
     onNavigate: (Int) -> Unit = {},
     billingViewModel:BillingViewModel = viewModel()
 ){
