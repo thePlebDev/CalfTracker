@@ -434,8 +434,8 @@ fun TopBar(onNavigate: (Int) -> Unit){
                 Icon(
                     modifier = Modifier
                         .size(38.dp)
-                        .weight(1f),
-                        //.clickable { onNavigate(R.id.action_settingsFragment_to_mainFragment2) },
+                        .weight(1f)
+                        .clickable { onNavigate(R.id.action_settingsFragment_to_mainFragment2) },
                     imageVector = Icons.Default.KeyboardBackspace,
                     contentDescription ="Return to home screen",
                 )
