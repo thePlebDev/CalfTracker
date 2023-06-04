@@ -31,7 +31,6 @@ data class NavigationItem(
     val weight:Float = 1f,
     val modifier: Modifier = Modifier
 
-
 )
 
 @Composable
