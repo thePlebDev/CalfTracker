@@ -140,7 +140,7 @@ fun ScaffoldView(
                         contentDescription = "Logout Button",
                         icon = Icons.Outlined.Logout,
                         onClick = {
-                            //viewModel.signUserOut()
+                            viewModel.signUserOut()
                             onNavigate(R.id.action_mainFragment2_to_loginFragment)
                                   },
                         color = Color.Black
@@ -156,7 +156,7 @@ fun ScaffoldView(
                     ),
                     NavigationItem(
                         title = "Create",
-                        contentDescription = "Create Button",
+                        contentDescription = "Create Calf",
                         icon = Icons.Default.AddCircle,
                         onClick = {
                                   scope.launch {
@@ -183,7 +183,7 @@ fun ScaffoldView(
                         contentDescription = "Subscription Button",
                         icon = Icons.Outlined.MonetizationOn,
                         onClick = {
-                            // onNavigate(R.id.action_mainFragment2_to_settingsFragment)
+                             onNavigate(R.id.action_mainFragment2_to_subscriptionFragment)
                         },
                         color = Color.Black
 
@@ -284,12 +284,6 @@ data class SimpleTextInputData(
 @Composable
 fun MainBodyView(
    newCalfViewModel: NewCalfViewModel,
-//    onNavigate: (Int) -> Unit,
-//    scaffoldState: ScaffoldState,
-//    padding: PaddingValues,
-//    vaccineList: MutableList<String>,
-//    showModal:()->Unit,
-   // hideModal:()->Unit,
     bottomModalState:ModalBottomSheetState,
     scaffoldState:ScaffoldState,
 

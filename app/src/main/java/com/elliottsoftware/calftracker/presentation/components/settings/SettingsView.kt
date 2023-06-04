@@ -1,28 +1,21 @@
 package com.elliottsoftware.calftracker.presentation.components.settings
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.*
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.KeyboardBackspace
-import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Home
@@ -31,47 +24,281 @@ import androidx.compose.material.icons.outlined.MonetizationOn
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elliottsoftware.calftracker.R
-import com.elliottsoftware.calftracker.presentation.components.main.SearchText
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import kotlinx.coroutines.launch
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.elliottsoftware.calftracker.domain.models.Response
+import com.elliottsoftware.calftracker.presentation.components.main.SimpleTextInputData
+import com.elliottsoftware.calftracker.presentation.components.newCalf.CalendarDock
 import com.elliottsoftware.calftracker.presentation.sharedViews.NavigationItem
 import com.elliottsoftware.calftracker.presentation.sharedViews.BottomNavigation
-import com.elliottsoftware.calftracker.presentation.viewModels.LoginViewModel
+import com.elliottsoftware.calftracker.presentation.sharedViews.BullHeiferRadioInput
+import com.elliottsoftware.calftracker.presentation.sharedViews.NumberInput
+import com.elliottsoftware.calftracker.presentation.sharedViews.SimpleTextInput
+import com.elliottsoftware.calftracker.presentation.sharedViews.VaccinationView
 import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
-import timber.log.Timber
+import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SettingsView(
     onNavigate: (Int) -> Unit,
-    viewModel: MainViewModel = viewModel()
+    viewModel: MainViewModel,
+    newCalfViewModel: NewCalfViewModel
 ){
+    val bottomModalState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        skipHalfExpanded = true
+    )
+    val scaffoldState = rememberScaffoldState()
     AppTheme(false){
-        Settings(
-            onNavigate,
-            viewModel
-        )
+        ModalBottomSheetLayout(
+            sheetState = bottomModalState,
+            sheetContent = {
+                ModalContent(
+                    bottomModalState,
+                    newCalfViewModel,
+                    scaffoldState
+                )
+            }
+        ){
+            Settings(
+                onNavigate,
+                viewModel,
+                bottomModalState,
+                scaffoldState
+            )
+        }
+
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ModalContent(
+    bottomModalState: ModalBottomSheetState,
+    newCalfViewModel: NewCalfViewModel,
+    scaffoldState: ScaffoldState
+){
+    //TODO: MAKE A CHECK TO SEE IF THERE IS THE PROPER SUBSCRIPTION
+    var vaccineList = remember { mutableStateListOf<String>() }
+    val scope = rememberCoroutineScope()
+    Box(
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.primary),
+        contentAlignment = Alignment.TopCenter
+    ){
+
+        CalfCreation(
+            bottomModalState,
+            newCalfViewModel,
+            vaccineList = vaccineList,
+            addItem = {item -> vaccineList.add(item)},
+            removeItem = {item -> vaccineList.remove(item)}
+        )
+        when(val response = newCalfViewModel.state.value.calfSaved){
+            is Response.Loading ->{
+                Spacer(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(color = Color.Gray.copy(alpha = .7f))
+                )
+                CircularProgressIndicator(
+                    color= MaterialTheme.colors.onSecondary,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(60.dp)
+                )
+            }
+            is Response.Success ->{
+                if(response.data){
+                    // we need to clear all the inputs, close the modal and tell the user what calf got created
+                    val calfTag = newCalfViewModel.state.value.calfTag
+                    LaunchedEffect(response) {
+                        scope.launch {
+                            bottomModalState.hide()
+                            scaffoldState.snackbarHostState.showSnackbar(
+                                message = "Calf $calfTag Created",
+                                actionLabel = "Close"
+                            )
+                        }
+                    }
+                    vaccineList.clear()
+                    newCalfViewModel.clearData()
+                    newCalfViewModel.resetResponse()
+
+                }
+            }
+
+            is Response.Failure ->{
+
+            }
+
+        }
+
+
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
+@Composable
+fun CalfCreation(
+    bottomModalState: ModalBottomSheetState,
+    newCalfViewModel: NewCalfViewModel,
+    vaccineList: List<String>,
+    addItem:(String) -> Unit,
+    removeItem:(String)->Unit
+){
+
+    val scope = rememberCoroutineScope()
+    val simpleTextInputList = listOf<SimpleTextInputData>(
+        SimpleTextInputData(
+            state = newCalfViewModel.state.value.calfTag,
+            placeHolderText = "Calf tag number",
+            updateValue = { tagNumber -> newCalfViewModel.updateCalfTag(tagNumber)},
+            errorMessage = newCalfViewModel.state.value.calfTagError,
+            key =0
+        ),
+        SimpleTextInputData(
+            state = newCalfViewModel.state.value.cowTagNumber,
+            placeHolderText = "Cow tag number",
+            updateValue = { tagNumber -> newCalfViewModel.updateCowTagNumber(tagNumber)},
+            key =1
+        ),
+        SimpleTextInputData(
+            state = newCalfViewModel.state.value.cciaNumber,
+            placeHolderText = "CCIA number",
+            updateValue = { cciaNumber -> newCalfViewModel.updateCciaNumber(cciaNumber)},
+            key =2
+        ),
+        SimpleTextInputData(
+            state = newCalfViewModel.state.value.description,
+            placeHolderText = "Description",
+            updateValue = { description -> newCalfViewModel.updateDescription(description)},
+            key =3
+        ),
+    )
+    LazyColumn{
+        stickyHeader {
+            Header(
+                cancelFunction = {
+                    scope.launch {
+                        bottomModalState.hide()
+                    }
+                },
+                createCalf = {
+                    newCalfViewModel.submitCalf(vaccineList)
+                }
+            )
+        }
+        item {
+            Text(
+                text = "Basic Information :",
+                modifier = Modifier.padding(top = 16.dp, bottom = 4.dp, start = 8.dp)
+            )
+        }
+        items(
+            simpleTextInputList,
+            key = { item ->
+                item.key
+            }
+        ) { item ->
+            SimpleTextInput(
+                state = item.state,
+                placeHolderText = item.placeHolderText,
+                updateValue = { value -> item.updateValue(value) },
+                errorMessage = item.errorMessage
+            )
+        }
+        item {
+            BullHeiferRadioInput(
+                state = newCalfViewModel.state.value.sex,
+                updateSex = { value -> newCalfViewModel.updateSex(value) },
+                modifier = Modifier
+            )
+        }
+
+        item {
+            NumberInput(
+                "Birth Weight",
+                state = newCalfViewModel.state.value.birthWeight,
+                updateValue = { value -> newCalfViewModel.updateBirthWeight(value) }
+            )
+        }
+        item {
+            CalendarDock(newCalfViewModel)
+        }
+        item {
+            Text(
+                text = "Vaccination List :",
+                modifier = Modifier.padding(top = 16.dp, bottom = 4.dp, start = 8.dp)
+            )
+        }
+        item {
+            VaccinationView(
+                vaccineText = newCalfViewModel.state.value.vaccineText,
+                updateVaccineText = { text -> newCalfViewModel.updateVaccineText(text) },
+                dateText1 = newCalfViewModel.state.value.vaccineDate,
+                updateDateText = { date -> newCalfViewModel.updateDateText(date) },
+                vaccineList = vaccineList,
+                addItemToVaccineList = { item -> addItem(item) },
+                removeItemFromVaccineList = { item -> removeItem(item) }
+            )
+        }
+
+        //THIS IS THE CALF CREATION
+    }
+
+}
+
+@Composable
+fun Header(
+    cancelFunction:() -> Unit,
+    createCalf:() -> Unit
+){
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colors.secondary),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ){
+        Button(onClick = {cancelFunction()},modifier = Modifier.padding(8.dp)){
+            Text("Cancel",fontSize=17.sp)
+        }
+        Text("New Calf",fontSize=20.sp)
+        Button(onClick = {createCalf()},modifier = Modifier.padding(8.dp)){
+            Text("Create",fontSize=17.sp)
+
+        }
+    }
+}
+data class SimpleTextInputData(
+    val state:String,
+    val placeHolderText:String,
+    val updateValue:(String)->Unit,
+    val errorMessage:String? = null,
+    val key:Int
+)
+
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Settings(
     onNavigate: (Int) -> Unit,
-    viewModel: MainViewModel
+    viewModel: MainViewModel,
+    bottomModalState: ModalBottomSheetState,
+    scaffoldState: ScaffoldState
 ){
+    val scope = rememberCoroutineScope()
     Scaffold(
         backgroundColor = MaterialTheme.colors.primary,
         topBar = { TopBar(onNavigate) },
+        scaffoldState = scaffoldState,
         bottomBar = {
             BottomNavigation(
                 navItemList = listOf(
@@ -80,8 +307,8 @@ fun Settings(
                         contentDescription = "Logout Button",
                         icon = Icons.Outlined.Logout,
                         onClick = {
-                           // viewModel.signUserOut()
-                            Timber.tag("clickers").d("LOGOUT NAVIGATE")
+                            viewModel.signUserOut()
+
                             onNavigate(R.id.action_settingsFragment_to_loginFragment2)
 
                         },
@@ -105,7 +332,9 @@ fun Settings(
                         contentDescription = "Launch the create Calf widget",
                         icon = Icons.Default.AddCircle,
                         onClick = {
-                           // onNavigate(R.id.action_mainFragment2_to_settingsFragment)
+                            scope.launch {
+                                bottomModalState.show()
+                            }
                         },
                         color = Color.Black,
                         weight = 1.3f,
@@ -125,7 +354,7 @@ fun Settings(
                         contentDescription = "navigate to the subscriptions page. You can view and modifier your subscriptions",
                         icon = Icons.Outlined.MonetizationOn,
                         onClick = {
-                            // onNavigate(R.id.action_mainFragment2_to_settingsFragment)
+                             onNavigate(R.id.action_settingsFragment_to_subscriptionFragment)
                         },
                         color = Color.Black
 

@@ -1,18 +1,23 @@
 package com.elliottsoftware.calftracker.presentation.components.settings
 
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentSettingsBinding
 import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
+import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
 
 
 /**
@@ -32,6 +37,7 @@ class SettingsFragment : Fragment() {
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -40,6 +46,7 @@ class SettingsFragment : Fragment() {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         val view = binding.root
         val mainViewModel: MainViewModel by activityViewModels()
+        val newCalfViewModel:NewCalfViewModel by activityViewModels()
         binding.composeView.apply {
             // Dispose of the Composition when the view's LifecycleOwner
             // is destroyed
@@ -50,7 +57,8 @@ class SettingsFragment : Fragment() {
                 MaterialTheme {
                     SettingsView(
                         onNavigate = { dest -> findNavController().navigate(dest) },
-                        viewModel = mainViewModel
+                        viewModel = mainViewModel,
+                        newCalfViewModel = newCalfViewModel
                     )
                 }
             }

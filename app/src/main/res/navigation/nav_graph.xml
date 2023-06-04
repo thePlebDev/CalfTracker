@@ -46,7 +46,10 @@
             app:destination="@id/weatherFragment" />
         <action
             android:id="@+id/action_mainFragment2_to_subscriptionFragment"
-            app:destination="@id/subscriptionFragment" />
+            app:destination="@id/subscriptionFragment"
+            app:popUpTo="@+id/mainFragment2"
+            app:popUpToInclusive="true"
+            />
         <action
             android:id="@+id/action_mainFragment2_to_settingsFragment"
             app:destination="@id/settingsFragment"
