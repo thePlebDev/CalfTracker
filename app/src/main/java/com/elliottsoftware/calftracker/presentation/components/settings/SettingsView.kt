@@ -31,13 +31,12 @@ import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import kotlinx.coroutines.launch
 import com.elliottsoftware.calftracker.domain.models.Response
-import com.elliottsoftware.calftracker.presentation.components.main.SimpleTextInputData
 import com.elliottsoftware.calftracker.presentation.components.newCalf.CalendarDock
 import com.elliottsoftware.calftracker.presentation.sharedViews.NavigationItem
 import com.elliottsoftware.calftracker.presentation.sharedViews.BottomNavigation
 import com.elliottsoftware.calftracker.presentation.sharedViews.BullHeiferRadioInput
-import com.elliottsoftware.calftracker.presentation.sharedViews.NumberInput
-import com.elliottsoftware.calftracker.presentation.sharedViews.SimpleTextInput
+import com.elliottsoftware.calftracker.presentation.sharedViews.CalfCreation
+import com.elliottsoftware.calftracker.presentation.sharedViews.CreateCalfLoading
 import com.elliottsoftware.calftracker.presentation.sharedViews.VaccinationView
 import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
@@ -87,7 +86,7 @@ fun ModalContent(
 ){
     //TODO: MAKE A CHECK TO SEE IF THERE IS THE PROPER SUBSCRIPTION
     var vaccineList = remember { mutableStateListOf<String>() }
-    val scope = rememberCoroutineScope()
+
     Box(
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.primary),
         contentAlignment = Alignment.TopCenter
@@ -100,161 +99,22 @@ fun ModalContent(
             addItem = {item -> vaccineList.add(item)},
             removeItem = {item -> vaccineList.remove(item)}
         )
-        when(val response = newCalfViewModel.state.value.calfSaved){
-            is Response.Loading ->{
-                Spacer(
-                    modifier = Modifier
-                        .matchParentSize()
-                        .background(color = Color.Gray.copy(alpha = .7f))
-                )
-                CircularProgressIndicator(
-                    color= MaterialTheme.colors.onSecondary,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(60.dp)
-                )
-            }
-            is Response.Success ->{
-                if(response.data){
-                    // we need to clear all the inputs, close the modal and tell the user what calf got created
-                    val calfTag = newCalfViewModel.state.value.calfTag
-                    LaunchedEffect(response) {
-                        scope.launch {
-                            bottomModalState.hide()
-                            scaffoldState.snackbarHostState.showSnackbar(
-                                message = "Calf $calfTag Created",
-                                actionLabel = "Close"
-                            )
-                        }
-                    }
-                    vaccineList.clear()
-                    newCalfViewModel.clearData()
-                    newCalfViewModel.resetResponse()
-
-                }
-            }
-
-            is Response.Failure ->{
-
-            }
-
-        }
+        CreateCalfLoading(
+            modifier = Modifier.matchParentSize(),
+            loadingIconAlignmentModifier = Modifier.align(Alignment.Center),
+            newCalfViewModel = newCalfViewModel,
+            bottomModalState = bottomModalState,
+            scaffoldState = scaffoldState,
+            clearVaccineList = {vaccineList.clear()}
+        )
 
 
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
-@Composable
-fun CalfCreation(
-    bottomModalState: ModalBottomSheetState,
-    newCalfViewModel: NewCalfViewModel,
-    vaccineList: List<String>,
-    addItem:(String) -> Unit,
-    removeItem:(String)->Unit
-){
 
-    val scope = rememberCoroutineScope()
-    val simpleTextInputList = listOf<SimpleTextInputData>(
-        SimpleTextInputData(
-            state = newCalfViewModel.state.value.calfTag,
-            placeHolderText = "Calf tag number",
-            updateValue = { tagNumber -> newCalfViewModel.updateCalfTag(tagNumber)},
-            errorMessage = newCalfViewModel.state.value.calfTagError,
-            key =0
-        ),
-        SimpleTextInputData(
-            state = newCalfViewModel.state.value.cowTagNumber,
-            placeHolderText = "Cow tag number",
-            updateValue = { tagNumber -> newCalfViewModel.updateCowTagNumber(tagNumber)},
-            key =1
-        ),
-        SimpleTextInputData(
-            state = newCalfViewModel.state.value.cciaNumber,
-            placeHolderText = "CCIA number",
-            updateValue = { cciaNumber -> newCalfViewModel.updateCciaNumber(cciaNumber)},
-            key =2
-        ),
-        SimpleTextInputData(
-            state = newCalfViewModel.state.value.description,
-            placeHolderText = "Description",
-            updateValue = { description -> newCalfViewModel.updateDescription(description)},
-            key =3
-        ),
-    )
-    LazyColumn{
-        stickyHeader {
-            Header(
-                cancelFunction = {
-                    scope.launch {
-                        bottomModalState.hide()
-                    }
-                },
-                createCalf = {
-                    newCalfViewModel.submitCalf(vaccineList)
-                }
-            )
-        }
-        item {
-            Text(
-                text = "Basic Information :",
-                modifier = Modifier.padding(top = 16.dp, bottom = 4.dp, start = 8.dp)
-            )
-        }
-        items(
-            simpleTextInputList,
-            key = { item ->
-                item.key
-            }
-        ) { item ->
-            SimpleTextInput(
-                state = item.state,
-                placeHolderText = item.placeHolderText,
-                updateValue = { value -> item.updateValue(value) },
-                errorMessage = item.errorMessage
-            )
-        }
-        item {
-            BullHeiferRadioInput(
-                state = newCalfViewModel.state.value.sex,
-                updateSex = { value -> newCalfViewModel.updateSex(value) },
-                modifier = Modifier
-            )
-        }
 
-        item {
-            NumberInput(
-                "Birth Weight",
-                state = newCalfViewModel.state.value.birthWeight,
-                updateValue = { value -> newCalfViewModel.updateBirthWeight(value) }
-            )
-        }
-        item {
-            CalendarDock(newCalfViewModel)
-        }
-        item {
-            Text(
-                text = "Vaccination List :",
-                modifier = Modifier.padding(top = 16.dp, bottom = 4.dp, start = 8.dp)
-            )
-        }
-        item {
-            VaccinationView(
-                vaccineText = newCalfViewModel.state.value.vaccineText,
-                updateVaccineText = { text -> newCalfViewModel.updateVaccineText(text) },
-                dateText1 = newCalfViewModel.state.value.vaccineDate,
-                updateDateText = { date -> newCalfViewModel.updateDateText(date) },
-                vaccineList = vaccineList,
-                addItemToVaccineList = { item -> addItem(item) },
-                removeItemFromVaccineList = { item -> removeItem(item) }
-            )
-        }
 
-        //THIS IS THE CALF CREATION
-    }
-
-}
 
 @Composable
 fun Header(
@@ -278,13 +138,7 @@ fun Header(
         }
     }
 }
-data class SimpleTextInputData(
-    val state:String,
-    val placeHolderText:String,
-    val updateValue:(String)->Unit,
-    val errorMessage:String? = null,
-    val key:Int
-)
+
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
