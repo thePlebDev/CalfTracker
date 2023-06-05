@@ -131,6 +131,11 @@
             app:popUpTo="@id/subscriptionFragment"
             app:popUpToInclusive="true"
             />
+        <action
+            android:id="@+id/action_subscriptionFragment_to_loginFragment"
+            app:destination="@id/loginFragment"
+            app:popUpTo="@id/subscriptionFragment"
+            app:popUpToInclusive="true"/>
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"

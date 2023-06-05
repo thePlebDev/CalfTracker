@@ -1,8 +1,17 @@
 package com.elliottsoftware.calftracker.presentation.components.subscription
 
 import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.*
+
+
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -10,12 +19,23 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.CurrencyExchange
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Logout
+import androidx.compose.material.icons.outlined.MonetizationOn
+import androidx.compose.material.icons.outlined.Paid
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.*
 
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalUriHandler
@@ -33,22 +53,53 @@ import com.elliottsoftware.calftracker.presentation.components.navigation.Naviga
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
 import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
+import com.elliottsoftware.calftracker.presentation.sharedViews.CalfCreation
+import com.elliottsoftware.calftracker.presentation.sharedViews.CreateCalfLoading
+import com.elliottsoftware.calftracker.presentation.sharedViews.NavigationItem
 import com.elliottsoftware.calftracker.presentation.theme.AppTheme
+import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
 import com.elliottsoftware.calftracker.util.findActivity
 import com.google.accompanist.pager.*
 import kotlinx.coroutines.launch
+import com.elliottsoftware.calftracker.presentation.sharedViews.BottomNavigation
+import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
 import timber.log.Timber
 
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SubscriptionView(
     onNavigate: (Int) -> Unit = {},
-    viewModel:BillingViewModel
+    viewModel:BillingViewModel,
+    newCalfViewModel:NewCalfViewModel,
+    mainViewModel: MainViewModel
 ){
+    val bottomModalState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        skipHalfExpanded = true
+    )
+    val scaffoldState = rememberScaffoldState()
     AppTheme(false){
-        SubscriptionViews(
-            onNavigate = {location -> onNavigate(location)},
-            billingViewModel = viewModel,
-        )
+
+        ModalBottomSheetLayout(
+            sheetState = bottomModalState,
+            sheetContent = {
+                ModalContent(
+                    bottomModalState,
+                    newCalfViewModel,
+                    scaffoldState
+                )
+            }
+        ){
+            SubscriptionViews(
+                onNavigate = {location -> onNavigate(location)},
+                billingViewModel = viewModel,
+                bottomModalState = bottomModalState,
+                mainViewModel = mainViewModel
+            )
+        }
+
+
     }
 }
 
@@ -58,105 +109,242 @@ fun SubscriptionView(
 fun SubscriptionViews(
    // subscriptionViewModel: SubscriptionViewModel = viewModel(),
     onNavigate: (Int) -> Unit = {},
-    billingViewModel:BillingViewModel = viewModel()
+    billingViewModel:BillingViewModel = viewModel(),
+    bottomModalState: ModalBottomSheetState,
+    mainViewModel: MainViewModel
 ){
-    val bottomModalState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        skipHalfExpanded = true
-    )
+
     val scope = rememberCoroutineScope()
     Scaffold(
         backgroundColor = MaterialTheme.colors.primary,
         topBar = {
-            TopAppBar(
-                title = { Text("Subscriptions") },
-                navigationIcon = {
-                    IconButton(
+            TopBar(
+                onNavigate = onNavigate
+            )
+        },
+        bottomBar = {
+            BottomNavigation(
+                navItemList = listOf(
+                    NavigationItem(
+                        title = "Logout",
+                        contentDescription = "Logout Button",
+                        icon = Icons.Outlined.Logout,
+                        onClick = {
+                            mainViewModel.signUserOut()
+                            onNavigate(R.id.action_subscriptionFragment_to_loginFragment)
+
+                        },
+                        color = Color.Black,
+
+
+                        ),
+                    NavigationItem(
+                        title = "Home",
+                        contentDescription = "Navigate back to home page",
+                        icon = Icons.Outlined.Home,
+                        onClick = {
+                            onNavigate(R.id.action_subscriptionFragment_to_mainFragment22)
+
+                        },
+                        color = Color.Black
+
+                    ),
+                    NavigationItem(
+                        title = "Create",
+                        contentDescription = "Launch the create Calf widget",
+                        icon = Icons.Default.AddCircle,
                         onClick = {
                             scope.launch {
                                 bottomModalState.show()
                             }
-                        }
-                    ) {
-                        Icon(Icons.Filled.Menu, contentDescription = "Toggle modal drawer")
-                    }
-                }
-            )
-        },
-    ){
+                        },
+                        color = Color.Black,
+                        weight = 1.3f,
+                        modifier = Modifier.size(45.dp)
 
-        ModalBottomSheetLayout(
-            sheetState = bottomModalState,
-            sheetContent = {
-                ModalContents(
-                    onNavigate = onNavigate,
-                    bottomModalState = bottomModalState
+                    ),
+                    NavigationItem(
+                        title = "Settings",
+                        contentDescription = "Navigate to the settings page",
+                        icon = Icons.Outlined.Settings,
+                        onClick = {
+                            onNavigate(R.id.action_subscriptionFragment_to_settingsFragment)
+                        },
+                        color = Color.Black
+
+                    ),
+                    NavigationItem(
+                        title = "Features",
+                        contentDescription = "navigate to the subscriptions page. You can view and modifier your subscriptions",
+                        icon = Icons.Default.MonetizationOn,
+                        onClick = {
+
+                        },
+                        color = Color.Black
+
+                    )
+
                 )
-            }
-
-        ){
-            TabScreen(billingViewModel,billingViewModel.state.value)
+            )
         }
+    ){paddingValues ->
+        SubscriptionBody(paddingValues)
+
+
     }
 
 
 
 }
 
+@Composable
+fun SubscriptionBody(
+    paddingValues:PaddingValues
+){
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
 
 
+    ){
+        Column( modifier = Modifier
+            .matchParentSize()
+            .padding(10.dp)
+            .verticalScroll(rememberScrollState())){
+            Spacer(modifier = Modifier.padding(20.dp))
+            CurrentSubscriptionInfo(
+                title = "Current",
+                icon = Icons.Outlined.CurrencyExchange,
+                iconDescription = "Current Active Subscription"
+            )
+            Spacer(modifier = Modifier.padding(20.dp))
+            CurrentSubscriptionInfo(
+                title = "Premium",
+                icon = Icons.Outlined.Paid,
+                iconDescription = "Premium Subscription information"
+            )
+            Spacer(modifier = Modifier.padding(20.dp))
+            CurrentSubscriptionInfo(
+                title = "Details",
+                icon = Icons.Outlined.Info,
+                iconDescription = "Subscription plan info"
+            )
+        }
+
+
+
+    }
+
+}
+@Composable
+fun CurrentSubscriptionInfo(
+    title:String,
+    icon:ImageVector,
+    iconDescription:String,
+){
+    var expanded by remember { mutableStateOf(false) }
+    // initialize focus reference to be able to request focus programmatically
+    val focusRequester = remember { FocusRequester() }
+    // MutableInteractionSource to track changes of the component's interactions (like "focused")
+    val interactionSource = remember { MutableInteractionSource() }
+    // text below will change when we focus it via button click
+    val isFocused = interactionSource.collectIsFocusedAsState().value
+
+    Card(
+        modifier = Modifier
+            .focusRequester(focusRequester) //register focus changes
+            .focusable(interactionSource = interactionSource) //emit focus events
+            .clickable {
+                focusRequester.requestFocus()
+            } // makes it all work
+
+
+    ){
+        Column(
+            modifier = Modifier.animateContentSize(
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessMedium
+                )
+            )
+        ) {
+            Box(){
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+
+                    Icon(
+                        modifier = Modifier.size(34.dp),
+                        imageVector = icon,
+                        contentDescription = iconDescription)
+                    Text(
+                        text =title,
+                        modifier = Modifier.padding(start = 40.dp),
+                        fontSize = 30.sp
+                    )
+                }
+                Icon(
+                    imageVector =  if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore ,
+                    contentDescription = "expand",
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(10.dp)
+
+                )
+            }
+            if(isFocused){
+                Text("HELLO", fontSize = 25.sp)
+                Text("HELLO", fontSize = 25.sp)
+                Text("HELLO", fontSize = 25.sp)
+            }
+        }
+    }
+
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ModalContents(
-    onNavigate: (Int) -> Unit = {},
-    bottomModalState:ModalBottomSheetState
-
+fun ModalContent(
+    bottomModalState: ModalBottomSheetState,
+    newCalfViewModel: NewCalfViewModel,
+    scaffoldState: ScaffoldState
 ){
-    val scope = rememberCoroutineScope()
+    //TODO: MAKE A CHECK TO SEE IF THERE IS THE PROPER SUBSCRIPTION
+    var vaccineList = remember { mutableStateListOf<String>() }
 
     Box(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .background(MaterialTheme.colors.primary),
-        contentAlignment = Alignment.Center
-
-
+        contentAlignment = Alignment.TopCenter
     ){
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 128.dp)
-        ) {
 
-            items(Navigation.Modal.navList) { navItem ->
-                Card(
-                    modifier = Modifier
-                        .padding(8.dp).clickable {
-                            scope.launch {
-                                bottomModalState.hide()
-                                onNavigate(navItem.navigationDestination)
-                            }
-                        },
-                    backgroundColor = MaterialTheme.colors.secondary,
-                    elevation = 8.dp,
-                ) {
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .padding(vertical = 12.dp, horizontal = 4.dp),
+        CalfCreation(
+            bottomModalState,
+            newCalfViewModel,
+            vaccineList = vaccineList,
+            addItem = {item -> vaccineList.add(item)},
+            removeItem = {item -> vaccineList.remove(item)}
+        )
+        CreateCalfLoading(
+            modifier = Modifier.matchParentSize(),
+            loadingIconAlignmentModifier = Modifier.align(Alignment.Center),
+            newCalfViewModel = newCalfViewModel,
+            bottomModalState = bottomModalState,
+            scaffoldState = scaffoldState,
+            clearVaccineList = {vaccineList.clear()}
+        )
 
-                        ){
-                        Icon(
-                            imageVector = navItem.icon,
-                            contentDescription = navItem.contentDescription,
-                            modifier = Modifier.size(28.dp)
-                        )
-                        Text(navItem.title)
-                    }
-                }
-            }
-        }
+
     }
 }
+
 
 @Composable
 fun TabScreen(viewModel: BillingViewModel,UIState:BillingUiState) {
@@ -409,7 +597,34 @@ fun BuyingText(value: BillingUiState,billingViewModel: BillingViewModel) {
 }
 
 
-
+@Composable
+fun TopBar(onNavigate: (Int) -> Unit){
+    Column() {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colors.primary,
+            elevation = 8.dp
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End
+            ){
+                Icon(
+                    modifier = Modifier
+                        .size(38.dp)
+                        .clickable { onNavigate(R.id.action_subscriptionFragment_to_mainFragment22) }
+                        .weight(1f),
+                    imageVector = Icons.Default.KeyboardBackspace,
+                    contentDescription ="Return to home screen",
+                )
+                Text("Subscriptions", fontSize = 30.sp,modifier = Modifier.weight(2f))
+            }
+        }
+    }
+}
 
 
 
