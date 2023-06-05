@@ -1,10 +1,12 @@
 package com.elliottsoftware.calftracker.presentation.components.subscription
 
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.ui.platform.ViewCompositionStrategy
@@ -14,6 +16,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentSubscriptionBinding
+import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
+import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
 import timber.log.Timber
 
 
@@ -46,6 +50,7 @@ class SubscriptionFragment : Fragment() {
         Timber.tag("CLOSINGT").d("fragment destroyed")
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -57,6 +62,9 @@ class SubscriptionFragment : Fragment() {
 
         //viewModels() should be used instead of activityViewModels()
         val billingViewModel:BillingViewModel by activityViewModels()
+        val newCalfViewModel: NewCalfViewModel by activityViewModels()
+        val mainViewModel: MainViewModel by activityViewModels()
+
 
         lifecycle.addObserver(billingViewModel)
 
@@ -70,6 +78,8 @@ class SubscriptionFragment : Fragment() {
                     SubscriptionView(
                         onNavigate = { dest -> findNavController().navigate(dest) },
                         viewModel = billingViewModel,
+                        newCalfViewModel = newCalfViewModel,
+                        mainViewModel = mainViewModel
 
                     )
                 }

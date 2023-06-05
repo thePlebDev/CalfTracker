@@ -114,8 +114,6 @@ fun ModalContent(
 
 
 
-
-
 @Composable
 fun Header(
     cancelFunction:() -> Unit,
