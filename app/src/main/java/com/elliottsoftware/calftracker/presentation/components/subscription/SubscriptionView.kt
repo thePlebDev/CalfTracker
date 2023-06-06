@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
@@ -188,7 +189,10 @@ fun SubscriptionViews(
             )
         }
     ){paddingValues ->
-        SubscriptionBody(paddingValues)
+        SubscriptionBody(
+            paddingValues,
+            billingViewModel
+        )
 
 
     }
@@ -199,7 +203,8 @@ fun SubscriptionViews(
 
 @Composable
 fun SubscriptionBody(
-    paddingValues:PaddingValues
+    paddingValues:PaddingValues,
+    billingViewModel: BillingViewModel
 ){
     Box(
         modifier = Modifier
@@ -217,19 +222,33 @@ fun SubscriptionBody(
                 title = "Current",
                 icon = Icons.Outlined.CurrencyExchange,
                 iconDescription = "Current Active Subscription"
-            )
+            ){
+
+                Subscribed(billingViewModel)
+
+            }
             Spacer(modifier = Modifier.padding(20.dp))
             CurrentSubscriptionInfo(
                 title = "Premium",
                 icon = Icons.Outlined.Paid,
                 iconDescription = "Premium Subscription information"
-            )
+            ){
+               // Premium()
+                BuyingText(
+                    productDetailsResponse = billingViewModel.state.value.productDetails,
+                    billingViewModel = billingViewModel
+                )
+            }
             Spacer(modifier = Modifier.padding(20.dp))
             CurrentSubscriptionInfo(
                 title = "Details",
                 icon = Icons.Outlined.Info,
                 iconDescription = "Subscription plan info"
-            )
+            ){
+                Text(text = "DETAILS",fontSize =30.sp)
+                Text(text = "DETAILS",fontSize =30.sp)
+                Text(text = "DETAILS",fontSize =30.sp)
+            }
         }
 
 
@@ -242,6 +261,7 @@ fun CurrentSubscriptionInfo(
     title:String,
     icon:ImageVector,
     iconDescription:String,
+    content: @Composable() (() -> Unit)
 ){
     var expanded by remember { mutableStateOf(false) }
     // initialize focus reference to be able to request focus programmatically
@@ -298,14 +318,32 @@ fun CurrentSubscriptionInfo(
                 )
             }
             if(isFocused){
-                Text("HELLO", fontSize = 25.sp)
-                Text("HELLO", fontSize = 25.sp)
-                Text("HELLO", fontSize = 25.sp)
+                content()
             }
         }
     }
 
 }
+
+@Composable
+fun Subscribed(billingViewModel: BillingViewModel){
+    when(val response = billingViewModel.state.value.isUserSubscribed){
+        is Response.Loading->{
+            Text(text = "LOADING",fontSize =30.sp)
+        }
+        is Response.Success->{
+
+            Text(text = "Subscribed: ${response.data}",fontSize =30.sp)
+        }
+        is Response.Failure->{
+            Text(text = "Failed to load details",fontSize =30.sp)
+        }
+    }
+
+}
+
+
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
@@ -387,8 +425,6 @@ fun TabScreen(viewModel: BillingViewModel,UIState:BillingUiState) {
                 viewModel.state.value.nextBillingPeriod
             )
 
-            1 -> PremiumPage(billingUiState = viewModel.state.value, billingViewModel = viewModel)
-
             2 -> Settings(billingUiState=viewModel.state.value, billingViewModel = viewModel)
 
         }
@@ -401,7 +437,6 @@ fun TabScreen(viewModel: BillingViewModel,UIState:BillingUiState) {
 fun Settings(billingUiState: BillingUiState,billingViewModel: BillingViewModel){
 
     Column(modifier = Modifier.padding(15.dp)) {
-        ActiveSubscription(subscriptionInfo = billingUiState.subscribedInfo)
         Text("When will I be charged ?", style = MaterialTheme.typography.h5)
         Text("Immediately upon purchase. This purchase is recurring and you will be charged once a month",
             color = Color.Black.copy(alpha = 0.6f)
@@ -416,27 +451,7 @@ fun Settings(billingUiState: BillingUiState,billingViewModel: BillingViewModel){
 
 }
 
-@Composable
-fun PremiumPage(billingUiState: BillingUiState,billingViewModel: BillingViewModel){
-    Column(modifier = Modifier.padding(15.dp)) {
-        Text("Premium ", style = MaterialTheme.typography.h5)
-        Text("subscription:",
-            style = MaterialTheme.typography.h5,
-            modifier = Modifier.padding(bottom = 10.dp)
-        )
-        SubscriptionCardInfo(
-            subscriptionInfo = SubscriptionValues(
-                description = "Premium subscription",
-                title= "Premium subscription",
-                items= "Unlimited calf storage",
-                price = "$10.00",
-                icon = Icons.Default.MonetizationOn
-            )
-        )
 
-        BuyingText(billingUiState,billingViewModel)
-    }
-}
 
 @Composable
 fun MyButton(url:String) {//THIS SHOULD BE IN THE SETTINGS
@@ -446,19 +461,7 @@ fun MyButton(url:String) {//THIS SHOULD BE IN THE SETTINGS
     }
 }
 
-@Composable
-fun ActiveSubscription(subscriptionInfo: SubscriptionValues){
-    Column() {
-        Text("My active ", style = MaterialTheme.typography.h5)
-        Text(
-            "subscription:",
-            style = MaterialTheme.typography.h5,
-            modifier = Modifier.padding(bottom = 10.dp)
-        )
-        SubscriptionCardInfo(subscriptionInfo)
 
-    }
-}
 //todo: make the button conditional
 @Composable
 fun MainSubscription(
@@ -475,7 +478,6 @@ fun MainSubscription(
         "calf_tracker_premium_10", packageName);
 
     Column(modifier = Modifier.padding(15.dp)) {
-        ActiveSubscription(subscriptionInfo)
         if(subscribed){
             Button(
                 onClick = {
@@ -499,53 +501,10 @@ fun MainSubscription(
 
 }
 
-@Composable
-fun SubscriptionCardInfo(subscriptionInfo: SubscriptionValues) {
-
-        SubscriptionCard(
-            SubscriptionValues(
-                description = subscriptionInfo.description,
-                title=subscriptionInfo.title,
-                items=subscriptionInfo.items,
-                price = subscriptionInfo.price,
-                icon = subscriptionInfo.icon
-            )
-        )
-}
 
 
-@Composable
-fun SubscriptionCard(subscriptionData:SubscriptionValues){
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { },
-        elevation = 10.dp,
-        backgroundColor = MaterialTheme.colors.secondary
-    ){
-        Row(
-            horizontalArrangement= Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            Icon(subscriptionData.icon, contentDescription = subscriptionData.description,modifier = Modifier.size(60.dp))
-            Column(modifier = Modifier.padding(15.dp)){
-                Text(subscriptionData.title)
-                Text(subscriptionData.items,color = Color.Black.copy(alpha = 0.6f))
-                Text(
-                    buildAnnotatedString {
-                        withStyle(style = SpanStyle(
-                            fontSize =  32.sp
-                        )
-                        ) {
-                            append(subscriptionData.price)
-                        }
-                        append("/month")
-                    }
-                )
-            }
-        }
-    }
-}
+
+
 
 
 
@@ -555,7 +514,7 @@ fun SubscriptionCard(subscriptionData:SubscriptionValues){
 
 /******BELOW IS ALL THE BUYING THINGS*******/
 @Composable
-fun BuyingText(value: BillingUiState,billingViewModel: BillingViewModel) {
+fun BuyingText(productDetailsResponse: Response<ProductDetails>, billingViewModel: BillingViewModel) {
     val context = LocalContext.current
 
     val activity = context.findActivity()
@@ -565,7 +524,7 @@ fun BuyingText(value: BillingUiState,billingViewModel: BillingViewModel) {
     Column() {
 
 
-        when(val response = value.subscriptionProduct){
+        when(val response = productDetailsResponse){
             is Response.Loading -> {
                 Button(onClick = {}){
                     Text("Loading buy Text")

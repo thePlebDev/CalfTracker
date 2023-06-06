@@ -1,6 +1,7 @@
 package com.elliottsoftware.calftracker.data.repositories
 
 import android.app.Activity
+import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
@@ -15,13 +16,19 @@ class SubscriptionDataRepository(
     private val billingClientWrapper: BillingClientWrapper
     ): SubscriptionRepository {
 
+//    init{
+//        val _billingConnectionState = MutableLiveData(false)
+//        billingClientWrapper.startBillingConnection(_billingConnectionState)
+//    }
 
 
     // Set to true when a returned purchase is an auto-renewing basic subscription.
     /**IS HOW WE WILL DETERMINE IF THERE IS A SUBSCRIPTION OR NOT*/
     //
-    val hasRenewablePremium: Flow<Response<Boolean>> = try{
+    override val isUserSubscribed: Flow<Response<Boolean>> = try{
+
         billingClientWrapper.purchases.map { value: List<Purchase> ->
+
             val value = value.any { purchase: Purchase ->  purchase.products.contains(PREMIUM_SUB) && purchase.isAutoRenewing}
             Response.Success(value)
         }
@@ -62,13 +69,13 @@ class SubscriptionDataRepository(
         }.map {
 
            val item = it[PREMIUM_SUB]!!
-            Timber.tag("productsDetails").d(item.toString())
+
             item
         }
 
     //terminate the connection
     override fun terminateConnection(){
-       // billingClientWrapper.terminateBillingConnection()
+        billingClientWrapper.terminateBillingConnection()
     }
     override fun launchBillingFlow(activity: Activity, params: BillingFlowParams){
 //        billingClientWrapper.launchBillingFlow(
@@ -105,6 +112,8 @@ class SubscriptionDataRepository(
 
     }
 
+    /**
+     * Used to determine if there is */
     override suspend fun hasRenewablePremium() = flow  {
          billingClientWrapper.purchases.map { value: List<Purchase> ->
             val value = value.any { purchase: Purchase ->  purchase.products.contains(PREMIUM_SUB) && purchase.isAutoRenewing}
