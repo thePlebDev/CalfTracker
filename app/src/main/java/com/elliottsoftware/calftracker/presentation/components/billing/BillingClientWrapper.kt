@@ -142,6 +142,13 @@ class BillingClientWrapper @Inject constructor(
 
     // Query Google Play Billing for existing purchases.
     // New purchases will be provided to PurchasesUpdatedListener.onPurchasesUpdated().
+    /**
+     * Gets called upon a successful connection to the [billingClient](https://developer.android.com/google/play/billing/integrate#initialize)
+     * Queries the Google Play store for active subscriptions. Will then update
+     * **_purchases.value = purchaseList**. Where **purchaseList** represents the active subscriptions.
+     * This function is called inside of [startBillingConnection()][startBillingConnection] when
+     * **billingResult.responseCode == BillingClient.BillingResponseCode.OK**
+     */
     fun queryPurchases() {
         if (!billingClient.isReady) {
 
@@ -228,9 +235,6 @@ class BillingClientWrapper @Inject constructor(
                         it.productId //This is going to be the key fo the map. the key is calf_tracker_premium_10
                     }
                 }
-                Timber.tag("BILLINGRmeat").i(newMap.toString())
-                Timber.tag("detailsd").d(this.toString())
-                Timber.tag("detailsd").d(newMap.toString())
 
                 _productWithProductDetails.value = newMap
             }

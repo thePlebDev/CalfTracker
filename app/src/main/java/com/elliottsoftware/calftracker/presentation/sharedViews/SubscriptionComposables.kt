@@ -100,7 +100,7 @@ fun BuyingText(value: BillingUiState, billingViewModel: BillingViewModel) {
     Column() {
 
 
-        when(val response = value.subscriptionProduct){
+        when(val response = value.productDetails){
             is Response.Loading -> {
                 Button(onClick = {}){
                     Text("Loading")

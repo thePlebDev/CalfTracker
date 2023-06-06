@@ -9,6 +9,7 @@ import com.elliottsoftware.calftracker.presentation.components.billing.BillingCl
 import kotlinx.coroutines.flow.Flow
 
 interface SubscriptionRepository {
+    val isUserSubscribed: Flow<Response<Boolean>>
 
     fun launchBillingFlow(activity: Activity, params: BillingFlowParams)
 

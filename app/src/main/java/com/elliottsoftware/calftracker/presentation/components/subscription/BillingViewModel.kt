@@ -34,7 +34,7 @@ data class SubscriptionValues(
 )
 
 data class BillingUiState(
-    val subscriptionProduct: Response<ProductDetails> = Response.Loading, //THIS IS THE PRODUCT DETAILS
+    val productDetails: Response<ProductDetails> = Response.Loading, //THIS IS THE PRODUCT DETAILS
     val purchasedSubscriptions:Response<List<Purchase>> = Response.Loading, //THIS IS THE ACTUAL PRODUCTS
     val subscribed:Boolean = false,
     val subscribedInfo:SubscriptionValues = SubscriptionValues(
@@ -45,7 +45,8 @@ data class BillingUiState(
         icon = Icons.Default.Autorenew
             ),
     val nextBillingPeriod:String =" None",
-    val calfListSize:Int = 0
+    val calfListSize:Int = 0,
+    val isUserSubscribed: Response<Boolean> = Response.Loading
 
 )
 
@@ -60,6 +61,7 @@ class BillingViewModel @Inject constructor(
     val state = _uiState
 
 
+
     init {
         viewModelScope.launch {
             subscribedPurchases()
@@ -69,6 +71,16 @@ class BillingViewModel @Inject constructor(
     }
     init{
         refreshPurchases()
+    }
+    init {
+        viewModelScope.launch {
+            repo.isUserSubscribed.collect { response ->
+                _uiState.value = _uiState.value.copy(
+                    isUserSubscribed = response
+                )
+            }
+
+        }
     }
 
     /**
@@ -92,11 +104,12 @@ class BillingViewModel @Inject constructor(
      */
     private fun getProductDetails() =viewModelScope.launch{
 
-//        repo.premiumProductDetails().collect{
-//            _uiState.value = _uiState.value.copy(
-//                subscriptionProduct = Response.Success(it)
-//            )
-//        }
+        repo.premiumProductDetails().collect{
+            Timber.tag("ProductDetailer").d("$it")
+            _uiState.value = _uiState.value.copy(
+                productDetails = Response.Success(it)
+            )
+        }
     }
     fun updateCalfListSize(size:Int){
         _uiState.value = _uiState.value.copy(
@@ -121,59 +134,32 @@ class BillingViewModel @Inject constructor(
      */
      fun refreshPurchases(){
 
-//        viewModelScope.launch {
-//            repo.queryPurchases()
-//            repo.hasRenewablePremium()
-//                .flowOn(dispatcherIO)
-//                .collect { collectedSubscriptions ->
-//
-//                    when(collectedSubscriptions){
-//                        is Response.Loading -> {
-//                            _uiState.value = _uiState.value.copy(
-//
-//                                subscribedInfo = SubscriptionValues(
-//                                    description = "Fetching Subscription",
-//                                    title= "Loading...",
-//                                    items= "....",
-//                                    price = "....",
-//                                    icon = Icons.Default.Autorenew
-//                                )
-//                            )
-//                        }
-//                        is Response.Success ->{
-//                            if(collectedSubscriptions.data){
-//                                _uiState.value = _uiState.value.copy(
-//
-//                                    subscribedInfo = SubscriptionValues(
-//                                        description = "Premium subscription",
-//                                        title= "Premium subscription",
-//                                        items= "Unlimited calf storage",
-//                                        price = "$10.00",
-//                                        icon = Icons.Default.MonetizationOn
-//                                    ),
-//                                    subscribed = true
-//                                )
-//                            }else{
-//                                _uiState.value = _uiState.value.copy(
-//
-//                                    subscribedInfo = SubscriptionValues(
-//                                        description = "Basic subscription",
-//                                        title= "Basic subscription",
-//                                        items= "50 calf limit",
-//                                        price = "$0.00",
-//                                        icon = Icons.Default.CrueltyFree
-//                                    ),
-//                                    subscribed = false
-//                                )
-//
-//                            }
-//
-//                        }
-//                        is Response.Failure -> {}
-//                    }
-//
-//            }
-//        }
+        viewModelScope.launch {
+            repo.queryPurchases()
+            repo.hasRenewablePremium()
+                .flowOn(dispatcherIO)
+                .collect { collectedSubscriptions ->
+
+                    when(collectedSubscriptions){
+                        is Response.Loading -> {
+                            Timber.tag("BillingClinetStuff").d("hasRenewablePremium() LOADING")
+                        }
+                        is Response.Success ->{
+                            if(collectedSubscriptions.data){
+                                Timber.tag("BillingClinetStuff").d("hasRenewablePremium() Success")
+
+                            }else{
+
+                            }
+
+                        }
+                        is Response.Failure -> {
+                            Timber.tag("BillingClinetStuff").d("hasRenewablePremium() Failure")
+                        }
+                    }
+
+            }
+        }
 
     }
 
@@ -319,14 +305,14 @@ class BillingViewModel @Inject constructor(
             }
 
             if (billingParams != null) {
-//                billingClient.launchBillingFlow(
-//                    activity,
-//                    billingParams
-//                )
-//                repo.launchBillingFlow(
-//                    activity,
-//                    billingParams
-//                )
+                repo.getBillingClient().launchBillingFlow(
+                    activity,
+                    billingParams
+                )
+                repo.launchBillingFlow(
+                    activity,
+                    billingParams
+                )
             }
             /************THIS GET RUNS************/
         } else if (currentPurchases == null) {
@@ -343,15 +329,15 @@ class BillingViewModel @Inject constructor(
 
             if (billingParams != null) {
                 //ONLY COMMENTED OUT BECAUSE SO I CAN RUN THE CODE
-//                repo.getBillingClient()
-//                    .launchBillingFlow(
-//                    activity,
-//                    billingParams.build()
-//                )
-//                repo.launchBillingFlow(
-//                    activity,
-//                    billingParams.build()
-//                )
+                repo.getBillingClient()
+                    .launchBillingFlow(
+                    activity,
+                    billingParams.build()
+                )
+                repo.launchBillingFlow(
+                    activity,
+                    billingParams.build()
+                )
             }
         } else if (!currentPurchases.isNullOrEmpty() &&
             currentPurchases.size > MAX_CURRENT_PURCHASES_ALLOWED
@@ -367,7 +353,7 @@ class BillingViewModel @Inject constructor(
     // When an activity is destroyed the viewModel's onCleared is called, so we terminate the
     // billing connection.
     override fun onCleared() {
-       // repo.terminateConnection()
+        repo.terminateConnection()
     }
 
     /******* I THINK I WANT TO PUT THIS AS A USECASE**********/

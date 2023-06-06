@@ -96,6 +96,8 @@ object ViewModelModule {
             billingClient: BillingClientWrapper
         ): SubscriptionRepository {
             // billingClientWrapper = billingClient
+            val _billingConnectionState = MutableLiveData(false)
+            billingClient.startBillingConnection(_billingConnectionState)
 
             return SubscriptionDataRepository(billingClient)
         }
