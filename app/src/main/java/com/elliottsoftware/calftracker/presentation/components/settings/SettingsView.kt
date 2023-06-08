@@ -32,6 +32,7 @@ import com.elliottsoftware.calftracker.presentation.theme.AppTheme
 import kotlinx.coroutines.launch
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.presentation.components.newCalf.CalendarDock
+import com.elliottsoftware.calftracker.presentation.components.subscription.SubscriptionViewExample
 import com.elliottsoftware.calftracker.presentation.sharedViews.NavigationItem
 import com.elliottsoftware.calftracker.presentation.sharedViews.BottomNavigation
 import com.elliottsoftware.calftracker.presentation.sharedViews.BullHeiferRadioInput
@@ -53,27 +54,42 @@ fun SettingsView(
         initialValue = ModalBottomSheetValue.Hidden,
         skipHalfExpanded = true
     )
+    val outerBottomModalState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        skipHalfExpanded = true
+    )
     val scaffoldState = rememberScaffoldState()
-    AppTheme(false){
-        ModalBottomSheetLayout(
-            sheetState = bottomModalState,
-            sheetContent = {
-                ModalContent(
-                    bottomModalState,
-                    newCalfViewModel,
-                    scaffoldState
-                )
+
+        AppTheme(false){
+            ModalBottomSheetLayout(
+                sheetState = outerBottomModalState,
+                sheetContent ={
+                    SubscriptionViewExample(modalState = outerBottomModalState)
+                }) {
+                ModalBottomSheetLayout(
+                    sheetState = bottomModalState,
+                    sheetContent = {
+                        ModalContent(
+                            bottomModalState,
+                            newCalfViewModel,
+                            scaffoldState
+                        )
+                    }
+                ){
+                    Settings(
+                        onNavigate,
+                        viewModel,
+                        bottomModalState,
+                        scaffoldState,
+                        outerBottomModalState = outerBottomModalState
+                    )
+                }
             }
-        ){
-            Settings(
-                onNavigate,
-                viewModel,
-                bottomModalState,
-                scaffoldState
-            )
-        }
+
+
 
     }
+
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -88,7 +104,9 @@ fun ModalContent(
     var vaccineList = remember { mutableStateListOf<String>() }
 
     Box(
-        modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.primary),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colors.primary),
         contentAlignment = Alignment.TopCenter
     ){
 
@@ -144,7 +162,8 @@ fun Settings(
     onNavigate: (Int) -> Unit,
     viewModel: MainViewModel,
     bottomModalState: ModalBottomSheetState,
-    scaffoldState: ScaffoldState
+    scaffoldState: ScaffoldState,
+    outerBottomModalState: ModalBottomSheetState,
 ){
     val scope = rememberCoroutineScope()
     Scaffold(
@@ -206,7 +225,10 @@ fun Settings(
                         contentDescription = "navigate to the subscriptions page. You can view and modifier your subscriptions",
                         icon = Icons.Outlined.MonetizationOn,
                         onClick = {
-                             onNavigate(R.id.action_settingsFragment_to_subscriptionFragment)
+                                  scope.launch {
+                                      outerBottomModalState.show()
+                                  }
+                            // onNavigate(R.id.action_settingsFragment_to_subscriptionFragment)
                         },
                         color = Color.Black
 
@@ -216,25 +238,40 @@ fun Settings(
             )
         },
     ){ paddingValues ->
-        MainView(paddingValues,onNavigate)
+        MainView(
+            paddingValues,
+            onNavigate,
+            outerBottomModalState
+        )
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MainView(paddingValues: PaddingValues,onNavigate: (Int) -> Unit){
+fun MainView(
+    paddingValues: PaddingValues,
+    onNavigate: (Int) -> Unit,
+    outerBottomModalState: ModalBottomSheetState
+){
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = paddingValues.calculateBottomPadding())
     ){
-        LazyVerticalGridDemo(onNavigate)
+        LazyVerticalGridDemo(onNavigate,outerBottomModalState)
     }
 }
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun LazyVerticalGridDemo(onNavigate: (Int) -> Unit){
+fun LazyVerticalGridDemo(
+    onNavigate: (Int) -> Unit,
+    outerBottomModalState: ModalBottomSheetState,
+
+){
+    val scope = rememberCoroutineScope()
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 128.dp)
     ) {
@@ -242,7 +279,12 @@ fun LazyVerticalGridDemo(onNavigate: (Int) -> Unit){
             Card(
                 modifier = Modifier
                     .padding(8.dp)
-                    .clickable { onNavigate(R.id.action_settingsFragment_to_subscriptionFragment) },
+                    .clickable {
+                               scope.launch{
+                                   outerBottomModalState.show()
+                               }
+                       // onNavigate(R.id.action_settingsFragment_to_subscriptionFragment)
+                               },
                 backgroundColor = MaterialTheme.colors.secondary,
                 elevation = 8.dp,
             ) {
