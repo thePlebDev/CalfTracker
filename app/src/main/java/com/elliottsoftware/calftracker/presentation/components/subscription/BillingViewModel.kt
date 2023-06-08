@@ -61,7 +61,6 @@ class BillingViewModel @Inject constructor(
     val state = _uiState
 
 
-
     init {
         viewModelScope.launch {
             subscribedPurchases()
@@ -156,6 +155,7 @@ class BillingViewModel @Inject constructor(
                         is Response.Failure -> {
                             Timber.tag("BillingClinetStuff").d("hasRenewablePremium() Failure")
                         }
+
                     }
 
             }

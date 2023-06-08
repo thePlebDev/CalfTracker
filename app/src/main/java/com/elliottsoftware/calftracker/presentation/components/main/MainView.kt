@@ -49,7 +49,6 @@ import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
 import com.elliottsoftware.calftracker.presentation.components.newCalf.CalendarDock
 import com.elliottsoftware.calftracker.presentation.components.subscription.BillingUiState
 import com.elliottsoftware.calftracker.presentation.components.subscription.BillingViewModel
-import com.elliottsoftware.calftracker.presentation.components.subscription.SubscriptionCard
 import com.elliottsoftware.calftracker.presentation.components.subscription.SubscriptionValues
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
 import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
@@ -69,6 +68,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.*
+import com.elliottsoftware.calftracker.presentation.components.subscription.SubscriptionViewExample
 import kotlinx.coroutines.delay
 import timber.log.Timber
 
@@ -116,113 +116,128 @@ fun ScaffoldView(
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
 
+    val outerBottomModalState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        skipHalfExpanded = true
+    )
+
     ModalBottomSheetLayout(
-        sheetState = bottomModalState,
+        sheetState = outerBottomModalState,
         sheetContent = {
-            ModalContent(
-                billingViewModel,
-                onNavigate = onNavigate,
-                bottomModalState = bottomModalState,
+            SubscriptionViewExample(modalState = outerBottomModalState)
+        }
+    ) {
+
+
+        ModalBottomSheetLayout(
+            sheetState = bottomModalState,
+            sheetContent = {
+                ModalContent(
+                    billingViewModel,
+                    onNavigate = onNavigate,
+                    bottomModalState = bottomModalState,
+                    scaffoldState = scaffoldState,
+                    newCalfViewModel = newCalfViewModel
+                )
+            },
+            sheetBackgroundColor = MaterialTheme.colors.primary
+        ) {
+            Scaffold(
                 scaffoldState = scaffoldState,
-                newCalfViewModel = newCalfViewModel
-            )
-        },
-        sheetBackgroundColor = MaterialTheme.colors.primary
-    ){
-    Scaffold(
-        scaffoldState = scaffoldState,
-        backgroundColor = MaterialTheme.colors.primary,
-        bottomBar = {
-            BottomNavigation(
-                navItemList = listOf(
-                    NavigationItem(
-                        title = "Logout",
-                        contentDescription = "Logout Button",
-                        icon = Icons.Outlined.Logout,
-                        onClick = {
-                            viewModel.signUserOut()
-                            onNavigate(R.id.action_mainFragment2_to_loginFragment)
-                                  },
-                        color = Color.Black
+                backgroundColor = MaterialTheme.colors.primary,
+                bottomBar = {
+                    BottomNavigation(
+                        navItemList = listOf(
+                            NavigationItem(
+                                title = "Logout",
+                                contentDescription = "Logout Button",
+                                icon = Icons.Outlined.Logout,
+                                onClick = {
+                                    viewModel.signUserOut()
+                                    onNavigate(R.id.action_mainFragment2_to_loginFragment)
+                                },
+                                color = Color.Black
 
-                    ),
-                    NavigationItem(
-                        title = "Home",
-                        contentDescription = "home Button.",
-                        icon = Icons.Default.Home,
-                        onClick = {},
-                        color = Color.Black
+                            ),
+                            NavigationItem(
+                                title = "Home",
+                                contentDescription = "home Button.",
+                                icon = Icons.Default.Home,
+                                onClick = {},
+                                color = Color.Black
 
-                    ),
-                    NavigationItem(
-                        title = "Create",
-                        contentDescription = "Create Calf",
-                        icon = Icons.Default.AddCircle,
-                        onClick = {
-                                  scope.launch {
-                                      bottomModalState.show()
-                                  }
-                        },
-                        weight = 1.3f,
-                        modifier = Modifier.size(45.dp),
-                        color = Color.Black
+                            ),
+                            NavigationItem(
+                                title = "Create",
+                                contentDescription = "Create Calf",
+                                icon = Icons.Default.AddCircle,
+                                onClick = {
+                                    scope.launch {
+                                        bottomModalState.show()
+                                    }
+                                },
+                                weight = 1.3f,
+                                modifier = Modifier.size(45.dp),
+                                color = Color.Black
 
-                    ),
-                    NavigationItem(
-                        title = "Settings",
-                        contentDescription = "Subscription Button",
-                        icon = Icons.Outlined.Settings,
-                        onClick = {
-                                  onNavigate(R.id.action_mainFragment2_to_settingsFragment)
-                        },
-                        color = Color.Black
+                            ),
+                            NavigationItem(
+                                title = "Settings",
+                                contentDescription = "Subscription Button",
+                                icon = Icons.Outlined.Settings,
+                                onClick = {
+                                    onNavigate(R.id.action_mainFragment2_to_settingsFragment)
+                                },
+                                color = Color.Black
 
-                    ),
-                    NavigationItem(
-                        title = "Features",
-                        contentDescription = "Subscription Button",
-                        icon = Icons.Outlined.MonetizationOn,
-                        onClick = {
-                             onNavigate(R.id.action_mainFragment2_to_subscriptionFragment)
-                        },
-                        color = Color.Black
+                            ),
+                            NavigationItem(
+                                title = "Features",
+                                contentDescription = "Subscription Button",
+                                icon = Icons.Outlined.MonetizationOn,
+                                onClick = {
+                                    scope.launch{
+                                        outerBottomModalState.show()
+                                    }
+//                                    onNavigate(R.id.action_mainFragment2_to_subscriptionFragment)
+                                },
+                                color = Color.Black
+
+                            )
+
+                        )
+                    )
+                },
+
+                topBar = {
+                    CustomTopBar(
+                        viewModel.state.value.chipText,
+                        { tagNumber -> viewModel.searchCalfListByTag(tagNumber) },
+                        cancelSearch = { viewModel.cancelSearch() }
+                    )
+                },
+                drawerContent = {},
+
+                ) { paddingValues ->
+
+
+                HomeView(
+                    viewModel,
+                    onNavigate,
+                    sharedViewModel,
+                    viewModel.state.value.data,
+                    { chipText -> viewModel.setChipText(chipText) },
+                    errorRefreshMethod = { viewModel.getCalves() },
+                    updateCalfListSize = { size -> billingViewModel.updateCalfListSize(size) },
+                    paddingValues = paddingValues,
 
                     )
 
-                )
-            )
-                    },
 
-        topBar = {
-            CustomTopBar(
-                viewModel.state.value.chipText,
-                {tagNumber -> viewModel.searchCalfListByTag(tagNumber)},
-                cancelSearch = { viewModel.cancelSearch() }
-            )
-        },
-        drawerContent = {},
-
-        ) { paddingValues ->
+            } //this should be outside, Actually this doesn't matter
 
 
-
-            HomeView(
-                viewModel
-                ,onNavigate,
-                sharedViewModel,
-                viewModel.state.value.data,
-                {chipText -> viewModel.setChipText(chipText)},
-                errorRefreshMethod = {viewModel.getCalves()},
-                updateCalfListSize = {size -> billingViewModel.updateCalfListSize(size)},
-               paddingValues= paddingValues,
-
-                )
-
-
-
-        } //this should be outside, Actually this doesn't matter
-
-
+        } // end of the inner modal
     }
 }
 
