@@ -3,19 +3,28 @@ package com.elliottsoftware.calftracker.presentation.components.subscription
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 
-
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -30,18 +39,28 @@ import androidx.compose.runtime.*
 
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LifecycleOwner
@@ -65,6 +84,97 @@ import kotlinx.coroutines.launch
 import com.elliottsoftware.calftracker.presentation.sharedViews.BottomNavigation
 import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
 import timber.log.Timber
+import kotlin.math.roundToInt
+
+
+
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
+@Composable
+fun SubscriptionViewExample(
+    modalState: ModalBottomSheetState
+) {
+    val loadingState = remember { mutableStateOf(false) }
+    val lazyListState = rememberLazyListState()
+    Box(modifier = Modifier.fillMaxSize()){
+        LazyColumn {
+            stickyHeader {
+                Column(
+                    modifier = Modifier.padding(10.dp).background(Color.White)
+                ){
+                    Header(modalState = modalState)
+                    LazyRowSample(lazyListState)
+                }
+            }
+            item{
+                SubscriptionInfoBox(!lazyListState.canScrollForward)
+            }
+
+
+        }
+        Column(
+            modifier = Modifier.fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .padding(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+
+            ){
+            Button(onClick={
+                loadingState.value = !loadingState.value
+
+            }){
+                Text("Upgrade $10.00", fontSize = 30.sp)
+            }
+
+        }
+        //THE LOADING INDICATOR
+        if(loadingState.value){
+            Spacer(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(color = Color.Gray.copy(alpha = .7f))
+            )
+            CircularProgressIndicator(
+                color= MaterialTheme.colors.onSecondary,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(60.dp)
+            )
+        }
+
+
+    }//end of the box
+
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun Header(
+    modalState: ModalBottomSheetState
+
+){
+    val scope = rememberCoroutineScope()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            ,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
+    ){
+        Icon(
+            modifier = Modifier.size(25.dp).weight(1f)
+                .clickable {
+                           scope.launch {
+                               modalState.hide()
+                           }
+                },
+            imageVector = Icons.Default.Close,
+            contentDescription = "Close this modal"
+        )
+        Text("My Subscription",fontSize=25.sp,modifier = Modifier.weight(2f))
+
+    }
+}
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
@@ -189,10 +299,7 @@ fun SubscriptionViews(
             )
         }
     ){paddingValues ->
-        SubscriptionBody(
-            paddingValues,
-            billingViewModel
-        )
+      //  LazyRowSample()
 
 
     }
@@ -325,6 +432,209 @@ fun CurrentSubscriptionInfo(
 
 }
 
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun LazyRowSample(
+    lazyListState: LazyListState
+){
+
+    val snapBehavior = rememberSnapFlingBehavior(lazyListState = lazyListState)
+    val alphaOne: Float by animateFloatAsState(if (lazyListState.canScrollForward) 1f else 0.5f)
+    val alphaTwo: Float by animateFloatAsState(if (lazyListState.canScrollForward) 0.5f else 1f)
+
+
+    Column(){
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            state = lazyListState,
+            flingBehavior = snapBehavior
+        ){
+            item{
+                Card(
+                    elevation = 10.dp,
+                    modifier = Modifier
+                        .height(100.dp)
+                        .width(300.dp)
+                        .padding(horizontal = 20.dp)
+
+                ){
+                    Column(
+                        modifier = Modifier.padding(15.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("Calf Tracker Free",
+                            style = MaterialTheme.typography.h5,
+                            modifier =Modifier.padding(bottom =5.dp),
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            modifier =Modifier.alpha(0.8f),
+                            text = "Current Subscription",
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.subtitle1
+                        )
+                    }
+
+
+
+                }
+            }
+            item{
+                Card(
+                    elevation = 10.dp,
+                    modifier = Modifier
+                        .height(100.dp)
+                        .width(300.dp)
+
+                ){
+                    Column(
+                        modifier = Modifier.padding(15.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("Calf Tracker Premium",
+                            style = MaterialTheme.typography.h5,
+                            modifier =Modifier.padding(bottom =5.dp),
+                            fontWeight = FontWeight.Bold
+                        )
+
+                    }
+
+
+
+                }
+
+            }
+        }// end of the lazy row
+        Row(
+            modifier = Modifier
+                .width(60.dp)
+                .padding(top = 10.dp)
+                .align(Alignment.CenterHorizontally),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ){
+            Column(
+                modifier = Modifier.size(15.dp)
+            ){
+                Box(
+                    modifier = Modifier
+                        .size(15.dp)
+                        .align(Alignment.CenterHorizontally)
+                        .clip(CircleShape)
+                        .graphicsLayer(alpha = alphaOne)
+                        .background(Color.Black)
+                )
+            }
+            Column(
+                modifier = Modifier.size(15.dp)
+            ){
+                Box(
+                    modifier = Modifier
+                        .size(15.dp)
+                        .align(Alignment.CenterHorizontally)
+                        .clip(CircleShape)
+                        .graphicsLayer(alpha = alphaTwo)
+                        .background(Color.Black)
+                )
+            }
+        }
+        //SubscriptionInfoBox(!lazyListState.canScrollForward)
+
+    }// end of the Column
+
+
+}
+
+@SuppressLint("SuspiciousIndentation")
+@Composable
+fun SubscriptionInfoBox(paidSubscription:Boolean){
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+            .border(
+                width = 2.dp,
+                color = Color.Black,
+                shape = RoundedCornerShape(10.dp)
+            )
+
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(10.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+
+        ){
+            Icon(imageVector = Icons.Default.Done,
+                contentDescription = "This is included in the current Subscription",
+                modifier = Modifier.size(35.dp))
+            Text(text="Calf Tracking", fontSize = 30.sp,modifier = Modifier.padding(start=25.dp))
+        }
+
+        Row(
+            modifier = Modifier
+                .padding(10.dp)
+                .fillMaxWidth(),
+
+        ){
+            Icon(imageVector = Icons.Default.Done,
+                contentDescription = "This is included in the current Subscription",
+                modifier = Modifier.size(35.dp))
+
+            Text(text="Future updates", fontSize = 30.sp,modifier = Modifier.padding(start=25.dp))
+        }
+
+
+
+        Crossfade(targetState = paidSubscription) {
+            var icons =  Icons.Default.Lock
+
+            if(it){
+                icons = Icons.Default.Done
+            }
+            Row(modifier = Modifier
+                .padding(10.dp)
+                .fillMaxWidth(),
+
+                ){
+                Icon(imageVector = icons,
+                    contentDescription = "This is not included in the current Subscription",
+                    modifier = Modifier.size(35.dp))
+                Text(text="Data backup", fontSize = 30.sp,modifier = Modifier.padding(start=25.dp))
+            }
+
+        }
+        Crossfade(targetState = paidSubscription) {
+            var icons =  Icons.Default.Lock
+
+            if(it){
+                icons = Icons.Default.Done
+            }
+            Row(modifier = Modifier
+                .padding(10.dp)
+                .fillMaxWidth(),
+
+                ){
+                Icon(imageVector = icons,
+                    contentDescription = "This is not included in the current Subscription",
+                    modifier = Modifier.size(35.dp))
+                Text(text="Unlimited Calves", fontSize = 30.sp,modifier = Modifier.padding(start=25.dp))
+            }
+
+        }
+        //delete below this
+
+        //delete above this
+
+
+    }
+}
+
 @Composable
 fun Subscribed(billingViewModel: BillingViewModel){
     when(val response = billingViewModel.state.value.isUserSubscribed){
@@ -424,32 +734,11 @@ fun TabScreen(viewModel: BillingViewModel,UIState:BillingUiState) {
                 subscribed = viewModel.state.value.subscribed,
                 viewModel.state.value.nextBillingPeriod
             )
-
-            2 -> Settings(billingUiState=viewModel.state.value, billingViewModel = viewModel)
-
         }
     }
 }
 
 
-
-@Composable
-fun Settings(billingUiState: BillingUiState,billingViewModel: BillingViewModel){
-
-    Column(modifier = Modifier.padding(15.dp)) {
-        Text("When will I be charged ?", style = MaterialTheme.typography.h5)
-        Text("Immediately upon purchase. This purchase is recurring and you will be charged once a month",
-            color = Color.Black.copy(alpha = 0.6f)
-        )
-        Text("Subscription Benefits", style = MaterialTheme.typography.h5)
-        Text("Unlimited calf data storage and digital backups of all your data",
-            color = Color.Black.copy(alpha = 0.6f)
-        )
-
-
-    }
-
-}
 
 
 

@@ -19,22 +19,13 @@ import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.presentation.components.subscription.BillingUiState
 import com.elliottsoftware.calftracker.presentation.components.subscription.BillingViewModel
-import com.elliottsoftware.calftracker.presentation.components.subscription.SubscriptionCard
 import com.elliottsoftware.calftracker.presentation.components.subscription.SubscriptionValues
 import com.elliottsoftware.calftracker.util.findActivity
 
 @Composable
 fun SubscriptionCardInfo(subscriptionInfo: SubscriptionValues) {
 
-    SubscriptionCard(
-        SubscriptionValues(
-            description = subscriptionInfo.description,
-            title=subscriptionInfo.title,
-            items=subscriptionInfo.items,
-            price = subscriptionInfo.price,
-            icon = subscriptionInfo.icon
-        )
-    )
+
 }
 
 @Composable
