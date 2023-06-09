@@ -91,32 +91,32 @@ fun BuyingText(value: BillingUiState, billingViewModel: BillingViewModel) {
     Column() {
 
 
-        when(val response = value.productDetails){
-            is Response.Loading -> {
-                Button(onClick = {}){
-                    Text("Loading")
-                }
-            }
-            is Response.Success -> {
-                Button(onClick = {
-                    billingViewModel.buy(
-                        productDetails = response.data,
-                        currentPurchases = null,
-                        activity = activity,
-                        tag = "calf_tracker_premium"
-                    )
-                }
-                ){
-                    Text("Purchase")
-                }
-            }
-            is Response.Failure ->{
-                Button(onClick = {}){
-                    Text("Fail")
-                }
-            }
-            else -> {}
-        }
+//        when(val response = value.productDetails){
+//            is Response.Loading -> {
+//                Button(onClick = {}){
+//                    Text("Loading")
+//                }
+//            }
+//            is Response.Success -> {
+//                Button(onClick = {
+//                    billingViewModel.buy(
+//                        productDetails = response.data,
+//                        currentPurchases = null,
+//                        activity = activity,
+//                        tag = "calf_tracker_premium"
+//                    )
+//                }
+//                ){
+//                    Text("Purchase")
+//                }
+//            }
+//            is Response.Failure ->{
+//                Button(onClick = {}){
+//                    Text("Fail")
+//                }
+//            }
+//            else -> {}
+//        }
 
 
 

@@ -14,14 +14,11 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 
-import androidx.compose.foundation.gestures.Orientation
+
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
+
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -58,9 +55,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntOffset
+
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LifecycleOwner
@@ -69,10 +64,7 @@ import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
-import com.elliottsoftware.calftracker.presentation.components.navigation.Navigation
-import com.elliottsoftware.calftracker.presentation.components.util.DrawerBody
-import com.elliottsoftware.calftracker.presentation.components.util.DrawerHeader
-import com.elliottsoftware.calftracker.presentation.components.util.MenuItem
+
 import com.elliottsoftware.calftracker.presentation.sharedViews.CalfCreation
 import com.elliottsoftware.calftracker.presentation.sharedViews.CreateCalfLoading
 import com.elliottsoftware.calftracker.presentation.sharedViews.NavigationItem
@@ -84,17 +76,24 @@ import kotlinx.coroutines.launch
 import com.elliottsoftware.calftracker.presentation.sharedViews.BottomNavigation
 import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
 import timber.log.Timber
-import kotlin.math.roundToInt
+
 
 
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun SubscriptionViewExample(
-    modalState: ModalBottomSheetState
+    modalState: ModalBottomSheetState,
+    billingViewModel: BillingViewModel
 ) {
     val loadingState = remember { mutableStateOf(false) }
     val lazyListState = rememberLazyListState()
+    val isUserSubscribed = billingViewModel.state.value.isUserSubscribed
+    val context = LocalContext.current
+    Timber.tag("SubscriberInfo").d("$isUserSubscribed")
+
+    val activity = context.findActivity()
+
     Box(modifier = Modifier.fillMaxSize()){
         LazyColumn {
             stickyHeader {
@@ -102,7 +101,10 @@ fun SubscriptionViewExample(
                     modifier = Modifier.padding(10.dp).background(Color.White)
                 ){
                     Header(modalState = modalState)
-                    LazyRowSample(lazyListState)
+                    LazyRowSample(
+                        lazyListState,
+                        isUserSubscribed
+                    )
                 }
             }
             item{
@@ -118,10 +120,18 @@ fun SubscriptionViewExample(
             horizontalAlignment = Alignment.CenterHorizontally
 
             ){
-            Button(onClick={
-                loadingState.value = !loadingState.value
-
-            }){
+            Button(
+                onClick={
+                    billingViewModel.state.value.productDetails?.let{
+                        billingViewModel.buy(
+                            productDetails = it,
+                            currentPurchases = null,
+                        activity = activity,
+                        tag = "calf_tracker_premium"
+                        )
+                    }
+                }
+            ){
                 Text("Upgrade $10.00", fontSize = 30.sp)
             }
 
@@ -299,143 +309,20 @@ fun SubscriptionViews(
             )
         }
     ){paddingValues ->
-      //  LazyRowSample()
-
-
-    }
-
-
-
-}
-
-@Composable
-fun SubscriptionBody(
-    paddingValues:PaddingValues,
-    billingViewModel: BillingViewModel
-){
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)
-
-
-    ){
-        Column( modifier = Modifier
-            .matchParentSize()
-            .padding(10.dp)
-            .verticalScroll(rememberScrollState())){
-            Spacer(modifier = Modifier.padding(20.dp))
-            CurrentSubscriptionInfo(
-                title = "Current",
-                icon = Icons.Outlined.CurrencyExchange,
-                iconDescription = "Current Active Subscription"
-            ){
-
-                Subscribed(billingViewModel)
-
-            }
-            Spacer(modifier = Modifier.padding(20.dp))
-            CurrentSubscriptionInfo(
-                title = "Premium",
-                icon = Icons.Outlined.Paid,
-                iconDescription = "Premium Subscription information"
-            ){
-               // Premium()
-                BuyingText(
-                    productDetailsResponse = billingViewModel.state.value.productDetails,
-                    billingViewModel = billingViewModel
-                )
-            }
-            Spacer(modifier = Modifier.padding(20.dp))
-            CurrentSubscriptionInfo(
-                title = "Details",
-                icon = Icons.Outlined.Info,
-                iconDescription = "Subscription plan info"
-            ){
-                Text(text = "DETAILS",fontSize =30.sp)
-                Text(text = "DETAILS",fontSize =30.sp)
-                Text(text = "DETAILS",fontSize =30.sp)
-            }
-        }
 
 
 
     }
 
-}
-@Composable
-fun CurrentSubscriptionInfo(
-    title:String,
-    icon:ImageVector,
-    iconDescription:String,
-    content: @Composable() (() -> Unit)
-){
-    var expanded by remember { mutableStateOf(false) }
-    // initialize focus reference to be able to request focus programmatically
-    val focusRequester = remember { FocusRequester() }
-    // MutableInteractionSource to track changes of the component's interactions (like "focused")
-    val interactionSource = remember { MutableInteractionSource() }
-    // text below will change when we focus it via button click
-    val isFocused = interactionSource.collectIsFocusedAsState().value
 
-    Card(
-        modifier = Modifier
-            .focusRequester(focusRequester) //register focus changes
-            .focusable(interactionSource = interactionSource) //emit focus events
-            .clickable {
-                focusRequester.requestFocus()
-            } // makes it all work
-
-
-    ){
-        Column(
-            modifier = Modifier.animateContentSize(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = Spring.StiffnessMedium
-                )
-            )
-        ) {
-            Box(){
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                ){
-
-                    Icon(
-                        modifier = Modifier.size(34.dp),
-                        imageVector = icon,
-                        contentDescription = iconDescription)
-                    Text(
-                        text =title,
-                        modifier = Modifier.padding(start = 40.dp),
-                        fontSize = 30.sp
-                    )
-                }
-                Icon(
-                    imageVector =  if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore ,
-                    contentDescription = "expand",
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(10.dp)
-
-                )
-            }
-            if(isFocused){
-                content()
-            }
-        }
-    }
 
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LazyRowSample(
-    lazyListState: LazyListState
+    lazyListState: LazyListState,
+    isUserSubscribed:Boolean
 ){
 
     val snapBehavior = rememberSnapFlingBehavior(lazyListState = lazyListState)
@@ -471,12 +358,15 @@ fun LazyRowSample(
                             modifier =Modifier.padding(bottom =5.dp),
                             fontWeight = FontWeight.Bold
                         )
-                        Text(
-                            modifier =Modifier.alpha(0.8f),
-                            text = "Current Subscription",
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.subtitle1
-                        )
+                        if(!isUserSubscribed){
+                            Text(
+                                modifier =Modifier.alpha(0.8f),
+                                text = "Current Subscription",
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.subtitle1
+                            )
+                        }
+
                     }
 
 
@@ -501,6 +391,14 @@ fun LazyRowSample(
                             modifier =Modifier.padding(bottom =5.dp),
                             fontWeight = FontWeight.Bold
                         )
+                        if(isUserSubscribed){
+                            Text(
+                                modifier =Modifier.alpha(0.8f),
+                                text = "Current Subscription",
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.subtitle1
+                            )
+                        }
 
                     }
 
@@ -635,22 +533,6 @@ fun SubscriptionInfoBox(paidSubscription:Boolean){
     }
 }
 
-@Composable
-fun Subscribed(billingViewModel: BillingViewModel){
-    when(val response = billingViewModel.state.value.isUserSubscribed){
-        is Response.Loading->{
-            Text(text = "LOADING",fontSize =30.sp)
-        }
-        is Response.Success->{
-
-            Text(text = "Subscribed: ${response.data}",fontSize =30.sp)
-        }
-        is Response.Failure->{
-            Text(text = "Failed to load details",fontSize =30.sp)
-        }
-    }
-
-}
 
 
 
@@ -813,31 +695,31 @@ fun BuyingText(productDetailsResponse: Response<ProductDetails>, billingViewMode
     Column() {
 
 
-        when(val response = productDetailsResponse){
-            is Response.Loading -> {
-                Button(onClick = {}){
-                    Text("Loading buy Text")
-                }
-            }
-            is Response.Success -> {
-                Button(onClick = {
-                    billingViewModel.buy(
-                        productDetails = response.data,
-                        currentPurchases = null,
-                        activity = activity,
-                        tag = "calf_tracker_premium"
-                    )
-                }
-                ){
-                    Text("Purchase")
-                }
-            }
-            is Response.Failure ->{
-                Button(onClick = {}){
-                    Text("Fail")
-                }
-            }
-        }
+//        when(val response = productDetailsResponse){
+//            is Response.Loading -> {
+//                Button(onClick = {}){
+//                    Text("Loading buy Text")
+//                }
+//            }
+//            is Response.Success -> {
+//                Button(onClick = {
+//                    billingViewModel.buy(
+//                        productDetails = response.data,
+//                        currentPurchases = null,
+//                        activity = activity,
+//                        tag = "calf_tracker_premium"
+//                    )
+//                }
+//                ){
+//                    Text("Purchase")
+//                }
+//            }
+//            is Response.Failure ->{
+//                Button(onClick = {}){
+//                    Text("Fail")
+//                }
+//            }
+//        }
 
 
 

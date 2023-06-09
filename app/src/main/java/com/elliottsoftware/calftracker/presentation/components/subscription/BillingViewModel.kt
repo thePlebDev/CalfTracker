@@ -34,7 +34,7 @@ data class SubscriptionValues(
 )
 
 data class BillingUiState(
-    val productDetails: Response<ProductDetails> = Response.Loading, //THIS IS THE PRODUCT DETAILS
+    val productDetails: ProductDetails? = null, //THIS IS THE PRODUCT DETAILS(needed for purchases)
     val purchasedSubscriptions:Response<List<Purchase>> = Response.Loading, //THIS IS THE ACTUAL PRODUCTS
     val subscribed:Boolean = false,
     val subscribedInfo:SubscriptionValues = SubscriptionValues(
@@ -46,7 +46,7 @@ data class BillingUiState(
             ),
     val nextBillingPeriod:String =" None",
     val calfListSize:Int = 0,
-    val isUserSubscribed: Response<Boolean> = Response.Loading
+    val isUserSubscribed: Boolean = false
 
 )
 
@@ -72,13 +72,28 @@ class BillingViewModel @Inject constructor(
         refreshPurchases()
     }
     init {
+        checkUserSubscription()
+    }
+    fun checkUserSubscription(){
         viewModelScope.launch {
             repo.isUserSubscribed.collect { response ->
-                _uiState.value = _uiState.value.copy(
-                    isUserSubscribed = response
-                )
-            }
+                Timber.tag("substuff").d("checkUserSubscription() CALLED")
+                when(response){
+                    is Response.Loading ->{
+                        Timber.tag("substuff").d("checkUserSubscription() Loading")
+                    }
+                    is Response.Success ->{
+                        Timber.tag("substuff").d("checkUserSubscription() Success -> ${response.data}")
+                        _uiState.value = _uiState.value.copy(
+                            isUserSubscribed = response.data
+                        )
+                    }
+                    is Response.Failure ->{
+                        Timber.tag("substuff").d("checkUserSubscription() Failure")
+                    }
+                }
 
+            }
         }
     }
 
@@ -103,10 +118,9 @@ class BillingViewModel @Inject constructor(
      */
     private fun getProductDetails() =viewModelScope.launch{
 
-        repo.premiumProductDetails().collect{
-            Timber.tag("ProductDetailer").d("$it")
+        repo.premiumProductDetails().collect{productDetails ->
             _uiState.value = _uiState.value.copy(
-                productDetails = Response.Success(it)
+                productDetails = productDetails
             )
         }
     }
@@ -432,9 +446,10 @@ class BillingViewModel @Inject constructor(
 
 
     override fun onResume(owner: LifecycleOwner) {
-//        Timber.tag("substuff").d("ONRESUME CALLED")
+        Timber.tag("substuff").d("ONRESUME CALLED")
         refreshPurchases()
         subscribedPurchases()
+        checkUserSubscription()
     }
 
 }
