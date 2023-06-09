@@ -58,27 +58,27 @@ fun SettingsView(
 
     val scaffoldState = rememberScaffoldState()
 
-        AppTheme(false) {
+    AppTheme(false) {
 
-            ModalBottomSheetLayout(
-                sheetState = bottomModalState,
-                sheetContent = {
-                    ModalContent(
-                        bottomModalState,
-                        newCalfViewModel,
-                        scaffoldState
-                    )
-                }
-            ) {
-                Settings(
-                    onNavigate,
-                    viewModel,
+        ModalBottomSheetLayout(
+            sheetState = bottomModalState,
+            sheetContent = {
+                ModalContent(
                     bottomModalState,
-                    scaffoldState,
-
-                    )
+                    newCalfViewModel,
+                    scaffoldState
+                )
             }
+        ) {
+            Settings(
+                onNavigate,
+                viewModel,
+                bottomModalState,
+                scaffoldState,
+
+                )
         }
+    }
 
 }
 

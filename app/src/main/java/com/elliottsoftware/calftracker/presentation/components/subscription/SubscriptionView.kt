@@ -83,24 +83,24 @@ import timber.log.Timber
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun SubscriptionViewExample(
-    modalState: ModalBottomSheetState,
-    billingViewModel: BillingViewModel
+    billingViewModel: BillingViewModel,
+    paddingValues: PaddingValues
 ) {
     val loadingState = remember { mutableStateOf(false) }
     val lazyListState = rememberLazyListState()
     val isUserSubscribed = billingViewModel.state.value.isUserSubscribed
-    val context = LocalContext.current
+
     Timber.tag("SubscriberInfo").d("$isUserSubscribed")
 
-    val activity = context.findActivity()
 
-    Box(modifier = Modifier.fillMaxSize()){
+
+    Box(modifier = Modifier.fillMaxSize().padding(paddingValues)){
         LazyColumn {
             stickyHeader {
                 Column(
-                    modifier = Modifier.padding(10.dp).background(Color.White)
+                    modifier = Modifier.padding(10.dp).background(MaterialTheme.colors.primary)
                 ){
-                    Header(modalState = modalState)
+                //    Header()
                     LazyRowSample(
                         lazyListState,
                         isUserSubscribed
@@ -113,29 +113,29 @@ fun SubscriptionViewExample(
 
 
         }
-        Column(
-            modifier = Modifier.fillMaxWidth()
-                .align(Alignment.BottomCenter)
-                .padding(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-
-            ){
-            Button(
-                onClick={
-                    billingViewModel.state.value.productDetails?.let{
-                        billingViewModel.buy(
-                            productDetails = it,
-                            currentPurchases = null,
-                        activity = activity,
-                        tag = "calf_tracker_premium"
-                        )
-                    }
-                }
-            ){
-                Text("Upgrade $10.00", fontSize = 30.sp)
-            }
-
-        }
+//        Column(
+//            modifier = Modifier.fillMaxWidth()
+//                .align(Alignment.BottomCenter)
+//                .padding(10.dp),
+//            horizontalAlignment = Alignment.CenterHorizontally
+//
+//            ){
+//            Button(
+//                onClick={
+//                    billingViewModel.state.value.productDetails?.let{
+//                        billingViewModel.buy(
+//                            productDetails = it,
+//                            currentPurchases = null,
+//                        activity = activity,
+//                        tag = "calf_tracker_premium"
+//                        )
+//                    }
+//                }
+//            ){
+//                Text("Upgrade $10.00", fontSize = 30.sp)
+//            }
+//
+//        }
         //THE LOADING INDICATOR
         if(loadingState.value){
             Spacer(
@@ -156,34 +156,6 @@ fun SubscriptionViewExample(
 
 }
 
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun Header(
-    modalState: ModalBottomSheetState
-
-){
-    val scope = rememberCoroutineScope()
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            ,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
-    ){
-        Icon(
-            modifier = Modifier.size(25.dp).weight(1f)
-                .clickable {
-                           scope.launch {
-                               modalState.hide()
-                           }
-                },
-            imageVector = Icons.Default.Close,
-            contentDescription = "Close this modal"
-        )
-        Text("My Subscription",fontSize=25.sp,modifier = Modifier.weight(2f))
-
-    }
-}
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -191,7 +163,7 @@ fun Header(
 @Composable
 fun SubscriptionView(
     onNavigate: (Int) -> Unit = {},
-    viewModel:BillingViewModel,
+    billingViewModel:BillingViewModel,
     newCalfViewModel:NewCalfViewModel,
     mainViewModel: MainViewModel
 ){
@@ -214,7 +186,7 @@ fun SubscriptionView(
         ){
             SubscriptionViews(
                 onNavigate = {location -> onNavigate(location)},
-                billingViewModel = viewModel,
+                billingViewModel = billingViewModel,
                 bottomModalState = bottomModalState,
                 mainViewModel = mainViewModel
             )
@@ -230,7 +202,7 @@ fun SubscriptionView(
 fun SubscriptionViews(
    // subscriptionViewModel: SubscriptionViewModel = viewModel(),
     onNavigate: (Int) -> Unit = {},
-    billingViewModel:BillingViewModel = viewModel(),
+    billingViewModel:BillingViewModel,
     bottomModalState: ModalBottomSheetState,
     mainViewModel: MainViewModel
 ){
@@ -244,79 +216,46 @@ fun SubscriptionViews(
             )
         },
         bottomBar = {
-            BottomNavigation(
-                navItemList = listOf(
-                    NavigationItem(
-                        title = "Logout",
-                        contentDescription = "Logout Button",
-                        icon = Icons.Outlined.Logout,
-                        onClick = {
-                            mainViewModel.signUserOut()
-                            onNavigate(R.id.action_subscriptionFragment_to_loginFragment)
-
-                        },
-                        color = Color.Black,
-
-
-                        ),
-                    NavigationItem(
-                        title = "Home",
-                        contentDescription = "Navigate back to home page",
-                        icon = Icons.Outlined.Home,
-                        onClick = {
-                            onNavigate(R.id.action_subscriptionFragment_to_mainFragment22)
-
-                        },
-                        color = Color.Black
-
-                    ),
-                    NavigationItem(
-                        title = "Create",
-                        contentDescription = "Launch the create Calf widget",
-                        icon = Icons.Default.AddCircle,
-                        onClick = {
-                            scope.launch {
-                                bottomModalState.show()
-                            }
-                        },
-                        color = Color.Black,
-                        weight = 1.3f,
-                        modifier = Modifier.size(45.dp)
-
-                    ),
-                    NavigationItem(
-                        title = "Settings",
-                        contentDescription = "Navigate to the settings page",
-                        icon = Icons.Outlined.Settings,
-                        onClick = {
-                            onNavigate(R.id.action_subscriptionFragment_to_settingsFragment)
-                        },
-                        color = Color.Black
-
-                    ),
-                    NavigationItem(
-                        title = "Features",
-                        contentDescription = "navigate to the subscriptions page. You can view and modifier your subscriptions",
-                        icon = Icons.Default.MonetizationOn,
-                        onClick = {
-
-                        },
-                        color = Color.Black
-
-                    )
-
-                )
-            )
+            BottomButton(billingViewModel = billingViewModel)
         }
     ){paddingValues ->
 
+        SubscriptionViewExample(
+            billingViewModel = billingViewModel,
+            paddingValues = paddingValues
+        )
 
 
     }
+}
 
+@Composable
+fun BottomButton(billingViewModel:BillingViewModel){
+    val context = LocalContext.current
+    val activity = context.findActivity()
+    Row(
+        modifier = Modifier.padding(10.dp).fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ){
+        Button(
+            onClick={
+                billingViewModel.state.value.productDetails?.let{
+                    billingViewModel.buy(
+                        productDetails = it,
+                        currentPurchases = null,
+                        activity = activity,
+                        tag = "calf_tracker_premium"
+                    )
+                }
+            }
+        ){
+            Text("Upgrade $10.00", fontSize = 30.sp)
+        }
+    }
 
 
 }
+
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -673,60 +612,6 @@ fun MainSubscription(
 }
 
 
-
-
-
-
-
-
-
-
-
-
-/******BELOW IS ALL THE BUYING THINGS*******/
-@Composable
-fun BuyingText(productDetailsResponse: Response<ProductDetails>, billingViewModel: BillingViewModel) {
-    val context = LocalContext.current
-
-    val activity = context.findActivity()
-
-
-
-    Column() {
-
-
-//        when(val response = productDetailsResponse){
-//            is Response.Loading -> {
-//                Button(onClick = {}){
-//                    Text("Loading buy Text")
-//                }
-//            }
-//            is Response.Success -> {
-//                Button(onClick = {
-//                    billingViewModel.buy(
-//                        productDetails = response.data,
-//                        currentPurchases = null,
-//                        activity = activity,
-//                        tag = "calf_tracker_premium"
-//                    )
-//                }
-//                ){
-//                    Text("Purchase")
-//                }
-//            }
-//            is Response.Failure ->{
-//                Button(onClick = {}){
-//                    Text("Fail")
-//                }
-//            }
-//        }
-
-
-
-    }
-}
-
-
 @Composable
 fun TopBar(onNavigate: (Int) -> Unit){
     Column() {
@@ -747,7 +632,7 @@ fun TopBar(onNavigate: (Int) -> Unit){
                         .size(38.dp)
                         .clickable { onNavigate(R.id.action_subscriptionFragment_to_mainFragment22) }
                         .weight(1f),
-                    imageVector = Icons.Default.KeyboardBackspace,
+                    imageVector = Icons.Default.Home,
                     contentDescription ="Return to home screen",
                 )
                 Text("Subscriptions", fontSize = 30.sp,modifier = Modifier.weight(2f))

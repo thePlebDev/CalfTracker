@@ -48,7 +48,7 @@ class SettingsFragment : Fragment() {
         val view = binding.root
         val mainViewModel: MainViewModel by activityViewModels()
         val newCalfViewModel:NewCalfViewModel by activityViewModels()
-        
+
 
         binding.composeView.apply {
             // Dispose of the Composition when the view's LifecycleOwner
