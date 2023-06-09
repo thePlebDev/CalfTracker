@@ -96,7 +96,7 @@ fun MainView(
 
 @OptIn(ExperimentalMaterialApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter", "SuspiciousIndentation")
 @Composable
 fun ScaffoldView(
     viewModel: MainViewModel = viewModel(),
@@ -115,19 +115,6 @@ fun ScaffoldView(
     )
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
-
-    val outerBottomModalState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        skipHalfExpanded = true
-    )
-
-    ModalBottomSheetLayout(
-        sheetState = outerBottomModalState,
-        sheetContent = {
-            SubscriptionViewExample(modalState = outerBottomModalState)
-        }
-    ) {
-
 
         ModalBottomSheetLayout(
             sheetState = bottomModalState,
@@ -196,10 +183,8 @@ fun ScaffoldView(
                                 contentDescription = "Subscription Button",
                                 icon = Icons.Outlined.MonetizationOn,
                                 onClick = {
-                                    scope.launch{
-                                        outerBottomModalState.show()
-                                    }
-//                                    onNavigate(R.id.action_mainFragment2_to_subscriptionFragment)
+
+                                    onNavigate(R.id.action_mainFragment2_to_subscriptionFragment)
                                 },
                                 color = Color.Black
 
@@ -238,7 +223,7 @@ fun ScaffoldView(
 
 
         } // end of the inner modal
-    }
+
 }
 
 

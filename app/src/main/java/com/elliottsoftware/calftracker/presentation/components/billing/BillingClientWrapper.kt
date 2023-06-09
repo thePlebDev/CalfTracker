@@ -160,6 +160,7 @@ class BillingClientWrapper @Inject constructor(
             QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.SUBS).build()
         ) { billingResult, purchaseList ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                Timber.tag("SubscriberInfo").d("queryPurchasesAsync()")
                 if (!purchaseList.isNullOrEmpty()) {
                     _purchases.value = purchaseList
                 } else {

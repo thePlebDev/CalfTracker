@@ -16,6 +16,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.databinding.FragmentSettingsBinding
+import com.elliottsoftware.calftracker.presentation.components.subscription.BillingViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.MainViewModel
 import com.elliottsoftware.calftracker.presentation.viewModels.NewCalfViewModel
 
@@ -47,6 +48,7 @@ class SettingsFragment : Fragment() {
         val view = binding.root
         val mainViewModel: MainViewModel by activityViewModels()
         val newCalfViewModel:NewCalfViewModel by activityViewModels()
+        
 
         binding.composeView.apply {
             // Dispose of the Composition when the view's LifecycleOwner
@@ -59,7 +61,7 @@ class SettingsFragment : Fragment() {
                     SettingsView(
                         onNavigate = { dest -> findNavController().navigate(dest) },
                         viewModel = mainViewModel,
-                        newCalfViewModel = newCalfViewModel
+                        newCalfViewModel = newCalfViewModel,
                     )
                 }
             }
