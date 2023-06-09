@@ -80,7 +80,7 @@ import timber.log.Timber
 
 
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SubscriptionViewExample(
     billingViewModel: BillingViewModel,
@@ -90,7 +90,6 @@ fun SubscriptionViewExample(
     val lazyListState = rememberLazyListState()
     val isUserSubscribed = billingViewModel.state.value.isUserSubscribed
 
-    Timber.tag("SubscriberInfo").d("$isUserSubscribed")
 
 
 
@@ -113,29 +112,6 @@ fun SubscriptionViewExample(
 
 
         }
-//        Column(
-//            modifier = Modifier.fillMaxWidth()
-//                .align(Alignment.BottomCenter)
-//                .padding(10.dp),
-//            horizontalAlignment = Alignment.CenterHorizontally
-//
-//            ){
-//            Button(
-//                onClick={
-//                    billingViewModel.state.value.productDetails?.let{
-//                        billingViewModel.buy(
-//                            productDetails = it,
-//                            currentPurchases = null,
-//                        activity = activity,
-//                        tag = "calf_tracker_premium"
-//                        )
-//                    }
-//                }
-//            ){
-//                Text("Upgrade $10.00", fontSize = 30.sp)
-//            }
-//
-//        }
         //THE LOADING INDICATOR
         if(loadingState.value){
             Spacer(
@@ -464,9 +440,6 @@ fun SubscriptionInfoBox(paidSubscription:Boolean){
             }
 
         }
-        //delete below this
-
-        //delete above this
 
 
     }
