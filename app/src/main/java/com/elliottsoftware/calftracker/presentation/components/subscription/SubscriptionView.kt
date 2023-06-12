@@ -89,6 +89,7 @@ fun SubscriptionViewExample(
     val loadingState = remember { mutableStateOf(false) }
     val lazyListState = rememberLazyListState()
     val isUserSubscribed = billingViewModel.state.value.isUserSubscribed
+    val isUserBuying = billingViewModel.state.value.userBuying
 
 
 
@@ -112,20 +113,7 @@ fun SubscriptionViewExample(
 
 
         }
-        //THE LOADING INDICATOR
-        if(loadingState.value){
-            Spacer(
-                modifier = Modifier
-                    .matchParentSize()
-                    .background(color = Color.Gray.copy(alpha = .7f))
-            )
-            CircularProgressIndicator(
-                color= MaterialTheme.colors.onSecondary,
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(60.dp)
-            )
-        }
+
 
 
     }//end of the box
@@ -182,47 +170,73 @@ fun SubscriptionViews(
     bottomModalState: ModalBottomSheetState,
     mainViewModel: MainViewModel
 ){
+    //THE LOADING INDICATOR
+    val isUserBuying = billingViewModel.state.value.userBuying
+
 
     val scope = rememberCoroutineScope()
-    Scaffold(
-        backgroundColor = MaterialTheme.colors.primary,
-        topBar = {
-            TopBar(
-                onNavigate = onNavigate
+    Box(modifier = Modifier
+        .fillMaxSize()){
+        Scaffold(
+            backgroundColor = MaterialTheme.colors.primary,
+            topBar = {
+                TopBar(
+                    onNavigate = onNavigate
+                )
+            },
+            bottomBar = {
+                BottomButton(billingViewModel = billingViewModel)
+            }
+        ){paddingValues ->
+
+            SubscriptionViewExample(
+                billingViewModel = billingViewModel,
+                paddingValues = paddingValues
             )
-        },
-        bottomBar = {
-            BottomButton(billingViewModel = billingViewModel)
+
+
         }
-    ){paddingValues ->
+        if(isUserBuying){
+            Spacer(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(color = Color.Gray.copy(alpha = .7f))
+            )
+            CircularProgressIndicator(
+                color= MaterialTheme.colors.onSecondary,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(60.dp)
+            )
+        }
 
-        SubscriptionViewExample(
-            billingViewModel = billingViewModel,
-            paddingValues = paddingValues
-        )
 
+    } // end of the Box
 
-    }
 }
 
 @Composable
 fun BottomButton(billingViewModel:BillingViewModel){
     val context = LocalContext.current
     val activity = context.findActivity()
+    val isUserBuying = billingViewModel.state.value.userBuying
     Row(
         modifier = Modifier.padding(10.dp).fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
     ){
         Button(
             onClick={
-                billingViewModel.state.value.productDetails?.let{
-                    billingViewModel.buy(
-                        productDetails = it,
-                        currentPurchases = null,
-                        activity = activity,
-                        tag = "calf_tracker_premium"
-                    )
+                if(!isUserBuying){
+                    billingViewModel.state.value.productDetails?.let{
+                        billingViewModel.buy(
+                            productDetails = it,
+                            currentPurchases = null,
+                            activity = activity,
+                            tag = "calf_tracker_premium"
+                        )
+                    }
                 }
+
             }
         ){
             Text("Upgrade $10.00", fontSize = 30.sp)
