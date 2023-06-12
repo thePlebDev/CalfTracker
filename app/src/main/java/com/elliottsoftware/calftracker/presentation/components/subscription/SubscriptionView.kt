@@ -80,6 +80,7 @@ import timber.log.Timber
 
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SubscriptionViewExample(
@@ -160,6 +161,7 @@ fun SubscriptionView(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
@@ -172,6 +174,8 @@ fun SubscriptionViews(
 ){
     //THE LOADING INDICATOR
     val isUserBuying = billingViewModel.state.value.userBuying
+    val isUserSubscribed = billingViewModel.state.value.isUserSubscribed
+    val nextBillingPeriod = billingViewModel.state.value.nextBillingPeriod
 
 
     val scope = rememberCoroutineScope()
@@ -181,11 +185,16 @@ fun SubscriptionViews(
             backgroundColor = MaterialTheme.colors.primary,
             topBar = {
                 TopBar(
-                    onNavigate = onNavigate
+                    onNavigate = onNavigate,
+                    isUserSubscribed = isUserSubscribed,
+                    nextBillingPeriod = nextBillingPeriod
                 )
             },
             bottomBar = {
-                BottomButton(billingViewModel = billingViewModel)
+                if(!isUserSubscribed){
+                    BottomButton(billingViewModel = billingViewModel)
+                }
+
             }
         ){paddingValues ->
 
@@ -215,11 +224,13 @@ fun SubscriptionViews(
 
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun BottomButton(billingViewModel:BillingViewModel){
     val context = LocalContext.current
     val activity = context.findActivity()
     val isUserBuying = billingViewModel.state.value.userBuying
+    val isUserSubscribed = billingViewModel.state.value.isUserSubscribed
     Row(
         modifier = Modifier.padding(10.dp).fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
@@ -502,48 +513,49 @@ fun ModalContent(
 }
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TabScreen(viewModel: BillingViewModel,UIState:BillingUiState) {
-    var tabIndex by remember { mutableStateOf(0) }
-
-
-    val tabs = listOf("Home", "Premium", "Details")
-
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState()),
-
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        TabRow(selectedTabIndex = tabIndex,modifier=Modifier.fillMaxWidth()) {
-            tabs.forEachIndexed { index, title ->
-                Tab(text = { Text(title)},
-                    modifier= Modifier.align(Alignment.CenterHorizontally),
-                    selected = tabIndex == index,
-                    onClick = { tabIndex = index },
-                    icon = {
-                        when (index) {
-                            0 -> Icon(imageVector = Icons.Default.Home, contentDescription = null)
-                            1 -> Icon(imageVector = Icons.Default.CurrencyExchange, contentDescription = null)
-                            2 -> Icon(imageVector = Icons.Default.Settings, contentDescription = null)
-
-                        }
-                    }
-                )
-            }
-        }
-        when (tabIndex) {
-            0 -> MainSubscription(
-                viewModel.state.value.subscribedInfo,
-                changeIndex = {tabIndex = 1},
-                subscribed = viewModel.state.value.subscribed,
-                viewModel.state.value.nextBillingPeriod
-            )
-        }
-    }
+//    var tabIndex by remember { mutableStateOf(0) }
+//
+//
+//    val tabs = listOf("Home", "Premium", "Details")
+//
+//
+//    Column(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .verticalScroll(rememberScrollState()),
+//
+//        verticalArrangement = Arrangement.Center,
+//        horizontalAlignment = Alignment.CenterHorizontally
+//    ) {
+//        TabRow(selectedTabIndex = tabIndex,modifier=Modifier.fillMaxWidth()) {
+//            tabs.forEachIndexed { index, title ->
+//                Tab(text = { Text(title)},
+//                    modifier= Modifier.align(Alignment.CenterHorizontally),
+//                    selected = tabIndex == index,
+//                    onClick = { tabIndex = index },
+//                    icon = {
+//                        when (index) {
+//                            0 -> Icon(imageVector = Icons.Default.Home, contentDescription = null)
+//                            1 -> Icon(imageVector = Icons.Default.CurrencyExchange, contentDescription = null)
+//                            2 -> Icon(imageVector = Icons.Default.Settings, contentDescription = null)
+//
+//                        }
+//                    }
+//                )
+//            }
+//        }
+//        when (tabIndex) {
+//            0 -> MainSubscription(
+//                viewModel.state.value.subscribedInfo,
+//                changeIndex = {tabIndex = 1},
+//                subscribed = viewModel.state.value.subscribed,
+//                viewModel.state.value.nextBillingPeriod
+//            )
+//        }
+//    }
 }
 
 
@@ -600,7 +612,12 @@ fun MainSubscription(
 
 
 @Composable
-fun TopBar(onNavigate: (Int) -> Unit){
+fun TopBar(
+    onNavigate: (Int) -> Unit,
+    isUserSubscribed: Boolean,
+    nextBillingPeriod:String
+){
+
     Column() {
         Surface(
             modifier = Modifier.fillMaxWidth(),
@@ -624,8 +641,50 @@ fun TopBar(onNavigate: (Int) -> Unit){
                 )
                 Text("Subscriptions", fontSize = 30.sp,modifier = Modifier.weight(2f))
             }
+
+        } // end of the surface
+        if(isUserSubscribed){
+            ManageSubscription(
+                nextBillingPeriod = nextBillingPeriod
+            )
         }
+
+
+
+
     }
+}
+
+@Composable
+fun ManageSubscription(
+    nextBillingPeriod:String
+){
+    val uriHandler = LocalUriHandler.current
+    val context = LocalContext.current
+    val packageName =  context.applicationContext.packageName
+    val PLAY_STORE_SUBSCRIPTION_DEEPLINK_URL = "https://play.google.com/store/account/subscriptions?product=%s&package=%s"
+    val url = String.format(PLAY_STORE_SUBSCRIPTION_DEEPLINK_URL,
+        "calf_tracker_premium_10", packageName)
+    Column(
+        modifier =
+        Modifier.fillMaxWidth()
+            .background(color = Color.Gray.copy(alpha = .5f))
+            .clickable {
+                uriHandler.openUri(url)
+            }
+            .padding(vertical = 10.dp)
+
+        ,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ){
+        Text(text="Days until subscription auto renews: $nextBillingPeriod", fontSize = 17.sp)
+        Text(
+            text ="Tap here to manage your subscription",
+            fontSize = 12.sp,
+            modifier = Modifier.alpha(0.7f)
+        )
+    }
+
 }
 
 

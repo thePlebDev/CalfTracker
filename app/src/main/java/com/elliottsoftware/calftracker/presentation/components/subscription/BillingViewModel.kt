@@ -2,6 +2,8 @@ package com.elliottsoftware.calftracker.presentation.components.subscription
 
 import android.app.Activity
 import android.app.Application
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Autorenew
 import androidx.compose.material.icons.filled.CrueltyFree
@@ -22,7 +24,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.time.Period
+import java.time.temporal.ChronoUnit
 import java.util.*
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 data class SubscriptionValues(
@@ -51,6 +56,7 @@ data class BillingUiState(
 
 )
 
+@RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class BillingViewModel @Inject constructor(
     application: Application,
@@ -75,9 +81,7 @@ class BillingViewModel @Inject constructor(
     init {
         checkUserSubscription()
     }
-    init{
-        Timber.tag("subInitialized").d("BillingViewModel INITIALIZED")
-    }
+
     fun checkUserSubscription(){
         viewModelScope.launch {
             repo.isUserSubscribed.collect { response ->
@@ -379,56 +383,76 @@ class BillingViewModel @Inject constructor(
 
     /******* I THINK I WANT TO PUT THIS AS A USECASE**********/
     // THIS SHOULD BE CLEANED UP A BIT INTO UTIL METHODS
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun subscribedPurchases(){
 
-//        viewModelScope.launch {
-//            repo.subscribedObject()
-//                .flowOn(dispatcherIO)
-//                .collect{item ->
-//                when(val response = item){
-//                    is Response.Success ->{
-//                        val list = response.data
-//
-//                        //todo: THE PURCHASES NEEDS TO BE CREATED INTO ITS OWN PRODUCT OBJECT FOR DETERMINING THE GRACE PERIOD
-//                        if(list.isNotEmpty()){
-//                            setDate(
-//                                purchase = list[0], numberOfDays = 30
-//                            )
-//                        }else{
-//                            _uiState.value = _uiState.value.copy(
-//                                nextBillingPeriod = "None"
-//                            )
-//                        }
-//                    }
-//                    is Response.Loading ->{
-//                        _uiState.value = _uiState.value.copy(
-//                            nextBillingPeriod = "None"
-//                        )
-//                    }
-//                    is Response.Failure ->{
-//                        _uiState.value = _uiState.value.copy(
-//                            nextBillingPeriod = "None"
-//                        )
-//                    }
-//                }
-//
-//            }
-//        }
+        viewModelScope.launch {
+            repo.subscribedObject()
+                .flowOn(dispatcherIO)
+                .collect{item ->
+                when(val response = item){
+                    is Response.Success ->{
+                        val list = response.data
+
+                        //todo: THE PURCHASES NEEDS TO BE CREATED INTO ITS OWN PRODUCT OBJECT FOR DETERMINING THE GRACE PERIOD
+                        if(list.isNotEmpty()){
+                            setDate(
+                                purchase = list[0], numberOfDays = 30
+                            )
+                        }else{
+                            _uiState.value = _uiState.value.copy(
+                                nextBillingPeriod = "None"
+                            )
+                        }
+                    }
+                    is Response.Loading ->{
+                        _uiState.value = _uiState.value.copy(
+                            nextBillingPeriod = "None"
+                        )
+                    }
+                    is Response.Failure ->{
+                        _uiState.value = _uiState.value.copy(
+                            nextBillingPeriod = "None"
+                        )
+                    }
+                }
+
+            }
+        }
 
 
 
     }
 
 
-    private fun setDate(purchase:Purchase,numberOfDays:Int){
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun setDate(purchase:Purchase, numberOfDays:Int){
         val timeStamp = purchase.purchaseTime
         val date = Date(timeStamp)
+
+
         val calendar = Calendar.getInstance()
         calendar.time = date
         calendar.add(Calendar.DATE,numberOfDays)
 
+        val diff =  calendar.time.time - timeStamp
+
+        val seconds = diff / 1000
+        val minutes = seconds / 60
+        val hours = minutes / 60
+        val days = hours / 24
+
+//        val timeStamp = purchase.purchaseTime
+//        val date = Date(timeStamp)
+//        val calendar = Calendar.getInstance()
+//        calendar.time = date
+//        calendar.add(Calendar.DATE,numberOfDays)
+        //nextBillingPeriod = calendar.time.toString().subSequence(0,10).toString()
+
+
         _uiState.value = _uiState.value.copy(
-            nextBillingPeriod = calendar.time.toString().subSequence(0,10).toString()
+
+            nextBillingPeriod = days.toString()
         )
     }
 
@@ -452,6 +476,7 @@ class BillingViewModel @Inject constructor(
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onResume(owner: LifecycleOwner) {
         _uiState.value = _uiState.value.copy(
             userBuying = false
@@ -461,5 +486,7 @@ class BillingViewModel @Inject constructor(
         subscribedPurchases()
         checkUserSubscription()
     }
+
+
 
 }
