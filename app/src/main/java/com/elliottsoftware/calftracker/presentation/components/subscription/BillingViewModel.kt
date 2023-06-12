@@ -46,7 +46,8 @@ data class BillingUiState(
             ),
     val nextBillingPeriod:String =" None",
     val calfListSize:Int = 0,
-    val isUserSubscribed: Boolean = false
+    val isUserSubscribed: Boolean = false,
+    val userBuying:Boolean = false
 
 )
 
@@ -287,6 +288,9 @@ class BillingViewModel @Inject constructor(
         tag: String
     ) {
 
+        _uiState.value = _uiState.value.copy(
+            userBuying = true
+        )
         val offers =
             productDetails.subscriptionOfferDetails?.let {
                 retrieveEligibleOffers(
@@ -449,7 +453,10 @@ class BillingViewModel @Inject constructor(
 
 
     override fun onResume(owner: LifecycleOwner) {
-        Timber.tag("substuff").d("ONRESUME CALLED")
+        _uiState.value = _uiState.value.copy(
+            userBuying = false
+        )
+
         refreshPurchases()
         subscribedPurchases()
         checkUserSubscription()
