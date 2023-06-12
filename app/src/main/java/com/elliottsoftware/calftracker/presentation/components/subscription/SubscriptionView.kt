@@ -677,7 +677,7 @@ fun ManageSubscription(
         ,
         horizontalAlignment = Alignment.CenterHorizontally
     ){
-        Text(text="Days until subscription auto renews: $nextBillingPeriod", fontSize = 17.sp)
+        Text(text="Subscription is active and auto renewing", fontSize = 17.sp)
         Text(
             text ="Tap here to manage your subscription",
             fontSize = 12.sp,
