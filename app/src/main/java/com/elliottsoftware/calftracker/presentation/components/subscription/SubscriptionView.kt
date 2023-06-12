@@ -605,7 +605,7 @@ fun TopBar(onNavigate: (Int) -> Unit){
                         .size(38.dp)
                         .clickable { onNavigate(R.id.action_subscriptionFragment_to_mainFragment22) }
                         .weight(1f),
-                    imageVector = Icons.Default.Home,
+                    imageVector = Icons.Default.ArrowBack,
                     contentDescription ="Return to home screen",
                 )
                 Text("Subscriptions", fontSize = 30.sp,modifier = Modifier.weight(2f))

@@ -74,6 +74,9 @@ class BillingViewModel @Inject constructor(
     init {
         checkUserSubscription()
     }
+    init{
+        Timber.tag("subInitialized").d("BillingViewModel INITIALIZED")
+    }
     fun checkUserSubscription(){
         viewModelScope.launch {
             repo.isUserSubscribed.collect { response ->
