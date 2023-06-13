@@ -48,6 +48,7 @@ class SettingsFragment : Fragment() {
         val view = binding.root
         val mainViewModel: MainViewModel by activityViewModels()
         val newCalfViewModel:NewCalfViewModel by activityViewModels()
+        val billingViewModel:BillingViewModel by activityViewModels()
 
 
         binding.composeView.apply {
@@ -62,6 +63,7 @@ class SettingsFragment : Fragment() {
                         onNavigate = { dest -> findNavController().navigate(dest) },
                         viewModel = mainViewModel,
                         newCalfViewModel = newCalfViewModel,
+                        billingViewModel = billingViewModel
                     )
                 }
             }

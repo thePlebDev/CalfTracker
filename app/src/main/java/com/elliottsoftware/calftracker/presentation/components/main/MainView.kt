@@ -238,7 +238,7 @@ fun ModalContent(
     bottomModalState:ModalBottomSheetState,
     scaffoldState:ScaffoldState,
 ){
-    val isUserSubscribed = billingViewModel.state.value.subscribed
+    val isUserSubscribed = billingViewModel.state.value.isUserSubscribed
     val calfSize = billingViewModel.state.value.calfListSize
     val calfLimit = 50
     if(!isUserSubscribed && calfSize >= calfLimit){
@@ -256,7 +256,7 @@ fun ModalContent(
                     icon = Icons.Default.MonetizationOn
                 ),
                 billingViewModel = billingViewModel,
-                onNavigate = {location -> onNavigate(location)}
+                onNavigate = { onNavigate(R.id.action_mainFragment2_to_subscriptionFragment)}
             )
         }
     }else{

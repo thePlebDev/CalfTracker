@@ -38,7 +38,9 @@ import kotlinx.coroutines.launch
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.presentation.components.newCalf.CalendarDock
 import com.elliottsoftware.calftracker.presentation.components.subscription.BillingViewModel
+import com.elliottsoftware.calftracker.presentation.components.subscription.SubscriptionValues
 import com.elliottsoftware.calftracker.presentation.components.subscription.SubscriptionViewExample
+import com.elliottsoftware.calftracker.presentation.sharedViews.ActiveSubscription
 import com.elliottsoftware.calftracker.presentation.sharedViews.NavigationItem
 import com.elliottsoftware.calftracker.presentation.sharedViews.BottomNavigation
 import com.elliottsoftware.calftracker.presentation.sharedViews.BullHeiferRadioInput
@@ -55,6 +57,7 @@ fun SettingsView(
     onNavigate: (Int) -> Unit,
     viewModel: MainViewModel,
     newCalfViewModel: NewCalfViewModel,
+    billingViewModel: BillingViewModel
 ){
     val bottomModalState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -71,7 +74,10 @@ fun SettingsView(
                 ModalContent(
                     bottomModalState,
                     newCalfViewModel,
-                    scaffoldState
+                    scaffoldState,
+                    billingViewModel,
+                    onNavigate
+
                 )
             }
         ) {
@@ -93,35 +99,61 @@ fun SettingsView(
 fun ModalContent(
     bottomModalState: ModalBottomSheetState,
     newCalfViewModel: NewCalfViewModel,
-    scaffoldState: ScaffoldState
+    scaffoldState: ScaffoldState,
+    billingViewModel:BillingViewModel,
+    onNavigate: (Int) -> Unit
 ){
     //TODO: MAKE A CHECK TO SEE IF THERE IS THE PROPER SUBSCRIPTION
     var vaccineList = remember { mutableStateListOf<String>() }
+    val isUserSubscribed = billingViewModel.state.value.isUserSubscribed
+    val calfSize = billingViewModel.state.value.calfListSize
+    val calfLimit = 1
+    if(!isUserSubscribed && calfSize >= calfLimit){
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colors.primary)
+                .height(400.dp)
+        ){
+            ActiveSubscription(
+                subscriptionInfo = SubscriptionValues(
+                    description = "Premium subscription",
+                    title= "Premium subscription",
+                    items= "Unlimited calf storage",
+                    price = "$10.00",
+                    icon = Icons.Default.MonetizationOn
+                ),
+                billingViewModel = billingViewModel,
+                onNavigate = { }
+            )
+            //onNavigate(R.id.action_settingsFragment_to_subscriptionFragment)
+        }
+    }else {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colors.primary),
+            contentAlignment = Alignment.TopCenter
+        ){
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colors.primary),
-        contentAlignment = Alignment.TopCenter
-    ){
-
-        CalfCreation(
-            bottomModalState,
-            newCalfViewModel,
-            vaccineList = vaccineList,
-            addItem = {item -> vaccineList.add(item)},
-            removeItem = {item -> vaccineList.remove(item)}
-        )
-        CreateCalfLoading(
-            modifier = Modifier.matchParentSize(),
-            loadingIconAlignmentModifier = Modifier.align(Alignment.Center),
-            newCalfViewModel = newCalfViewModel,
-            bottomModalState = bottomModalState,
-            scaffoldState = scaffoldState,
-            clearVaccineList = {vaccineList.clear()}
-        )
+            CalfCreation(
+                bottomModalState,
+                newCalfViewModel,
+                vaccineList = vaccineList,
+                addItem = {item -> vaccineList.add(item)},
+                removeItem = {item -> vaccineList.remove(item)}
+            )
+            CreateCalfLoading(
+                modifier = Modifier.matchParentSize(),
+                loadingIconAlignmentModifier = Modifier.align(Alignment.Center),
+                newCalfViewModel = newCalfViewModel,
+                bottomModalState = bottomModalState,
+                scaffoldState = scaffoldState,
+                clearVaccineList = {vaccineList.clear()}
+            )
 
 
+        }
     }
 }
 
@@ -197,9 +229,7 @@ fun Settings(
                         contentDescription = "Launch the create Calf widget",
                         icon = Icons.Default.AddCircle,
                         onClick = {
-                            scope.launch {
-                                bottomModalState.show()
-                            }
+                            onNavigate(R.id.action_settingsFragment_to_mainFragment2)
                         },
                         color = Color.Black,
                         weight = 1.3f,
