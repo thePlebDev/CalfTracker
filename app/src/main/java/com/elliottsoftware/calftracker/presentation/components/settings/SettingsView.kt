@@ -15,8 +15,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.KeyboardBackspace
 import androidx.compose.material.icons.filled.MonetizationOn
+import androidx.compose.material.icons.filled.PhoneInTalk
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Logout
@@ -24,7 +26,10 @@ import androidx.compose.material.icons.outlined.MonetizationOn
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.elliottsoftware.calftracker.R
@@ -256,6 +261,9 @@ fun LazyVerticalGridDemo(
     onNavigate: (Int) -> Unit,
 
 ){
+    val uriHandler = LocalUriHandler.current
+
+    val url = "https://www.reddit.com/r/CalfTrackerAndroid/";
 
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 128.dp)
@@ -283,6 +291,45 @@ fun LazyVerticalGridDemo(
                         modifier = Modifier.size(28.dp)
                     )
                     Text("Subscription")
+                    Text(
+                        text ="View and update current subscriptions",
+                        fontSize = 12.sp,
+                        modifier = Modifier.align(Alignment.CenterHorizontally).alpha(0.8f).align(Alignment.CenterHorizontally)
+                    )
+                }
+
+            }
+
+
+        }
+        item{
+            Card(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .clickable {
+                        uriHandler.openUri(url)
+                    },
+                backgroundColor = MaterialTheme.colors.secondary,
+                elevation = 8.dp,
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .padding(vertical = 12.dp, horizontal = 4.dp).fillMaxWidth(),
+
+                    ){
+                    Icon(
+                        imageVector = Icons.Default.Chat,
+                        contentDescription = "click to chat with the developers on reddit",
+                        modifier = Modifier.size(28.dp)
+                    )
+                    Text("Reddit", modifier = Modifier.align(Alignment.CenterHorizontally))
+                    Text(
+                        text ="Chat with developers on reddit",
+                        fontSize = 12.sp,
+                        modifier = Modifier.align(Alignment.CenterHorizontally).alpha(0.8f).align(Alignment.CenterHorizontally)
+                    )
                 }
 
             }
