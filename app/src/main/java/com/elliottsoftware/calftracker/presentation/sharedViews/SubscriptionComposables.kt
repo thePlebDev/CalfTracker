@@ -1,12 +1,17 @@
 package com.elliottsoftware.calftracker.presentation.sharedViews
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -28,33 +33,44 @@ fun SubscriptionCardInfo(subscriptionInfo: SubscriptionValues) {
 
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ActiveSubscription(
     subscriptionInfo: SubscriptionValues,
     billingViewModel: BillingViewModel,
-    onNavigate: (Int) -> Unit
+    onNavigate: () -> Unit
 ){
 
-    Column(modifier = Modifier.padding(15.dp)) {
-        Text("Oops!", style = MaterialTheme.typography.h5)
+    Column(
+        modifier = Modifier.padding(15.dp).fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+
+    ) {
+        Text("Oops!", style = MaterialTheme.typography.h4)
         Text(
             "Looks like you hit the limit on your free tier and will need to upgrade for unlimited calf storage.",
 
             color = Color.Black.copy(alpha = 0.6f),
 
             )
-        Text("This subscription will auto renew every 30 days. You can cancel any time in the ",color = Color.Black.copy(alpha = 0.6f))
-        ClickText(
-            onNavigate = {location -> onNavigate(location)}
-        )
+        Spacer(modifier = Modifier.padding(10.dp))
+        Button(onClick={
+            onNavigate()
+        }){
+            Text("View subscription pricing",fontSize=20.sp)
+        }
 
-        SubscriptionCardInfo(
-            subscriptionInfo
-        )
-        BuyingText(
-            value = billingViewModel.state.value,
-            billingViewModel = billingViewModel
-        )
+//        ClickText(
+//            onNavigate = {location -> onNavigate(location)}
+//        )
+
+//        SubscriptionCardInfo(
+//            subscriptionInfo
+//        )
+//        BuyingText(
+//            value = billingViewModel.state.value,
+//            billingViewModel = billingViewModel
+//        )
 
 
     }
