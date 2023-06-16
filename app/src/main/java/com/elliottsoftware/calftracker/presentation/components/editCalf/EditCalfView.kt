@@ -84,39 +84,18 @@ fun ScaffoldView(viewModel: EditCalfViewModel, onNavigate:(Int)->Unit) {
         },
         topBar = {
             TopAppBar(
-                title = { Text("Calf Tracker") },
+                title = { Text("Edit Calf") },
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            scope.launch { scaffoldState.drawerState.open() }
+                            onNavigate(R.id.action_editCalfFragment_to_mainFragment2)
                         }
                     ) {
-                        Icon(Icons.Filled.Menu, contentDescription = "Toggle navigation drawer")
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Return to app's home screen")
                     }
                 }
             )
-        },
-        drawerContent = {
-            DrawerHeader()
-            DrawerBody(
-                items = listOf(
-                    MenuItem(
-                        id = "logout",
-                        title = "Logout",
-                        contentDescription = "Logout",
-                        icon = Icons.Default.Logout,
-                        onClick = {
-                            scope.launch {
-                                viewModel.signUserOut()
-                                scaffoldState.drawerState.close()
-
-
-                            }
-                        }
-                    )
-                )
-            )
-        },
+        }
 
         ) { padding ->
 
