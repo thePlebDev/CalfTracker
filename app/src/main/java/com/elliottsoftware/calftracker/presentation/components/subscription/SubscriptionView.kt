@@ -101,7 +101,7 @@ fun SubscriptionViewExample(
                 Column(
                     modifier = Modifier.padding(10.dp).background(MaterialTheme.colors.primary)
                 ){
-                //    Header()
+                    //    Header()
                     LazyRowSample(
                         lazyListState,
                         isUserSubscribed
@@ -166,7 +166,7 @@ fun SubscriptionView(
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun SubscriptionViews(
-   // subscriptionViewModel: SubscriptionViewModel = viewModel(),
+    // subscriptionViewModel: SubscriptionViewModel = viewModel(),
     onNavigate: (Int) -> Unit = {},
     billingViewModel:BillingViewModel,
     bottomModalState: ModalBottomSheetState,
@@ -407,7 +407,7 @@ fun SubscriptionInfoBox(paidSubscription:Boolean){
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
 
-        ){
+            ){
             Icon(imageVector = Icons.Default.Done,
                 contentDescription = "This is included in the current Subscription",
                 modifier = Modifier.size(35.dp))
@@ -419,7 +419,7 @@ fun SubscriptionInfoBox(paidSubscription:Boolean){
                 .padding(10.dp)
                 .fillMaxWidth(),
 
-        ){
+            ){
             Icon(imageVector = Icons.Default.Done,
                 contentDescription = "This is included in the current Subscription",
                 modifier = Modifier.size(35.dp))
@@ -429,42 +429,50 @@ fun SubscriptionInfoBox(paidSubscription:Boolean){
 
 
 
-        Crossfade(targetState = paidSubscription) {
-            var icons =  Icons.Default.Lock
-
-            if(it){
-                icons = Icons.Default.Done
-            }
             Row(modifier = Modifier
                 .padding(10.dp)
                 .fillMaxWidth(),
 
                 ){
-                Icon(imageVector = icons,
-                    contentDescription = "This is not included in the current Subscription",
+                Icon(imageVector = Icons.Default.Done,
+                    contentDescription = "This is included in the current Subscription",
                     modifier = Modifier.size(35.dp))
                 Text(text="Data backup", fontSize = 30.sp,modifier = Modifier.padding(start=25.dp))
             }
 
-        }
+
+        //THIS IS THE TOP OF THE NEW ONE
         Crossfade(targetState = paidSubscription) {
-            var icons =  Icons.Default.Lock
+
 
             if(it){
-                icons = Icons.Default.Done
-            }
-            Row(modifier = Modifier
-                .padding(10.dp)
-                .fillMaxWidth(),
+                Row(modifier = Modifier
+                    .padding(10.dp)
+                    .fillMaxWidth(),
 
-                ){
-                Icon(imageVector = icons,
-                    contentDescription = "This is not included in the current Subscription",
-                    modifier = Modifier.size(35.dp))
-                Text(text="Unlimited Calves", fontSize = 30.sp,modifier = Modifier.padding(start=25.dp))
+                    ){
+                    Icon(imageVector = Icons.Default.Done,
+                        contentDescription = "This is included in the current Subscription",
+                        modifier = Modifier.size(35.dp))
+                    Text(text="Unlimited Calves", fontSize = 30.sp,modifier = Modifier.padding(start=25.dp))
+                }
+
+            }else{
+                Row(modifier = Modifier
+                    .padding(10.dp)
+                    .fillMaxWidth(),
+
+                    ){
+                    Icon(imageVector = Icons.Default.Done,
+                        contentDescription = "This is  included in the current Subscription",
+                        modifier = Modifier.size(35.dp))
+                    Text(text="50 Calf limit", fontSize = 30.sp,modifier = Modifier.padding(start=25.dp))
+                }
             }
+
 
         }
+
 
 
     }
@@ -686,6 +694,10 @@ fun ManageSubscription(
     }
 
 }
+
+
+
+
 
 
 
