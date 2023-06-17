@@ -42,9 +42,6 @@
             android:id="@+id/action_mainFragment2_to_editCalfFragment"
             app:destination="@id/editCalfFragment" />
         <action
-            android:id="@+id/action_mainFragment2_to_weatherFragment"
-            app:destination="@id/weatherFragment" />
-        <action
             android:id="@+id/action_mainFragment2_to_subscriptionFragment"
             app:destination="@id/subscriptionFragment"
             app:popUpTo="@+id/mainFragment2"
@@ -102,18 +99,6 @@
             app:destination="@id/loginFragment"
             app:popUpTo="@+id/loginFragment"
             app:popUpToInclusive="true"/>
-    </fragment>
-    <fragment
-        android:id="@+id/weatherFragment"
-        android:name="com.elliottsoftware.calftracker.presentation.components.weather.WeatherFragment"
-        android:label="fragment_weather"
-        tools:layout="@layout/fragment_weather" >
-        <action
-            android:id="@+id/action_weatherFragment_to_mainFragment2"
-            app:destination="@id/mainFragment2" />
-        <action
-            android:id="@+id/action_weatherFragment_to_loginFragment"
-            app:destination="@id/loginFragment" />
     </fragment>
     <fragment
         android:id="@+id/subscriptionFragment"
