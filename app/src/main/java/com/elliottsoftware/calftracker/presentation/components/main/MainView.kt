@@ -70,6 +70,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.*
 import com.elliottsoftware.calftracker.presentation.components.subscription.SubscriptionViewExample
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import timber.log.Timber
 
 
@@ -301,8 +302,10 @@ fun MainBodyView(
             removeItem = {item -> vaccineList.remove(item)}
         )
 
+
         when(val response = newCalfViewModel.state.value.calfSaved){
             is Response.Loading ->{
+
                 Spacer(
                     modifier = Modifier
                         .matchParentSize()
@@ -319,6 +322,7 @@ fun MainBodyView(
                 if(response.data){
                     // we need to clear all the inputs, close the modal and tell the user what calf got created
                     val calfTag = newCalfViewModel.state.value.calfTag
+
                     LaunchedEffect(response) {
                         scope.launch {
                             bottomModalState.hide()
@@ -361,11 +365,9 @@ fun MainBodyView(
         }
 
 
-
-
-
     }
 }
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
