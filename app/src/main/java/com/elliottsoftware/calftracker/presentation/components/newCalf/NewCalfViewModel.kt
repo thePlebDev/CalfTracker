@@ -14,7 +14,11 @@ import com.elliottsoftware.calftracker.domain.useCases.LogoutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.time.LocalDate
@@ -47,6 +51,7 @@ class NewCalfViewModel @Inject constructor(
     private val databaseRepository: DatabaseRepository ,
     private val logoutUseCase: LogoutUseCase // THIS IS CAUSING IT TO CRASH
 ):ViewModel() {
+
 
     private val _uiState = mutableStateOf(NewCalfUIState())
     val state:State<NewCalfUIState> = _uiState
