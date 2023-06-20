@@ -30,9 +30,7 @@ class AuthRepositoryImpl(
     //TODO:1) change over to callbackFlow
     //TODO:2) remove the SecondaryResponse (can maybe be replaced with a nested when)(move nested when to function)
     override suspend fun authRegister(email: String, password: String,username: String): Flow<Response<Boolean>> = callbackFlow {
-        Timber.tag("testingLogin").d("email -> $email")
-        Timber.tag("testingLogin").d("password -> $password")
-        Timber.tag("testingLogin").d("username -> $username")
+
         try {
             var create:Boolean = false
             trySend(Response.Loading)
@@ -41,21 +39,16 @@ class AuthRepositoryImpl(
                 .addOnCompleteListener { task ->
 
                     if(task.isSuccessful){
-                        // Task completed successfully
-                       // trySend(Response.Success(true))
                         create = true
 
-
-
                     }else{
-                        // Task failed with an exception
-                        Timber.tag("testingLogin").d("createUserWithEmailAndPassword -> FAILED")
-                        Timber.tag("testingLogin").d(task.exception.toString())
 
                         trySend(Response.Failure(Exception()))
                     }
 
-                }.await()
+                }.await() //THIS AWAIT COULD BE ANOTHER addOnCompleteListener.
+            //WHAT IS HAPPENING ON A addOnFailureListener?
+
             if(create){
                 createUser(email,username).collect{ response ->
                     when(response){
