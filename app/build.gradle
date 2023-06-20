@@ -151,7 +151,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
-    testImplementation "io.mockk:mockk:1.12.0"
+    testImplementation "io.mockk:mockk:1.13.5"
 
     //SlidePlaneLayout
     implementation "androidx.slidingpanelayout:slidingpanelayout:1.2.0"
