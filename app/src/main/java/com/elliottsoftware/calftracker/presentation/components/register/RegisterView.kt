@@ -1,135 +1,162 @@
 package com.elliottsoftware.calftracker.presentation.components.register
 
 import android.util.Log
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.R
 import com.elliottsoftware.calftracker.domain.models.Response
-import com.elliottsoftware.calftracker.domain.models.SecondaryResponse
-import com.elliottsoftware.calftracker.presentation.components.login.LinearLoadingBar
-import com.elliottsoftware.calftracker.presentation.components.login.LoginView
-import com.elliottsoftware.calftracker.presentation.sharedViews.*
-import com.elliottsoftware.calftracker.presentation.theme.AppTheme
-import com.elliottsoftware.calftracker.presentation.viewModels.LoginViewModel
+import com.elliottsoftware.calftracker.presentation.components.login.ErrorMessage
+import com.elliottsoftware.calftracker.presentation.components.login.ModalSideSheetState
+import com.elliottsoftware.calftracker.presentation.components.login.SubmitButton
+import com.elliottsoftware.calftracker.presentation.sharedViews.PasswordInput
+import com.elliottsoftware.calftracker.presentation.sharedViews.RegisterInput
 import com.elliottsoftware.calftracker.presentation.viewModels.RegisterViewModel
-import com.elliottsoftware.calftracker.util.Actions
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
+
+
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun RegisterViews(viewModel: RegisterViewModel = viewModel(),onNavigate:(Int) -> Unit){
-    AppTheme(false){
-        RegisterView( viewModel = viewModel,onNavigate= onNavigate)
+fun Register(
+    sheetState: ModalSideSheetState,
+    registerViewModel: RegisterViewModel = viewModel(),
+    onNavigate: (Int) -> Unit
+
+){
+    val scope = rememberCoroutineScope()
+
+    when(val response = registerViewModel.state.value.signInWithFirebaseResponse){
+        is Response.Loading -> {
+            //NOTHING NEEDS TO BE DONE HERE
+
+        }
+        is Response.Success -> {
+            if(response.data){
+                Timber.tag("testingLogin").d("signInWithFirebaseResponse -> SUCCESS SECOND")
+                onNavigate(R.id.action_loginFragment_to_mainFragment2)
+            }
+        }
+        is Response.Failure -> {
+            Timber.tag("testingLogin").d("signInWithFirebaseResponse -> FAILED")
+
+        }
     }
-}
+    Box(
+        modifier = Modifier
+            .padding(10.dp)
+            .fillMaxSize()
 
-@Composable
-fun RegisterView(viewModel: RegisterViewModel = viewModel(),onNavigate:(Int) -> Unit){
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        BannerCard("Calf Tracker", "Powered by Elliott Software")
+    ){
 
-        //THIS IS THE USERNAME INPUT
-        RegisterInput(
-            textState = viewModel.state.value.username,
-            updateTextState = {text -> viewModel.updateUsername(text)},
-            textStateError = viewModel.state.value.usernameError,
-            keyboardType = KeyboardType.Text,
-            placeHolderText= "Username",
-            modifier = Modifier.padding(start = 0.dp,40.dp,0.dp,0.dp)
+
+        ErrorMessage(
+            modifier = Modifier.align(Alignment.TopCenter),
+            visible = registerViewModel.state.value.registerError
         )
 
-        //THIS IS THE EMAIL INPUT
-        RegisterInput(
-            textState = viewModel.state.value.email,
-            updateTextState = {text -> viewModel.updateEmail(text)},
-            textStateError = viewModel.state.value.emailError,
-            keyboardType = KeyboardType.Email,
-            placeHolderText= "Email",
-            modifier = Modifier.padding(start = 0.dp,10.dp,0.dp,0.dp)
-        )
-        //THIS IS THE PASSWORD INPUT
-        PasswordInput(
-            passwordIconPressed = viewModel.state.value.passwordIconChecked,
-            password = viewModel.state.value.password,
-            passwordErrorMessage = viewModel.state.value.passwordError,
-            updatePassword = {password -> viewModel.updatePassword(password) },
-            updatePasswordIconPressed = {pressed -> viewModel.passwordIconChecked(pressed)}
 
-        )
-        SubmitButton(
 
-            submit = {viewModel.submitButton()}
-        )
+        Column(
+            modifier = Modifier.matchParentSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
 
-        when(val response = viewModel.state.value.signInWithFirebaseResponse){
-            is Response.Loading -> LinearLoadingBar()
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 30.dp)
+            ) {
+                Icon(
+                    Icons.Filled.ArrowBack,
+                    contentDescription = "Move back to login screen",
+                    modifier = Modifier
+                        .clickable {
+                            scope.launch {
+                                sheetState.hide()
+                            }
 
-            is Response.Success -> {
-                //todo: I think we can change the response data to a more explicit enum
-//                if(response.data == Actions.FIRST){
-//                    //THIS IS WHERE WE WOULD DO THE NAVIGATION
-//                    LinearLoadingBar()
-//                    viewModel.createUserDatabase(viewModel.state.value.email,viewModel.state.value.username)
-//                }
-//                if(response.data == Actions.SECOND){
-//                    onNavigate(R.id.action_registerFragment2_to_mainFragment2)
-//                }
-//                if(response.data == Actions.RESTING){
-//
-//                }
+                        }
+                        .size(30.dp)
+                )
             }
-            is Response.Failure -> {
-                //should probably show a snackbar
-                Fail()
-                Timber.tag("Login Error").d(response.e.message.toString())
-            }
-            // else -> {}
+            Text("Signup for Calf Tracker",
+                style = MaterialTheme.typography.h5,
+                modifier =Modifier.padding(bottom =5.dp),
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                modifier =Modifier.alpha(0.8f),
+                text = "Manage your calves, herds and much more coming",
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.subtitle1
+            )
+            //THIS IS THE USERNAME INPUT
+            RegisterInput(
+                textState = registerViewModel.state.value.username,
+                updateTextState = {text -> registerViewModel.updateUsername(text)},
+                textStateError = registerViewModel.state.value.usernameError,
+                keyboardType = KeyboardType.Text,
+                placeHolderText= "Username",
+                modifier = Modifier.padding(start = 0.dp,40.dp,0.dp,0.dp)
+            )
+
+            //THIS IS THE EMAIL INPUT
+            RegisterInput(
+                textState = registerViewModel.state.value.email,
+                updateTextState = {text -> registerViewModel.updateEmail(text)},
+                textStateError = registerViewModel.state.value.emailError,
+                keyboardType = KeyboardType.Email,
+                placeHolderText= "Email",
+                modifier = Modifier.padding(start = 0.dp,10.dp,0.dp,0.dp)
+            )
+            //THIS IS THE PASSWORD INPUT
+            PasswordInput(
+                passwordIconPressed = registerViewModel.state.value.passwordIconChecked,
+                password = registerViewModel.state.value.password,
+                passwordErrorMessage = registerViewModel.state.value.passwordError,
+                updatePassword = {password -> registerViewModel.updatePassword(password) },
+                updatePasswordIconPressed = {pressed -> registerViewModel.passwordIconChecked(pressed)}
+
+            )
+
+            SubmitButton(
+                submit={registerViewModel.submitButton()},
+                title = "Register",
+                enabled= registerViewModel.state.value.buttonEnabled
+            )
         }
 
-
-
-    }
-}
-
-
-
-@Composable
-fun SubmitButton(
-
-    submit:()->Unit
-){
-    Button(onClick = {submit()},
-        modifier = Modifier
-            .height(80.dp)
-            .width(280.dp)
-            .padding(start = 0.dp, 20.dp, 0.dp, 0.dp)) {
-
-        Text(text ="Register",fontSize = 26.sp)
     }
 
-}
-@Composable
-fun Fail() {
-    Text("FAILURE")
-}
-@Composable
-fun Success() {
-    Text("SUCCESS")
 }

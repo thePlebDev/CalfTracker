@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.elliottsoftware.calftracker.domain.models.Response
+import com.elliottsoftware.calftracker.presentation.components.register.Register
 import com.elliottsoftware.calftracker.presentation.sharedViews.BannerCard
 import com.elliottsoftware.calftracker.presentation.sharedViews.PasswordInput
 import com.elliottsoftware.calftracker.presentation.sharedViews.RegisterInput
@@ -136,120 +137,7 @@ fun LoginViews(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun Register(
-    sheetState: ModalSideSheetState,
-    viewModel: RegisterViewModel = viewModel(),
-    onNavigate: (Int) -> Unit
 
-){
-    val scope = rememberCoroutineScope()
-
-    when(val response = viewModel.state.value.signInWithFirebaseResponse){
-        is Response.Loading -> {
-            //NOTHING NEEDS TO BE DONE HERE
-
-        }
-        is Response.Success -> {
-           if(response.data){
-               Timber.tag("testingLogin").d("signInWithFirebaseResponse -> SUCCESS SECOND")
-                   onNavigate(R.id.action_loginFragment_to_mainFragment2)
-           }
-        }
-        is Response.Failure -> {
-            Timber.tag("testingLogin").d("signInWithFirebaseResponse -> FAILED")
-
-        }
-    }
-    Box(
-        modifier = Modifier
-            .padding(10.dp)
-            .fillMaxSize()
-
-    ){
-
-
-        ErrorMessage(
-            modifier = Modifier.align(Alignment.TopCenter),
-            visible = viewModel.state.value.registerError
-        )
-
-
-
-        Column(
-            modifier = Modifier.matchParentSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 30.dp)
-            ) {
-                Icon(
-                    Icons.Filled.ArrowBack,
-                    contentDescription = "Move back to login screen",
-                    modifier = Modifier
-                        .clickable {
-                            scope.launch {
-                                sheetState.hide()
-                            }
-
-                        }
-                        .size(30.dp)
-                )
-            }
-            Text("Signup for Calf Tracker",
-                style = MaterialTheme.typography.h5,
-                modifier =Modifier.padding(bottom =5.dp),
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                modifier =Modifier.alpha(0.8f),
-                text = "Manage your calves, herds and much more coming",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.subtitle1
-            )
-            //THIS IS THE USERNAME INPUT
-            RegisterInput(
-                textState = viewModel.state.value.username,
-                updateTextState = {text -> viewModel.updateUsername(text)},
-                textStateError = viewModel.state.value.usernameError,
-                keyboardType = KeyboardType.Text,
-                placeHolderText= "Username",
-                modifier = Modifier.padding(start = 0.dp,40.dp,0.dp,0.dp)
-            )
-
-            //THIS IS THE EMAIL INPUT
-            RegisterInput(
-                textState = viewModel.state.value.email,
-                updateTextState = {text -> viewModel.updateEmail(text)},
-                textStateError = viewModel.state.value.emailError,
-                keyboardType = KeyboardType.Email,
-                placeHolderText= "Email",
-                modifier = Modifier.padding(start = 0.dp,10.dp,0.dp,0.dp)
-            )
-            //THIS IS THE PASSWORD INPUT
-            PasswordInput(
-                passwordIconPressed = viewModel.state.value.passwordIconChecked,
-                password = viewModel.state.value.password,
-                passwordErrorMessage = viewModel.state.value.passwordError,
-                updatePassword = {password -> viewModel.updatePassword(password) },
-                updatePasswordIconPressed = {pressed -> viewModel.passwordIconChecked(pressed)}
-
-            )
-
-            SubmitButton(
-                submit={viewModel.submitButton()},
-                title = "Register",
-                enabled= viewModel.state.value.buttonEnabled
-            )
-        }
-
-    }
-
-}
 
 @Composable
 fun ErrorMessage(
