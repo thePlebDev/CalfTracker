@@ -33,14 +33,13 @@ class AuthRepositoryImpl(
     //TODO:2) remove the SecondaryResponse (can maybe be replaced with a nested when)(move nested when to function)
     override suspend fun authRegister(email: String, password: String,username: String): Flow<Response<Boolean>> = callbackFlow {
 
-            var create:Boolean = false
             trySend(Response.Loading)
 
             auth.createUserWithEmailAndPassword(email,password)
                 .addOnCompleteListener { task ->
 
                     if(task.isSuccessful){
-                        create = true
+                        trySend(Response.Success(true))
 
                     }else{
 
@@ -49,24 +48,6 @@ class AuthRepositoryImpl(
 
                 }.await() //THIS AWAIT COULD BE ANOTHER addOnCompleteListener.
             //WHAT IS HAPPENING ON A addOnFailureListener?
-
-            if(create){
-                createUser(email,username).collect{ response ->
-                    when(response){
-                        is Response.Loading->{
-                            //Nothing is done because the initial state is loading
-                        }
-                        is Response.Success->{
-                            trySend(Response.Success(true))
-                        }
-                        is Response.Failure->{
-
-                            trySend(Response.Failure(Exception("Problem creating the User")))
-                        }
-                    }
-
-                }
-            }
 
         awaitClose()
     }.catch { cause: Throwable->
@@ -77,14 +58,15 @@ class AuthRepositoryImpl(
         }
     }
 
+    //TODO: THIS NEEDS TO BE CALLED AFTER A SUCCESSFUL authRegister()
       fun createUser(email: String, username: String)= flow{
           emit(Response.Loading)
-        val user = hashMapOf(
+          val user = hashMapOf(
             "email" to email,
             "username" to username
-        )
-            db.collection("users").document(email).set(user).await()
-            emit(Response.Success(true))
+          )
+          db.collection("users").document(email).set(user).await()
+          emit(Response.Success(true))
 
     }.catch { cause: Throwable->
           emit(Response.Failure(Exception(cause.message?:" unhandled Exception")))
@@ -161,3 +143,4 @@ class AuthRepositoryImpl(
 
 
 }
+
