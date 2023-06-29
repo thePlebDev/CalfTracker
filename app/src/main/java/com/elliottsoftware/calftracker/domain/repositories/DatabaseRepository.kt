@@ -19,7 +19,6 @@ import com.elliottsoftware.calftracker.domain.models.NetworkResponse
 
 interface DatabaseRepository {
 
-    suspend fun createUser(email:String, username:String): Flow<Response<Actions>>
 
     suspend fun createCalf(calf:FireBaseCalf):Flow<Response<Boolean>>
 

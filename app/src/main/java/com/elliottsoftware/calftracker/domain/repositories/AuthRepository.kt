@@ -13,6 +13,8 @@ interface AuthRepository {
 
     suspend fun authRegister(email:String,password:String,username:String):Flow<Response<Boolean>>
 
+     fun createUser(email: String, username: String):Flow<Response<Boolean>>
+
     suspend fun loginUser(email:String,password:String):Flow<Response<Boolean>>
 
      fun isUserSignedIn():Boolean
