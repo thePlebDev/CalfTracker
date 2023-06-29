@@ -41,6 +41,7 @@ class AuthRepositoryImpl(
                 .addOnCompleteListener { task ->
 
                     if(task.isSuccessful){
+                       // createUser(email,username)
                         trySend(Response.Success(true))
 
                     }else{
@@ -68,17 +69,26 @@ class AuthRepositoryImpl(
     }
 
     //TODO: THIS NEEDS TO BE CALLED AFTER A SUCCESSFUL authRegister()
-      fun createUser(email: String, username: String)= flow{
-          emit(Response.Loading)
+      override fun createUser(email: String, username: String)= callbackFlow{
+        trySend(Response.Loading)
           val user = hashMapOf(
             "email" to email,
             "username" to username
           )
-          db.collection("users").document(email).set(user).await()
-          emit(Response.Success(true))
+          db.collection("users").document(email).set(user)
+              .addOnSuccessListener {
+                  trySend(Response.Success(true))
 
+              }
+              .addOnFailureListener {
+                      e ->
+                  trySend(Response.Failure(Exception(" Error! Please try again")))
+              }
+
+        awaitClose()
     }.catch { cause: Throwable->
-          emit(Response.Failure(Exception(cause.message?:" unhandled Exception")))
+
+          emit(Response.Failure(Exception(" Error! Please try again")))
       }
 
     /**

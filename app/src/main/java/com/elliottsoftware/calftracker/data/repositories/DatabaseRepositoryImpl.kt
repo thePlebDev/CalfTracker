@@ -25,21 +25,7 @@ class DatabaseRepositoryImpl(
     private val auth: FirebaseAuth= Firebase.auth
 ):DatabaseRepository {
 
-    override suspend fun createUser(email: String, username: String)= flow{
-        val user = hashMapOf(
-            "email" to email,
-            "username" to username
-        )
-        try{
-            db.collection("users").document(email).set(user).await()
-            emit(Response.Success(Actions.SECOND))
-        }catch (e:Exception){
-            Timber.e(e)
-            emit(Response.Failure(e))
-        }
 
-
-    }
     //todo:IMPLEMENT THE SNAPSHOT LISTENER
     override suspend fun createCalf(calf: FireBaseCalf)= callbackFlow {
 

@@ -11,6 +11,7 @@ import com.elliottsoftware.calftracker.domain.models.SecondaryResponse
 import com.elliottsoftware.calftracker.domain.useCases.*
 import com.elliottsoftware.calftracker.util.Actions
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -44,8 +45,20 @@ class RegisterViewModel @Inject constructor(
     private var _uiState = mutableStateOf(RegisterUIState())
     val state:State<RegisterUIState> = _uiState
 
+    private val stateFlow = MutableStateFlow(false)
 
 
+
+    init {
+        viewModelScope.launch {
+            stateFlow.collect{
+                if(it){
+
+                    createUserDatabase(_uiState.value.email,_uiState.value.username)
+                }
+            }
+        }
+    }
 
 
     fun updateUsername(username: String){
@@ -75,9 +88,11 @@ class RegisterViewModel @Inject constructor(
                          buttonEnabled = false,
                          registerError = false
                      )
+                     stateFlow.emit(false)
                  }
                  is Response.Success -> {
-                     _uiState.value = _uiState.value.copy(buttonEnabled = true)
+                    // _uiState.value = _uiState.value.copy(buttonEnabled = true)
+                     stateFlow.emit(true)
                  }
                  is Response.Failure -> {
                      _uiState.value = _uiState.value.copy(
@@ -87,6 +102,7 @@ class RegisterViewModel @Inject constructor(
 
                      )
                  }
+
              }
          }
 
@@ -94,9 +110,10 @@ class RegisterViewModel @Inject constructor(
 
         //goes second
     //Creates the user inside the realtime database.
-    fun createUserDatabase(email:String, password:String) = viewModelScope.launch{
-        createUserUseCase.execute(CreateUserParams(email,password)).collect{response ->
-           // _uiState.value = _uiState.value.copy(signInWithFirebaseResponse = response)
+        private fun createUserDatabase(email:String, username:String) = viewModelScope.launch{
+        createUserUseCase.execute(CreateUserParams(email,username)).collect{response ->
+
+            _uiState.value = _uiState.value.copy(signInWithFirebaseResponse = response)
         }
 
     }
