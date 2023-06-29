@@ -6,6 +6,8 @@ import com.elliottsoftware.calftracker.domain.repositories.AuthRepository
 import com.elliottsoftware.calftracker.presentation.components.login.LoginResult
 import com.elliottsoftware.calftracker.util.Actions
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -53,8 +55,15 @@ class AuthRepositoryImpl(
     }.catch { cause: Throwable->
         if(cause is FirebaseAuthWeakPasswordException){
             emit(Response.Failure(Exception("Stronger password required")))
-        }else{
-            emit(Response.Failure(Exception(cause.message?:" unhandled Exception")))
+        }
+        if(cause is FirebaseAuthInvalidCredentialsException){
+            emit(Response.Failure(Exception("Invalid credentials")))
+        }
+        if(cause is FirebaseAuthUserCollisionException){
+            emit(Response.Failure(Exception("Email already exists")))
+        }
+        else{
+            emit(Response.Failure(Exception("Error! Please try again")))
         }
     }
 

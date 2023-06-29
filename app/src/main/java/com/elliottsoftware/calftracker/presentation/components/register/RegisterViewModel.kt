@@ -12,6 +12,7 @@ import com.elliottsoftware.calftracker.domain.useCases.*
 import com.elliottsoftware.calftracker.util.Actions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 data class RegisterUIState(
@@ -27,6 +28,7 @@ data class RegisterUIState(
     val signInWithFirebaseResponse:Response<Boolean> =Response.Success(false),
     val buttonEnabled:Boolean = true,
     val registerError:Boolean = false,
+    val errorMessage:String? = null
 
 )
 
@@ -80,7 +82,8 @@ class RegisterViewModel @Inject constructor(
                  is Response.Failure -> {
                      _uiState.value = _uiState.value.copy(
                          buttonEnabled = true,
-                         registerError = true
+                         registerError = true,
+                         errorMessage = response.e.message
 
                      )
                  }
