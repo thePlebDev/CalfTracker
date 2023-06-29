@@ -139,37 +139,7 @@ fun LoginViews(viewModel: LoginViewModel = viewModel(),onNavigate: (Int) -> Unit
 
 
 
-@Composable
-fun ErrorMessage(
-    modifier: Modifier,
-    visible: Boolean
-){
-    val density = LocalDensity.current
-    AnimatedVisibility(
-        modifier = modifier,
-        visible = visible,
-        enter = slideInVertically {
-            // Slide in from 40 dp from the top.
-            with(density) { -40.dp.roundToPx() }
-        } + expandVertically(
-            // Expand from the top.
-            expandFrom = Alignment.Top
-        ) + fadeIn(
-            // Fade in with the initial alpha of 0.3f.
-            initialAlpha = 0.3f
-        ),
-        exit = slideOutVertically() + shrinkVertically() + fadeOut()
-    ) {
-        Text("Error with username or password",
-            color = Color.Red,
-            modifier = modifier
-                .clip(shape = RoundedCornerShape(5.dp))
-                .background(Color(0xFFadadad))
-                .padding( 5.dp)
 
-        )
-    }
-}
 
 
 
