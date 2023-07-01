@@ -62,13 +62,20 @@ class FireBaseAuthentication : AuthenticationSource {
     }
 
 
-//    override fun currentUser(): Boolean {
-//        TODO("Not yet implemented")
-//    }
-//
-//    override fun signUserOut(): Boolean {
-//        TODO("Not yet implemented")
-//    }
+    override fun currentUser(): Boolean {
+
+            val auth = auth.currentUser // TODO THIS ONE RETURNS A VALUE, SO COME BACK TO IT
+            return auth != null
+    }
+
+    override fun signUserOut(): Boolean {
+
+           val signedOut = auth.signOut() //DONE
+
+            return true
+
+
+    }
 //
 //    override fun resetPassword(email: String): Flow<Response<Boolean>> {
 //        TODO("Not yet implemented")
