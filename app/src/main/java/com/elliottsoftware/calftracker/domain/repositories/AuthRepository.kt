@@ -11,7 +11,7 @@ interface AuthRepository {
 
    // suspend fun firebaseSignInEmailNPassword(email:String, password:String): Flow<Response2<Boolean>>
 
-    suspend fun authRegister(email:String,password:String,username:String):Flow<Response<Boolean>>
+     fun authRegister(email:String,password:String):Flow<Response<Boolean>>
 
      fun createUser(email: String, username: String):Flow<Response<Boolean>>
 
@@ -22,6 +22,8 @@ interface AuthRepository {
      fun signUserOut():Boolean
 
      suspend fun resetPassword(email:String):Flow<Response<Boolean>>
+
+    fun testingThings(email:String,password: String): Flow<Response<Boolean>>
 
 
 }
