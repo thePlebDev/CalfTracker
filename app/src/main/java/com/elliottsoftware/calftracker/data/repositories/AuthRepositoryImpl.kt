@@ -2,7 +2,9 @@ package com.elliottsoftware.calftracker.data.repositories
 
 import android.util.Log
 import com.elliottsoftware.calftracker.data.sources.AuthenticationSource
+import com.elliottsoftware.calftracker.data.sources.DatabaseSource
 import com.elliottsoftware.calftracker.data.sources.implementations.FireBaseAuthentication
+import com.elliottsoftware.calftracker.data.sources.implementations.FireBaseFireStore
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.repositories.AuthRepository
 import com.elliottsoftware.calftracker.presentation.components.login.LoginResult
@@ -30,7 +32,8 @@ import javax.inject.Inject
 class AuthRepositoryImpl(
     private val auth: FirebaseAuth = Firebase.auth,
     private val db: FirebaseFirestore = Firebase.firestore,
-    private val thingers:AuthenticationSource  = FireBaseAuthentication()
+    private val thingers:AuthenticationSource  = FireBaseAuthentication(),
+    private val databaseSource:DatabaseSource = FireBaseFireStore()
 
 ): AuthRepository {
 
@@ -77,27 +80,13 @@ class AuthRepositoryImpl(
     }
 
     //TODO: THIS NEEDS TO BE CALLED AFTER A SUCCESSFUL authRegister()
-      override fun createUser(email: String, username: String)= callbackFlow{
-        trySend(Response.Loading)
-          val user = hashMapOf(
-            "email" to email,
-            "username" to username
-          )
-          db.collection("users").document(email).set(user)
-              .addOnSuccessListener {
-                  trySend(Response.Success(true))
-
-              }
-              .addOnFailureListener {
-                      e ->
-                  trySend(Response.Failure(Exception(" Error! Please try again")))
-              }
-
-        awaitClose()
-    }.catch { cause: Throwable->
-
-          emit(Response.Failure(Exception(" Error! Please try again")))
-      }
+      override fun createUser(email: String, username: String):Flow<Response<Boolean>>{
+       val items = databaseSource.createUser(email,username)
+           .catch { cause: Throwable->
+           emit(Response.Failure(Exception(" Error! Please try again")))
+       }
+        return items
+    }
 
     /**
      * Given a user email and password, try to login the user
