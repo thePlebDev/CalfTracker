@@ -32,14 +32,14 @@ import javax.inject.Inject
 class AuthRepositoryImpl(
     private val auth: FirebaseAuth = Firebase.auth,
     private val db: FirebaseFirestore = Firebase.firestore,
-    private val thingers:AuthenticationSource  = FireBaseAuthentication(),
+    private val authenticationSource:AuthenticationSource  = FireBaseAuthentication(),
     private val databaseSource:DatabaseSource = FireBaseFireStore()
 
 ): AuthRepository {
 
    override fun testingThings(email:String,password: String): Flow<Response<Boolean>> {
 
-        val items = thingers.createUserWithEmailAndPassword(email, password)
+        val items = authenticationSource.createUserWithEmailAndPassword(email, password)
             .catch { cause: Throwable->
                 if(cause is FirebaseAuthWeakPasswordException){
                     emit(Response.Failure(Exception("Stronger password required")))
@@ -58,7 +58,7 @@ class AuthRepositoryImpl(
     }
 
     override fun authRegister(email: String, password: String): Flow<Response<Boolean>> {
-        val items = thingers.createUserWithEmailAndPassword(email, password)
+        val items = authenticationSource.createUserWithEmailAndPassword(email, password)
             .catch { cause: Throwable->
                 if(cause is FirebaseAuthWeakPasswordException){
                     emit(Response.Failure(Exception("Stronger password required")))
@@ -92,24 +92,14 @@ class AuthRepositoryImpl(
      * Given a user email and password, try to login the user
      *
      * @return a [Response] or [Response.Success] if successful, [Response.Failure] if otherwise*/
-    //TODO: CHANGE THIS OVER FROM AWAIT TO CALLBACKFLOW
-    override suspend fun loginUser(email: String, password: String)= callbackFlow {
-            //WE MIGHT EVEN NOT NEED THIS RESPONSE.LOADING, WE WILL HAVE TO SEE WHAT IS IMPLEMENTED ON THE VIEW
-            trySend(Response.Loading)
-            auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener{ task ->
-                    if (task.isSuccessful) {
-                        trySend(Response.Success(true))
-                    } else {
-                        // If sign in fails, display a message to the user.
-                        Timber.tag("LoginFailure").e(Exception(task.exception))
-                        trySend(Response.Failure(Exception()))
-                    }
+    override fun loginUser(email: String, password: String):Flow<Response<Boolean>>{
+
+            val items = authenticationSource.loginWithEmailAndPassword(email, password)
+                .catch { cause: Throwable->
+                    emit(Response.Failure(Exception("Error! Please try again")))
                 }
 
-        awaitClose()
-    }.catch { cause: Throwable->
-            emit(Response.Failure(Exception(cause.message?:" unhandled Exception")))
+        return items
     }
 
     override fun isUserSignedIn(): Boolean {

@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.tasks.await
+import timber.log.Timber
 
 class FireBaseAuthentication : AuthenticationSource {
 
@@ -44,12 +45,22 @@ class FireBaseAuthentication : AuthenticationSource {
         awaitClose()
     }
 
-    override fun signInWithEmailAndPassword(
-        email: String,
-        password: String
-    ): Flow<Response<Boolean>> {
-        TODO("Not yet implemented")
+    override fun loginWithEmailAndPassword(email: String, password: String)= callbackFlow {
+        trySend(Response.Loading)
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    trySend(Response.Success(true))
+                } else {
+                    // If sign in fails, display a message to the user.
+                    Timber.tag("LoginFailure").e(Exception(task.exception))
+                    trySend(Response.Failure(Exception()))
+                }
+            }
+
+        awaitClose()
     }
+
 
 //    override fun currentUser(): Boolean {
 //        TODO("Not yet implemented")
