@@ -30,8 +30,6 @@ import javax.inject.Inject
 /**
  * The data layer for any requests related to logging in a user */
 class AuthRepositoryImpl(
-    private val auth: FirebaseAuth = Firebase.auth,
-    private val db: FirebaseFirestore = Firebase.firestore,
     private val authenticationSource:AuthenticationSource  = FireBaseAuthentication(),
     private val databaseSource:DatabaseSource = FireBaseFireStore()
 
@@ -123,25 +121,12 @@ class AuthRepositoryImpl(
 
     }
 
-    override suspend fun resetPassword(email:String)= callbackFlow {
-        trySend(Response.Loading)
-        auth.sendPasswordResetEmail(email)
-            .addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                Timber.tag("SENDINGEMAIL").d("resetPassword() called")
-                trySend(Response.Success(true))
+    override fun resetPassword(email:String):Flow<Response<Boolean>> {
+        val items = authenticationSource.resetPassword(email)
+            .catch { cause: Throwable->
+                emit(Response.Failure(Exception("Error! Please try again")))
             }
-        }
-            .addOnCanceledListener {
-                Log.d("CANCELED","CANCELED")
-                trySend(Response.Failure(Exception("CANCELED")))
-            }
-            .addOnFailureListener{ exception ->
-                Log.d("FAIL",exception.message.toString())
-                trySend(Response.Failure(exception))
-
-            }
-        awaitClose()
+        return items
     }
 
 

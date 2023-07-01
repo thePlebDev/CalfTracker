@@ -21,7 +21,7 @@ interface AuthRepository {
 
      fun signUserOut():Boolean
 
-     suspend fun resetPassword(email:String):Flow<Response<Boolean>>
+     fun resetPassword(email:String):Flow<Response<Boolean>>
 
     fun testingThings(email:String,password: String): Flow<Response<Boolean>>
 

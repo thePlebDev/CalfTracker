@@ -1,5 +1,6 @@
 package com.elliottsoftware.calftracker.data.sources.implementations
 
+import android.util.Log
 import com.elliottsoftware.calftracker.data.sources.AuthenticationSource
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.repositories.AuthRepository
@@ -77,8 +78,21 @@ class FireBaseAuthentication : AuthenticationSource {
 
     }
 //
-//    override fun resetPassword(email: String): Flow<Response<Boolean>> {
-//        TODO("Not yet implemented")
-//    }
+    override fun resetPassword(email: String): Flow<Response<Boolean>> = callbackFlow{
+        trySend(Response.Loading)
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Timber.tag("SENDINGEMAIL").d("resetPassword() called")
+                    trySend(Response.Success(true))
+                }
+            }
+            .addOnFailureListener{ exception ->
+                Log.d("FAIL",exception.message.toString())
+                trySend(Response.Failure(exception))
+
+            }
+        awaitClose()
+    }
 
 }

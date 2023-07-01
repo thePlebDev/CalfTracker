@@ -18,8 +18,8 @@ interface AuthenticationSource {
     fun currentUser():Boolean
 
     fun signUserOut(): Boolean
-//
-//    fun resetPassword(email:String): Flow<Response<Boolean>>
+
+    fun resetPassword(email:String): Flow<Response<Boolean>>
 
 
 
