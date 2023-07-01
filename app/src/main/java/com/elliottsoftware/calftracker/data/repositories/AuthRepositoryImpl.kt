@@ -104,8 +104,7 @@ class AuthRepositoryImpl(
 
     override fun isUserSignedIn(): Boolean {
         try{
-            val auth = auth.currentUser // TODO THIS ONE RETURNS A VALUE, SO COME BACK TO IT
-            return auth != null
+            return authenticationSource.currentUser()
         }catch (e:Exception){
             Timber.e(e)
             return false
@@ -115,10 +114,8 @@ class AuthRepositoryImpl(
 
     override fun signUserOut(): Boolean {
         try{
-            auth.signOut() //DONE
 
-            return true
-
+            return authenticationSource.signUserOut()
         }catch (e:Exception){
             Timber.e(e)
             return false
