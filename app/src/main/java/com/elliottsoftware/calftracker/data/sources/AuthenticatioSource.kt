@@ -12,7 +12,8 @@ interface AuthenticationSource {
 
     fun createUserWithEmailAndPassword(email:String,password:String): Flow<Response<Boolean>>
 
-    fun signInWithEmailAndPassword(email:String, password:String): Flow<Response<Boolean>>
+    fun loginWithEmailAndPassword(email:String, password:String): Flow<Response<Boolean>>
+
 
 //    fun currentUser():Boolean
 //
