@@ -22,6 +22,6 @@ class RegisterUserUseCase @Inject constructor(
 
 
     override suspend fun execute(params: RegisterUserParams): Flow<Response<Boolean>> {
-        return authRepository.authRegister(params.email, params.password,params.username)
+        return authRepository.authRegister(params.email, params.password)
     }
 }

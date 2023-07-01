@@ -1,6 +1,8 @@
 package com.elliottsoftware.calftracker.data.repositories
 
 import android.util.Log
+import com.elliottsoftware.calftracker.data.sources.AuthenticationSource
+import com.elliottsoftware.calftracker.data.sources.implementations.FireBaseAuthentication
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.repositories.AuthRepository
 import com.elliottsoftware.calftracker.presentation.components.login.LoginResult
@@ -28,44 +30,50 @@ import javax.inject.Inject
 class AuthRepositoryImpl(
     private val auth: FirebaseAuth = Firebase.auth,
     private val db: FirebaseFirestore = Firebase.firestore,
+    private val thingers:AuthenticationSource  = FireBaseAuthentication()
+
 ): AuthRepository {
 
+   override fun testingThings(email:String,password: String): Flow<Response<Boolean>> {
 
-    //TODO:1) change over to callbackFlow
-    //TODO:2) remove the SecondaryResponse (can maybe be replaced with a nested when)(move nested when to function)
-    override suspend fun authRegister(email: String, password: String,username: String): Flow<Response<Boolean>> = callbackFlow {
+        val items = thingers.createUserWithEmailAndPassword(email, password)
+            .catch { cause: Throwable->
+                if(cause is FirebaseAuthWeakPasswordException){
+                    emit(Response.Failure(Exception("Stronger password required")))
+                }
+                if(cause is FirebaseAuthInvalidCredentialsException){
+                    emit(Response.Failure(Exception("Invalid credentials")))
+                }
+                if(cause is FirebaseAuthUserCollisionException){
+                    emit(Response.Failure(Exception("Email already exists")))
+                }
+                else{
+                    emit(Response.Failure(Exception("Error! Please try again")))
+                }
+            }
+        return items
+    }
 
-            trySend(Response.Loading)
+    override fun authRegister(email: String, password: String): Flow<Response<Boolean>> {
+        val items = thingers.createUserWithEmailAndPassword(email, password)
+            .catch { cause: Throwable->
+                if(cause is FirebaseAuthWeakPasswordException){
+                    emit(Response.Failure(Exception("Stronger password required")))
+                }
+                if(cause is FirebaseAuthInvalidCredentialsException){
+                    emit(Response.Failure(Exception("Invalid credentials")))
+                }
+                if(cause is FirebaseAuthUserCollisionException){
+                    emit(Response.Failure(Exception("Email already exists")))
+                }
+                else{
+                    emit(Response.Failure(Exception("Error! Please try again")))
+                }
+            }
 
-            auth.createUserWithEmailAndPassword(email,password)
-                .addOnCompleteListener { task ->
+        return items
 
-                    if(task.isSuccessful){
-                       // createUser(email,username)
-                        trySend(Response.Success(true))
 
-                    }else{
-
-                        trySend(Response.Failure(Exception()))
-                    }
-
-                }.await() //THIS AWAIT COULD BE ANOTHER addOnCompleteListener.
-            //WHAT IS HAPPENING ON A addOnFailureListener?
-
-        awaitClose()
-    }.catch { cause: Throwable->
-        if(cause is FirebaseAuthWeakPasswordException){
-            emit(Response.Failure(Exception("Stronger password required")))
-        }
-        if(cause is FirebaseAuthInvalidCredentialsException){
-            emit(Response.Failure(Exception("Invalid credentials")))
-        }
-        if(cause is FirebaseAuthUserCollisionException){
-            emit(Response.Failure(Exception("Email already exists")))
-        }
-        else{
-            emit(Response.Failure(Exception("Error! Please try again")))
-        }
     }
 
     //TODO: THIS NEEDS TO BE CALLED AFTER A SUCCESSFUL authRegister()
