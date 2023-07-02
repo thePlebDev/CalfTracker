@@ -11,6 +11,9 @@ import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
 import com.elliottsoftware.calftracker.domain.repositories.DatabaseRepository
 import com.elliottsoftware.calftracker.domain.useCases.LogoutUseCase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -55,6 +58,7 @@ class NewCalfViewModel @Inject constructor(
 
     private val _uiState = mutableStateOf(NewCalfUIState())
     val state:State<NewCalfUIState> = _uiState
+    private val auth: FirebaseAuth = Firebase.auth
 
     private val dispatcherIO: CoroutineDispatcher = Dispatchers.IO
 
@@ -138,7 +142,7 @@ class NewCalfViewModel @Inject constructor(
                 birthweight = state.birthWeight,
                 vaccinelist = vaccineList
             )
-            databaseRepository.createCalf(calf)
+            databaseRepository.createCalf(calf,auth.currentUser?.email!!)
                 .flowOn(dispatcherIO)
                 .collect{ response ->
                 _uiState.value = state.copy(calfSaved = response)

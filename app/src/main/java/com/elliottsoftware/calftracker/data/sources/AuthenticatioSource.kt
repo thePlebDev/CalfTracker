@@ -60,6 +60,8 @@ interface AuthenticationSource {
      */
     fun resetPassword(email:String): Flow<Response<Boolean>>
 
+    fun currentUserEmail():String
+
 
 
 

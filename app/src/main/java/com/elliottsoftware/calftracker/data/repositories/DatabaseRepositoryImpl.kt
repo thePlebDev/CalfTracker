@@ -1,6 +1,10 @@
 package com.elliottsoftware.calftracker.data.repositories
 
 import android.util.Log
+import com.elliottsoftware.calftracker.data.sources.AuthenticationSource
+import com.elliottsoftware.calftracker.data.sources.DatabaseSource
+import com.elliottsoftware.calftracker.data.sources.implementations.FireBaseAuthentication
+import com.elliottsoftware.calftracker.data.sources.implementations.FireBaseFireStore
 import com.elliottsoftware.calftracker.domain.models.NetworkResponse
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
@@ -16,6 +20,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
@@ -23,40 +28,19 @@ import timber.log.Timber
 class DatabaseRepositoryImpl(
     private val db: FirebaseFirestore = Firebase.firestore,
     private val auth: FirebaseAuth= Firebase.auth,
+    private val authenticationSource: AuthenticationSource = FireBaseAuthentication(),
+    private val databaseSource: DatabaseSource = FireBaseFireStore()
 ):DatabaseRepository {
 
 
-    //todo:IMPLEMENT THE SNAPSHOT LISTENER
-    override suspend fun createCalf(calf: FireBaseCalf)= callbackFlow {
+    //todo:add email to function call
+    override  fun createCalf(calf: FireBaseCalf,userEmail:String):Flow<Response<Boolean>> {
 
-            trySend(Response.Loading)
-        try{
-            val collection = db.collection("users").document(auth.currentUser?.email!!)
-                .collection("calves")
-            val document = collection.document()
-            val id = document.id
-            calf.id = id
-
-            Timber.d(calf.toString())
-            collection.document(id).set(calf)
-                .addOnSuccessListener { document ->
-                    Timber.d( "DocumentSnapshot written with ID: ${calf.id}")
-                    trySend(Response.Success(true))
-                }
-                .addOnFailureListener { e ->
-                    Timber.e( "Error adding document", e)
-                    trySend(Response.Failure(e))
-                }
-
-        }catch (e:Exception){
-            Timber.e(e)
-            trySend(Response.Failure(e))
-        }
-
-
-
-
-        awaitClose()
+          val items = databaseSource.createCalf(calf,userEmail)
+              .catch { cause: Throwable ->
+                  emit(Response.Failure(Exception(" Error! Please try again")))
+              }
+        return items
 
     }
 

@@ -20,7 +20,7 @@ import com.elliottsoftware.calftracker.domain.models.NetworkResponse
 interface DatabaseRepository {
 
 
-    suspend fun createCalf(calf:FireBaseCalf):Flow<Response<Boolean>>
+     fun createCalf(calf:FireBaseCalf,userEmail:String):Flow<Response<Boolean>>
 
     suspend fun getCalves(queryLimit:Long):Flow<Response<List<FireBaseCalf>>>
 
