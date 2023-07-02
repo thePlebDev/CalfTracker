@@ -95,4 +95,9 @@ class FireBaseAuthentication : AuthenticationSource {
         awaitClose()
     }
 
+    override fun currentUserEmail():String{
+        return auth.currentUser?.email!!
+
+    }
+
 }
