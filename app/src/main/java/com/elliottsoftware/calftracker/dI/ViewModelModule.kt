@@ -51,8 +51,8 @@ object ViewModelModule {
 
     // Everything with @Provides  is "unscoped".
     @Provides
-    fun providesAuthRepository(auth: FirebaseAuth): AuthRepository {
-        return  AuthRepositoryImpl(auth)
+    fun providesAuthRepository(): AuthRepository {
+        return  AuthRepositoryImpl()
     }
 
     @Provides

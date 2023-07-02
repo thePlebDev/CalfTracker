@@ -63,7 +63,7 @@ class FireBaseAuthentication : AuthenticationSource {
     }
 
 
-    override fun currentUser(): Boolean {
+    override fun isUserSignedIn(): Boolean {
 
             val auth = auth.currentUser // TODO THIS ONE RETURNS A VALUE, SO COME BACK TO IT
             return auth != null

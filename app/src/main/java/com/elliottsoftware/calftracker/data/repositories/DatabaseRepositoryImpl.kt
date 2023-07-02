@@ -22,7 +22,7 @@ import timber.log.Timber
 
 class DatabaseRepositoryImpl(
     private val db: FirebaseFirestore = Firebase.firestore,
-    private val auth: FirebaseAuth= Firebase.auth
+    private val auth: FirebaseAuth= Firebase.auth,
 ):DatabaseRepository {
 
 
