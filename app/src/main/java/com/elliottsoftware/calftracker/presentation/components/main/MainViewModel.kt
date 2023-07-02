@@ -11,6 +11,8 @@ import androidx.lifecycle.viewModelScope
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
 import com.elliottsoftware.calftracker.domain.useCases.*
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -58,6 +60,7 @@ class MainViewModel @Inject constructor(
 
     private var _uiState: MutableState<MainUIState> = mutableStateOf(MainUIState())
     val state:State<MainUIState> = _uiState
+    private val auth: FirebaseAuth = Firebase.auth
     private val dispatcherIO: CoroutineDispatcher = Dispatchers.IO
 
 
@@ -76,7 +79,12 @@ class MainViewModel @Inject constructor(
      fun getCalves() = viewModelScope.launch(){
 
 
-        getCalvesUseCase.execute(_uiState.value.calfLimit)
+        getCalvesUseCase.execute(
+            GetCalvesParams(
+                calfLimit = _uiState.value.calfLimit,
+                userEmail = auth.currentUser?.email!!
+            )
+        )
             .flowOn(dispatcherIO)
             .collect{response ->
             _uiState.value = _uiState.value.copy(

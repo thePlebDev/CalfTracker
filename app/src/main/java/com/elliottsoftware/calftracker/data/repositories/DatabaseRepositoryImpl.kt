@@ -46,67 +46,14 @@ class DatabaseRepositoryImpl(
 
     //addSnapshotListener is needed for the real time updates
 
-    override suspend fun getCalves(queryLimit:Long): Flow<Response<List<FireBaseCalf>>> = callbackFlow{
-
-            trySend(Response.Loading)
-
-
-            val query = db.collection("users")
-                .document(auth.currentUser?.email!!)
-                .collection("calves")
-                .orderBy("date", Query.Direction.DESCENDING)
-                .limit(queryLimit)
-
-
-
-           val  docRef = query.addSnapshotListener { snapshot, e ->
-               //error handling for snapshot listeners
-                if (e != null) {
-                    Timber.d("BELOW")
-                    Timber.d(auth.currentUser.toString())
-                    Timber.e(e)
-
-
-                    return@addSnapshotListener
-
-                }
-
-
-
-                if (snapshot != null) {
-
-                    val data = snapshot.mapNotNull {  document ->
-
-
-                        document.toObject<FireBaseCalf>()
-                    }
-
-                    if(data.isNotEmpty() && data[0].calftag == null){
-                        Timber.e(data.toString())
-                        trySend(Response.Failure(Exception("FAILED")))
-                    }else{
-
-                        Timber.tag("MORES").d(data.size.toString())
-                        trySend(Response.Success(data))
-                    }
-
-                } else {
-                    Timber.d("current data null")
-                    trySend(Response.Failure(Exception("FAILED")))
-                }
+    override fun getCalves(queryLimit:Long,userEmail: String): Flow<Response<List<FireBaseCalf>>>{
+        val items = databaseSource.getCalves(queryLimit,userEmail)
+            .catch { cause: Throwable ->
+                emit(Response.Failure(Exception(" Error! Please try again")))
             }
 
+        return items
 
-
-
-        awaitClose{
-            docRef.remove()
-        }
-
-    }
-
-    override suspend fun getCalvesTest()= flow {
-        emit(NetworkResponse.Success<List<FireBaseCalf>>(listOf()))
     }
 
     override suspend fun deleteCalf(id: String)= callbackFlow {
