@@ -4,7 +4,9 @@ import com.elliottsoftware.calftracker.data.sources.DatabaseSource
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -53,5 +55,63 @@ class FireBaseFireStore:DatabaseSource {
                 }
 
         awaitClose()
+    }
+
+    override fun getCalves(
+        queryLimit: Long,
+        userEmail: String
+    ): Flow<Response<List<FireBaseCalf>>> = callbackFlow{
+        trySend(Response.Loading)
+
+
+        val query = db.collection("users")
+            .document(userEmail)
+            .collection("calves")
+            .orderBy("date", Query.Direction.DESCENDING)
+            .limit(queryLimit)
+
+
+
+        val  docRef = query.addSnapshotListener { snapshot, e ->
+            //error handling for snapshot listeners
+            if (e != null) {
+
+                Timber.e(e)
+
+
+                return@addSnapshotListener
+
+            }
+
+
+
+            if (snapshot != null) {
+
+                val data = snapshot.mapNotNull {  document ->
+
+
+                    document.toObject<FireBaseCalf>()
+                }
+
+                if(data.isNotEmpty() && data[0].calftag == null){
+                    Timber.e(data.toString())
+                    trySend(Response.Failure(Exception("FAILED")))
+                }else{
+
+                    trySend(Response.Success(data))
+                }
+
+            } else {
+                Timber.d("current data null")
+                trySend(Response.Failure(Exception("FAILED")))
+            }
+        }
+
+
+
+
+        awaitClose{
+            docRef.remove()
+        }
     }
 }

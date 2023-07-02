@@ -12,4 +12,6 @@ interface DatabaseSource {
         calf: FireBaseCalf,
         userEmail: String
     ): Flow<Response<Boolean>>
+
+    fun getCalves(queryLimit:Long,userEmail: String): Flow<Response<List<FireBaseCalf>>>
 }
