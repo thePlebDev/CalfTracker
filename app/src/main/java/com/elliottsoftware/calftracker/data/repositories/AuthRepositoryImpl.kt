@@ -102,7 +102,7 @@ class AuthRepositoryImpl(
 
     override fun isUserSignedIn(): Boolean {
         try{
-            return authenticationSource.currentUser()
+            return authenticationSource.isUserSignedIn()
         }catch (e:Exception){
             Timber.e(e)
             return false
