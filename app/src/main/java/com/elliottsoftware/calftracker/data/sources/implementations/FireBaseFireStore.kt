@@ -114,4 +114,21 @@ class FireBaseFireStore:DatabaseSource {
             docRef.remove()
         }
     }
+
+    override fun deleteCalf(id: String,userEmail: String): Flow<Response<Boolean>> = callbackFlow{
+
+        db.collection("users").document(userEmail)
+            .collection("calves").document(id).delete()
+            .addOnSuccessListener {
+
+                trySend(Response.Success(true))
+            }
+            .addOnFailureListener {
+                Timber.d(it)
+                trySend(Response.Failure(Exception("Delete Calf Error")))
+            }
+
+        awaitClose()
+
+    }
 }

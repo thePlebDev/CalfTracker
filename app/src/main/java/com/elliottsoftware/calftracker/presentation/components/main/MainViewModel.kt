@@ -140,7 +140,9 @@ class MainViewModel @Inject constructor(
     }
 
     fun deleteCalf(id:String) = viewModelScope.launch{
-        deleteCalfUseCase.execute(id)
+        deleteCalfUseCase.execute(
+            DeleteCalfParams(calfId =id, userEmail =auth.currentUser?.email!! )
+        )
             .flowOn(dispatcherIO)
             .collect{ response ->
 
