@@ -56,22 +56,13 @@ class DatabaseRepositoryImpl(
 
     }
 
-    override suspend fun deleteCalf(id: String)= callbackFlow {
-        Timber.d("IDBELOW")
-        Timber.d(id)
-       db.collection("users").document(auth.currentUser?.email!!)
-            .collection("calves").document(id).delete()
-            .addOnSuccessListener {
-                Timber.d("DELETE SUCCESS")
-                trySend(Response.Success(true))
-            }
-            .addOnFailureListener {
-                Timber.d("DELETE FAIL")
-                Timber.d(it)
-                trySend(Response.Failure(Exception("Delete Calf Error")))
+    override fun deleteCalf(id: String,userEmail: String):Flow<Response<Boolean>> {
+        val items = databaseSource.deleteCalf(id,userEmail)
+            .catch { cause: Throwable ->
+                emit(Response.Failure(Exception(" Error! Please try again")))
             }
 
-        awaitClose()
+        return items
 
     }
 

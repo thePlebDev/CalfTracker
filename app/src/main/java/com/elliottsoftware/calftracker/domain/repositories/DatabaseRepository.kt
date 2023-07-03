@@ -24,7 +24,7 @@ interface DatabaseRepository {
 
      fun getCalves(queryLimit:Long,userEmail: String):Flow<Response<List<FireBaseCalf>>>
 
-    suspend fun deleteCalf(id:String):Flow<Response<Boolean>>
+     fun deleteCalf(id:String,userEmail: String):Flow<Response<Boolean>>
 
     suspend fun updateCalf(fireBaseCalf: FireBaseCalf):Flow<Response<Boolean>>
 

@@ -14,4 +14,6 @@ interface DatabaseSource {
     ): Flow<Response<Boolean>>
 
     fun getCalves(queryLimit:Long,userEmail: String): Flow<Response<List<FireBaseCalf>>>
+
+    fun deleteCalf(id: String,userEmail: String): Flow<Response<Boolean>>
 }
