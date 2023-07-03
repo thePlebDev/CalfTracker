@@ -157,7 +157,12 @@ class MainViewModel @Inject constructor(
 
 
     fun searchCalfListByTag(tagNumber:String) = viewModelScope.launch{
-        getCalfByTagNumberUseCase.execute(tagNumber)
+        getCalfByTagNumberUseCase.execute(
+            GetCalfByTagNumberParams(
+                tagNumber = tagNumber,
+                userEmail = auth.currentUser?.email!!
+            )
+        )
             .flowOn(dispatcherIO)
             .collect{ response ->
             _uiState.value = _uiState.value.copy(data = response)
