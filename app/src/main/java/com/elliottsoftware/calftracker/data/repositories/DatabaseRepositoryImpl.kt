@@ -68,28 +68,13 @@ class DatabaseRepositoryImpl(
 
 
 
-    override suspend fun updateCalf(fireBaseCalf: FireBaseCalf)= callbackFlow {
-        trySend(Response.Loading)
-        db.collection("users").document(auth.currentUser?.email!!)
-            .collection("calves").document(fireBaseCalf.id!!).set(fireBaseCalf)
-//            .update(
-//                "calfTag",fireBaseCalf.calfTag,
-//                "cowTag",fireBaseCalf.cowTag,
-//                "cciaNumber",fireBaseCalf.cciaNumber,
-//                "sex",fireBaseCalf.sex,
-//                "birthWeight",fireBaseCalf.birthWeight,
-//            )
-            .addOnSuccessListener { trySend(Response.Success(true)) }
-            .addOnCanceledListener {
-                Timber.d("CANCELED")
-                trySend(Response.Failure(Exception("Update calf canceled")))
-            }
-            .addOnFailureListener{
-                Timber.d("FAILED")
-                trySend(Response.Failure(Exception("Update calf failed")))
+    override  fun updateCalf(fireBaseCalf: FireBaseCalf,userEmail: String): Flow<Response<Boolean>> {
+        val items = databaseSource.updateCalf(fireBaseCalf, userEmail)
+            .catch { cause: Throwable ->
+                emit(Response.Failure(Exception(" Error! Please try again")))
             }
 
-        awaitClose()
+        return items
     }
 
 

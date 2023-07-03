@@ -8,12 +8,20 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 
+
+data class UpdateCalfParams(
+    val calf:FireBaseCalf,
+    val userEmail:String
+)
 class UpdateCalfUseCase @Inject constructor(
     private val databaseRepository: DatabaseRepository
-):UseCase<FireBaseCalf,Flow<Response<Boolean>>>() {
+):UseCase<UpdateCalfParams,Flow<Response<Boolean>>>() {
 
 
-    override suspend fun execute(params: FireBaseCalf): Flow<Response<Boolean>> {
-        return databaseRepository.updateCalf(params)
+    override suspend fun execute(params: UpdateCalfParams): Flow<Response<Boolean>> {
+        return databaseRepository.updateCalf(
+            fireBaseCalf = params.calf,
+            userEmail = params.userEmail
+        )
     }
 }

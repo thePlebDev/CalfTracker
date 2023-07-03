@@ -13,7 +13,11 @@ import androidx.lifecycle.viewModelScope
 import com.elliottsoftware.calftracker.domain.models.Response
 import com.elliottsoftware.calftracker.domain.models.fireBase.FireBaseCalf
 import com.elliottsoftware.calftracker.domain.useCases.LogoutUseCase
+import com.elliottsoftware.calftracker.domain.useCases.UpdateCalfParams
 import com.elliottsoftware.calftracker.domain.useCases.UpdateCalfUseCase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -57,6 +61,7 @@ class EditCalfViewModel @Inject constructor(
 
     private val _uiState = mutableStateOf(EditCalfUiState())
     val uiState: State<EditCalfUiState> = _uiState
+    private val auth: FirebaseAuth = Firebase.auth
 
     fun setCalf(calf:FireBaseCalf){
 
@@ -133,7 +138,12 @@ class EditCalfViewModel @Inject constructor(
            vaccinelist = vaccineList,
 
        )
-        updateCalfUseCase.execute(fireBaseCalf).collect{ response ->
+        updateCalfUseCase.execute(
+            UpdateCalfParams(
+                calf = fireBaseCalf,
+                userEmail = auth.currentUser?.email!!
+            )
+        ).collect{ response ->
             _uiState.value = _uiState.value.copy(calfUpdated = response)
         }
     }

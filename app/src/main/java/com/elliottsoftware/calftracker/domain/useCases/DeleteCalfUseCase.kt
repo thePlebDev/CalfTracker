@@ -8,13 +8,6 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 
-//data class GetCalvesParams(
-//    val calfLimit:Long,
-//    val userEmail: String
-//)
-//class GetCalvesUseCase @Inject constructor(
-//    val databaseRepository: DatabaseRepository
-//):UseCase<GetCalvesParams,Flow<Response<List<FireBaseCalf>>>>() {
 
 data class DeleteCalfParams(
     val calfId:String,

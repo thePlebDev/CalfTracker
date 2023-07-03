@@ -131,4 +131,21 @@ class FireBaseFireStore:DatabaseSource {
         awaitClose()
 
     }
+
+    override fun updateCalf(fireBaseCalf: FireBaseCalf,userEmail: String): Flow<Response<Boolean>> = callbackFlow {
+        trySend(Response.Loading)
+        db.collection("users").document(userEmail)
+            .collection("calves").document(fireBaseCalf.id!!).set(fireBaseCalf)
+            .addOnSuccessListener { trySend(Response.Success(true)) }
+            .addOnCanceledListener {
+                Timber.d("CANCELED")
+                trySend(Response.Failure(Exception("Update calf canceled")))
+            }
+            .addOnFailureListener{
+                Timber.d("FAILED")
+                trySend(Response.Failure(Exception("Update calf failed")))
+            }
+
+        awaitClose()
+    }
 }
