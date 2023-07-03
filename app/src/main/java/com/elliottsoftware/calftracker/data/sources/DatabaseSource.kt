@@ -18,4 +18,6 @@ interface DatabaseSource {
     fun deleteCalf(id: String,userEmail: String): Flow<Response<Boolean>>
 
     fun updateCalf(fireBaseCalf: FireBaseCalf,userEmail: String): Flow<Response<Boolean>>
+
+    fun getCalvesByTagNumber(tagNumber: String, userEmail: String): Flow<Response<List<FireBaseCalf>>>
 }

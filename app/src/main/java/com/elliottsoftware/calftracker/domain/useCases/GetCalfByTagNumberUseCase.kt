@@ -7,15 +7,22 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
+
+
+data class GetCalfByTagNumberParams(
+    val tagNumber:String,
+    val userEmail:String
+)
 class GetCalfByTagNumberUseCase@Inject constructor(
     val databaseRepository: DatabaseRepository
-):UseCase<String,Flow<Response<List<FireBaseCalf>>>>() {
+):UseCase<GetCalfByTagNumberParams,Flow<Response<List<FireBaseCalf>>>>() {
 
-    override suspend fun execute(params: String): Flow<Response<List<FireBaseCalf>>> {
-
-
+    override suspend fun execute(params: GetCalfByTagNumberParams): Flow<Response<List<FireBaseCalf>>> {
 
 
-        return databaseRepository.getCalvesByTagNumber(params)
+        return databaseRepository.getCalvesByTagNumber(
+            tagNumber = params.tagNumber,
+            userEmail = params.userEmail
+        )
     }
 }

@@ -29,7 +29,7 @@ interface DatabaseRepository {
      fun updateCalf(fireBaseCalf: FireBaseCalf,userEmail: String):Flow<Response<Boolean>>
 
 
-    suspend fun getCalvesByTagNumber(tagNumber:String):Flow<Response<List<FireBaseCalf>>>
+     fun getCalvesByTagNumber(tagNumber:String,userEmail: String):Flow<Response<List<FireBaseCalf>>>
 
 
 

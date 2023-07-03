@@ -78,30 +78,13 @@ class DatabaseRepositoryImpl(
     }
 
 
-    override suspend fun getCalvesByTagNumber(tagNumber:String)= callbackFlow {
-        trySend(Response.Loading)
-        db.collection("users")
-            .document(auth.currentUser?.email!!).collection("calves")
-            .orderBy("date", Query.Direction.DESCENDING)
-            .whereEqualTo("calftag", tagNumber)
-            .get()
-            .addOnSuccessListener { document ->
-                if (document != null) {
-                    val data = document.map {  document ->
-                        document.toObject(FireBaseCalf::class.java)
-                    }
-                    Timber.tag("CALVESSEARCH").d(data.toString())
-                    trySend(Response.Success(data))
-                } else {
-                    Timber.tag("CALVESSEARCH").d("NOTHING FOUND")
-                }
-            }
-            .addOnFailureListener { exception ->
-                Timber.tag("CALVESSEARCH").d(exception.toString())
-                trySend(Response.Failure(exception))
+    override  fun getCalvesByTagNumber(tagNumber:String,userEmail:String): Flow<Response<List<FireBaseCalf>>>{
+        val items = databaseSource.getCalvesByTagNumber(tagNumber=tagNumber,userEmail = userEmail)
+            .catch { cause: Throwable ->
+                emit(Response.Failure(Exception(" Error! Please try again")))
             }
 
-    awaitClose()
+        return items
 
     }
 }
