@@ -8,10 +8,7 @@ interface DatabaseSource {
 
     fun createUser(email: String, username: String): Flow<Response<Boolean>>
 
-    fun createCalf(
-        calf: FireBaseCalf,
-        userEmail: String
-    ): Flow<Response<Boolean>>
+    fun createCalf(calf: FireBaseCalf, userEmail: String): Flow<Response<Boolean>>
 
     fun getCalves(queryLimit:Long,userEmail: String): Flow<Response<List<FireBaseCalf>>>
 

@@ -218,6 +218,7 @@ fun ScaffoldView(
                     paddingValues = paddingValues,
 
                     )
+                ShowCalfDeletedSnackBar(scaffoldState = scaffoldState, mainViewModel = viewModel)
 
 
             } //this should be outside, Actually this doesn't matter
@@ -267,6 +268,54 @@ fun ModalContent(
             scaffoldState = scaffoldState,
             newCalfViewModel = newCalfViewModel
         )
+    }
+
+
+}
+
+@Composable
+fun ShowCalfDeletedSnackBar(
+    scaffoldState:ScaffoldState,
+    mainViewModel: MainViewModel
+){
+    val scope = rememberCoroutineScope()
+    val response = mainViewModel.state.value.calfDeleted
+    val deletedCalfTagNumber = mainViewModel.state.value.calfToBeDeletedTagNumber
+    Box(modifier = Modifier.fillMaxSize()){
+        when(response){
+            is Response.Loading ->{
+                Spacer(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(color = Color.Gray.copy(alpha = .7f))
+                )
+                CircularProgressIndicator(
+                    color= MaterialTheme.colors.onSecondary,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(60.dp)
+                )
+
+            }
+            is Response.Success ->{
+                LaunchedEffect(response) {
+                    if(response.data){
+                        scope.launch {
+
+                            scaffoldState.snackbarHostState.showSnackbar(
+                                message = "Calf $deletedCalfTagNumber deleted",
+                                actionLabel = "Close"
+                            )
+                        }
+                    }
+
+                }
+            }
+            is Response.Failure ->{
+
+            }
+
+        }
     }
 
 
@@ -362,6 +411,8 @@ fun MainBodyView(
                 )
 
             }
+
+            else -> {}
         }
 
 
@@ -688,6 +739,8 @@ fun MessageList(
                                     Text("Error please try again",style = MaterialTheme.typography.h5)
                                 }
                             }
+
+                            else -> {}
                         }
 
 
