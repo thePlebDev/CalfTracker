@@ -39,6 +39,7 @@ data class MainUIState(
     val showDeleteModal:Boolean = false,
     val calfToBeDeletedTagNumber:String = "",
     val calfToBeDeletedId:String = "",
+    val calfDeleted:Response<Boolean> = Response.Success(false),
     val animate:Boolean = false,
     val calfLimit:Long = 50,
     val disablePaginationButton:Boolean = false,
@@ -140,11 +141,13 @@ class MainViewModel @Inject constructor(
     }
 
     fun deleteCalf(id:String) = viewModelScope.launch{
+        _uiState.value = _uiState.value.copy(calfDeleted = Response.Loading)
         deleteCalfUseCase.execute(
             DeleteCalfParams(calfId =id, userEmail =auth.currentUser?.email!! )
         )
             .flowOn(dispatcherIO)
             .collect{ response ->
+                _uiState.value = _uiState.value.copy(calfDeleted = response)
 
         }
 

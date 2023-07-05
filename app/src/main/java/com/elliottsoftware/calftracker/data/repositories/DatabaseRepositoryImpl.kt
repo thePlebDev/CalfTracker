@@ -26,9 +26,6 @@ import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 
 class DatabaseRepositoryImpl(
-    private val db: FirebaseFirestore = Firebase.firestore,
-    private val auth: FirebaseAuth= Firebase.auth,
-    private val authenticationSource: AuthenticationSource = FireBaseAuthentication(),
     private val databaseSource: DatabaseSource = FireBaseFireStore()
 ):DatabaseRepository {
 

@@ -40,8 +40,7 @@ class FireBaseAuthentication : AuthenticationSource {
                     trySend(Response.Failure(Exception()))
                 }
 
-            }.await() //THIS AWAIT COULD BE ANOTHER addOnCompleteListener.
-        //WHAT IS HAPPENING ON A addOnFailureListener?
+            }.await()
 
         awaitClose()
     }
